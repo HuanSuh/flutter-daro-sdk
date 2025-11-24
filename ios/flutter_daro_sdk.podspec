@@ -5,17 +5,24 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_daro_sdk'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'DARO SDK Flutter plugin for Android and iOS'
   s.description      = <<-DESC
-A new Flutter plugin project.
+DARO SDK Flutter plugin that supports both Reward and Non-reward apps.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://guide.daro.so'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
+  
+  # TODO: DARO SDK 의존성 추가 (실제 의존성으로 교체)
+  # s.dependency 'DaroSDK', '~> VERSION'
+  # 또는 CocoaPods 외부 소스 사용:
+  # s.dependency 'DaroSDK', :podspec => 'path/to/DaroSDK.podspec'
+  # 또는 SPM 사용 시:
+  # s.dependency 'DaroSDK', :git => 'https://github.com/daro/sdk-ios.git', :tag => 'VERSION'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

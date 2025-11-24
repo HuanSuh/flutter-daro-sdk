@@ -18,6 +18,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // TODO: DARO SDK Maven 저장소 추가 (실제 저장소 URL로 교체)
+        // maven {
+        //     url "https://your-daro-sdk-maven-repo.com"
+        // }
     }
 }
 
@@ -48,6 +52,12 @@ android {
     }
 
     dependencies {
+        // TODO: DARO SDK 의존성 추가 (실제 의존성으로 교체)
+        // implementation("com.daro:sdk:VERSION")
+        // 또는
+        // implementation("com.daro:sdk-reward:VERSION") // Reward 앱용
+        // implementation("com.daro:sdk-nonreward:VERSION") // Non-reward 앱용
+        
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
     }
