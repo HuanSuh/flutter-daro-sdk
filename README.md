@@ -44,12 +44,44 @@ await DaroSdk.initialize(DaroSdkConfig(
 ));
 ```
 
-### 2. 광고 표시
+### 2. 리워드 광고 표시
+
+광고 타입(전면광고, 리워드 비디오 광고, 팝업광고)과 광고 키를 지정하여 광고를 표시합니다:
 
 ```dart
-final result = await DaroSdk.showAd();
+// 리워드 비디오 광고 표시
+final result = await DaroSdk.showRewardAd(DaroRewardAdConfig(
+  adType: DaroAdType.rewardedVideo,
+  adKey: 'your-ad-key', // 선택사항
+  extraParams: {'customParam': 'value'}, // 선택사항
+));
+
 if (result.success) {
-  print('광고 표시 성공');
+  print('광고 ID: ${result.adId}');
+  
+  // 광고 이벤트 리스너 등록
+  DaroSdk.addAdListener(result.adId, (adId, event) {
+    final eventType = event['type'] as String;
+    final data = event['data'] as Map<dynamic, dynamic>;
+    
+    switch (eventType) {
+      case 'adShown':
+        print('광고가 표시되었습니다');
+        break;
+      case 'adClosed':
+        print('광고가 닫혔습니다');
+        break;
+      case 'rewardEarned':
+        final amount = data['amount'] as int;
+        print('리워드 적립: $amount');
+        break;
+      case 'error':
+        final errorMessage = data['errorMessage'] as String;
+        print('에러 발생: $errorMessage');
+        break;
+    }
+  });
+  
   if (result.rewardAmount != null) {
     print('리워드: ${result.rewardAmount}');
   }
@@ -58,25 +90,26 @@ if (result.success) {
 }
 ```
 
-### 3. 이벤트 구독
+### 3. 광고 타입
 
-SDK에서 발생하는 이벤트를 구독할 수 있습니다:
+지원하는 광고 타입:
+
+- `DaroAdType.interstitial`: 전면광고
+- `DaroAdType.rewardedVideo`: 리워드 비디오 광고
+- `DaroAdType.popup`: 팝업광고
+
+### 4. 이벤트 리스너 관리
+
+광고 인스턴스별로 이벤트 리스너를 등록하고 제거할 수 있습니다:
 
 ```dart
-DaroSdk.getEventStream()?.listen((event) {
-  final eventName = event['event'] as String;
-  final data = event['data'] as Map<dynamic, dynamic>;
-  
-  switch (eventName) {
-    case 'adClosed':
-      print('광고가 닫혔습니다');
-      break;
-    case 'rewardEarned':
-      final amount = data['amount'] as int;
-      print('리워드 적립: $amount');
-      break;
-  }
+// 리스너 등록
+DaroSdk.addAdListener('ad-id', (adId, event) {
+  // 이벤트 처리
 });
+
+// 리스너 제거
+DaroSdk.removeAdListener('ad-id');
 ```
 
 ## 앱 카테고리 선택
