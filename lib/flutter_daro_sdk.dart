@@ -24,42 +24,59 @@ class DaroSdk {
     await FlutterDaroSdkPlatform.instance.initialize(config);
   }
 
-  /// 광고 표시
+  /// 리워드 광고 표시
   ///
-  /// 광고를 표시하고 결과를 반환합니다.
+  /// 광고를 표시하고 광고 ID를 반환합니다.
   ///
   /// 예제:
   /// ```dart
-  /// final result = await DaroSdk.showAd();
+  /// final result = await DaroSdk.showRewardAd(DaroRewardAdConfig(
+  ///   adType: DaroAdType.rewardedVideo,
+  ///   adKey: 'your-ad-key',
+  /// ));
   /// if (result.success) {
-  ///   print('광고 표시 성공');
-  ///   if (result.rewardAmount != null) {
-  ///     print('리워드: ${result.rewardAmount}');
-  ///   }
+  ///   print('광고 ID: ${result.adId}');
+  ///   // 광고 이벤트 리스너 등록
+  ///   DaroSdk.addAdListener(result.adId, (adId, event) {
+  ///     print('광고 이벤트: $event');
+  ///   });
   /// } else {
   ///   print('광고 표시 실패: ${result.errorMessage}');
   /// }
   /// ```
-  static Future<DaroAdResult> showAd() async {
-    return await FlutterDaroSdkPlatform.instance.showAd();
+  static Future<DaroAdResult> showRewardAd(DaroRewardAdConfig config) async {
+    return await FlutterDaroSdkPlatform.instance.showRewardAd(config);
   }
 
-  /// 이벤트 스트림 구독
+  /// 광고 이벤트 리스너 등록
   ///
-  /// SDK에서 발생하는 이벤트를 구독합니다.
-  /// (광고 완료, 리워드 적립 등의 이벤트)
+  /// 특정 광고 인스턴스의 이벤트를 수신하기 위한 리스너를 등록합니다.
   ///
   /// 예제:
   /// ```dart
-  /// DaroSdk.getEventStream()?.listen((event) {
-  ///   print('이벤트: $event');
+  /// DaroSdk.addAdListener('ad-id', (adId, event) {
+  ///   final eventType = event['type'] as String;
+  ///   if (eventType == 'adClosed') {
+  ///     print('광고가 닫혔습니다');
+  ///   } else if (eventType == 'rewardEarned') {
+  ///     final amount = event['amount'] as int;
+  ///     print('리워드 적립: $amount');
+  ///   }
   /// });
   /// ```
-  static Stream<Map<dynamic, dynamic>>? getEventStream() {
-    final methodChannel = FlutterDaroSdkPlatform.instance;
-    if (methodChannel is MethodChannelFlutterDaroSdk) {
-      return methodChannel.getEventStream();
-    }
-    return null;
+  static void addAdListener(String adId, DaroAdListener listener) {
+    FlutterDaroSdkPlatform.instance.addAdListener(adId, listener);
+  }
+
+  /// 광고 이벤트 리스너 제거
+  ///
+  /// 특정 광고 인스턴스의 이벤트 리스너를 제거합니다.
+  ///
+  /// 예제:
+  /// ```dart
+  /// DaroSdk.removeAdListener('ad-id');
+  /// ```
+  static void removeAdListener(String adId) {
+    FlutterDaroSdkPlatform.instance.removeAdListener(adId);
   }
 }

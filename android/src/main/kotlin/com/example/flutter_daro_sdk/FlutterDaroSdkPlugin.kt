@@ -9,6 +9,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import java.util.UUID
 
 /** FlutterDaroSdkPlugin */
 class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -49,8 +50,8 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       "initialize" -> {
         initialize(call, result)
       }
-      "showAd" -> {
-        showAd(result)
+      "showRewardAd" -> {
+        showRewardAd(call, result)
       }
       else -> {
         result.notImplemented()
@@ -95,8 +96,8 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  /// 광고 표시
-  private fun showAd(result: Result) {
+  /// 리워드 광고 표시
+  private fun showRewardAd(call: MethodCall, result: Result) {
     try {
       val currentActivity = activity
       if (currentActivity == null) {
@@ -107,42 +108,62 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         )
       }
       
+      val args = call.arguments as? Map<*, *> ?: return result.error(
+        "INVALID_ARGUMENT",
+        "Invalid arguments for showRewardAd",
+        null
+      )
+      
+      val adType = args["adType"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adType is required",
+        null
+      )
+      val adKey = args["adKey"] as? String
+      val extraParams = args["extraParams"] as? Map<*, *>
+      
+      // 고유한 광고 ID 생성
+      val adId = UUID.randomUUID().toString()
+      
       // TODO: 실제 DARO SDK 광고 표시 코드로 교체
       // 예시:
-      // daroSdk?.showAd(currentActivity, object : DaroAdCallback {
+      // val adConfig = DaroAdConfig.Builder()
+      //   .setAdType(adType) // "interstitial", "rewardedVideo", "popup"
+      //   .setAdKey(adKey)
+      //   .setExtraParams(extraParams)
+      //   .build()
+      // 
+      // daroSdk?.showRewardAd(currentActivity, adConfig, object : DaroAdCallback {
       //   override fun onAdShown() {
       //     // 광고 표시 성공
+      //     sendAdEvent(adId, "adShown", mapOf("success" to true))
       //   }
       //   override fun onAdClosed() {
       //     // 광고 닫힘
-      //     sendEvent("adClosed", mapOf("success" to true))
+      //     sendAdEvent(adId, "adClosed", mapOf("success" to true))
       //   }
       //   override fun onRewardEarned(amount: Int) {
       //     // 리워드 적립
-      //     sendEvent("rewardEarned", mapOf("amount" to amount))
-      //     val adResult = mapOf(
-      //       "success" to true,
-      //       "rewardAmount" to amount
-      //     )
-      //     result.success(adResult)
+      //     sendAdEvent(adId, "rewardEarned", mapOf("amount" to amount))
       //   }
       //   override fun onError(error: String) {
-      //     val adResult = mapOf(
-      //       "success" to false,
-      //       "errorMessage" to error
-      //     )
-      //     result.success(adResult)
+      //     sendAdEvent(adId, "error", mapOf("errorMessage" to error))
       //   }
       // })
       
       // 임시 구현: 광고 표시 성공으로 처리
       val adResult = mapOf(
+        "adId" to adId,
         "success" to true,
-        "rewardAmount" to if (appCategory == "reward") 100 else null
+        "rewardAmount" to if (appCategory == "reward" && adType == "rewardedVideo") 100 else null
       )
       result.success(adResult)
+      
+      // 임시 이벤트 전송 (실제로는 SDK 콜백에서 호출)
+      sendAdEvent(adId, "adShown", mapOf("success" to true))
     } catch (e: Exception) {
       val adResult = mapOf(
+        "adId" to "",
         "success" to false,
         "errorMessage" to (e.message ?: "Unknown error")
       )
@@ -150,11 +171,14 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  /// 이벤트를 Flutter로 전송
-  private fun sendEvent(eventName: String, data: Map<String, Any?>) {
+  /// 광고 ID별 이벤트를 Flutter로 전송
+  private fun sendAdEvent(adId: String, eventType: String, data: Map<String, Any?>) {
     val event = mapOf(
-      "event" to eventName,
-      "data" to data
+      "adId" to adId,
+      "event" to mapOf(
+        "type" to eventType,
+        "data" to data
+      )
     )
     eventSink?.success(event)
   }
