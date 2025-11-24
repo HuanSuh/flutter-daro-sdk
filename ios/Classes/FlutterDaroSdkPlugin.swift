@@ -39,8 +39,8 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "initialize":
       initialize(call: call, result: result)
-    case "showAd":
-      showAd(result: result)
+    case "showRewardAd":
+      showRewardAd(call: call, result: result)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -85,11 +85,12 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     result(nil)
   }
 
-  /// 광고 표시
-  private func showAd(result: @escaping FlutterResult) {
+  /// 리워드 광고 표시
+  private func showRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let rootViewController = windowScene.windows.first?.rootViewController else {
       let adResult: [String: Any] = [
+        "adId": "",
         "success": false,
         "errorMessage": "No root view controller available"
       ]
@@ -97,52 +98,78 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
+    guard let args = call.arguments as? [String: Any] else {
+      result(FlutterError(
+        code: "INVALID_ARGUMENT",
+        message: "Invalid arguments for showRewardAd",
+        details: nil
+      ))
+      return
+    }
+    
+    guard let adType = args["adType"] as? String else {
+      result(FlutterError(
+        code: "INVALID_ARGUMENT",
+        message: "adType is required",
+        details: nil
+      ))
+      return
+    }
+    
+    let adKey = args["adKey"] as? String
+    let extraParams = args["extraParams"] as? [String: Any]
+    
+    // 고유한 광고 ID 생성
+    let adId = UUID().uuidString
+    
     // TODO: 실제 DARO SDK 광고 표시 코드로 교체
     // 예시:
-    // daroSdk?.showAd(
+    // let adConfig = DaroAdConfig(
+    //   adType: adType, // "interstitial", "rewardedVideo", "popup"
+    //   adKey: adKey,
+    //   extraParams: extraParams
+    // )
+    // 
+    // daroSdk?.showRewardAd(
     //   viewController: rootViewController,
+    //   config: adConfig,
     //   onAdShown: {
     //     // 광고 표시 성공
+    //     self.sendAdEvent(adId: adId, eventType: "adShown", data: ["success": true])
     //   },
     //   onAdClosed: {
     //     // 광고 닫힘
-    //     self.sendEvent(eventName: "adClosed", data: ["success": true])
-    //     let adResult: [String: Any] = [
-    //       "success": true
-    //     ]
-    //     result(adResult)
+    //     self.sendAdEvent(adId: adId, eventType: "adClosed", data: ["success": true])
     //   },
     //   onRewardEarned: { amount in
     //     // 리워드 적립
-    //     self.sendEvent(eventName: "rewardEarned", data: ["amount": amount])
-    //     let adResult: [String: Any] = [
-    //       "success": true,
-    //       "rewardAmount": amount
-    //     ]
-    //     result(adResult)
+    //     self.sendAdEvent(adId: adId, eventType: "rewardEarned", data: ["amount": amount])
     //   },
     //   onError: { error in
-    //     let adResult: [String: Any] = [
-    //       "success": false,
-    //       "errorMessage": error
-    //     ]
-    //     result(adResult)
+    //     self.sendAdEvent(adId: adId, eventType: "error", data: ["errorMessage": error])
     //   }
     // )
     
     // 임시 구현: 광고 표시 성공으로 처리
     let adResult: [String: Any] = [
+      "adId": adId,
       "success": true,
-      "rewardAmount": appCategory == "reward" ? 100 : nil
+      "rewardAmount": (appCategory == "reward" && adType == "rewardedVideo") ? 100 : nil
     ]
     result(adResult)
+    
+    // 임시 이벤트 전송 (실제로는 SDK 콜백에서 호출)
+    sendAdEvent(adId: adId, eventType: "adShown", data: ["success": true])
   }
 
-  /// 이벤트를 Flutter로 전송
-  private func sendEvent(eventName: String, data: [String: Any?]) {
+  /// 광고 ID별 이벤트를 Flutter로 전송
+  private func sendAdEvent(adId: String, eventType: String, data: [String: Any?]) {
     let event: [String: Any] = [
-      "event": eventName,
-      "data": data
+      "adId": adId,
+      "event": [
+        "type": eventType,
+        "data": data
+      ]
     ]
     eventSink?(event)
   }
