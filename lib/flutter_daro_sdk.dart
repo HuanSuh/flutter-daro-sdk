@@ -1,7 +1,6 @@
 library flutter_daro_sdk;
 
 import 'flutter_daro_sdk_platform_interface.dart';
-import 'flutter_daro_sdk_method_channel.dart';
 
 export 'flutter_daro_sdk_platform_interface.dart';
 export 'flutter_daro_sdk_method_channel.dart';
