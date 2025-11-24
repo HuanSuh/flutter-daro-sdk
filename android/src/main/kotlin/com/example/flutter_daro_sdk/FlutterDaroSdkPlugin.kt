@@ -52,9 +52,6 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       "showAd" -> {
         showAd(result)
       }
-      "getRewardBalance" -> {
-        getRewardBalance(result)
-      }
       else -> {
         result.notImplemented()
       }
@@ -150,35 +147,6 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         "errorMessage" to (e.message ?: "Unknown error")
       )
       result.success(adResult)
-    }
-  }
-
-  /// 리워드 잔액 조회
-  private fun getRewardBalance(result: Result) {
-    try {
-      // TODO: 실제 DARO SDK 리워드 잔액 조회 코드로 교체
-      // 예시:
-      // daroSdk?.getRewardBalance(object : DaroRewardCallback {
-      //   override fun onSuccess(balance: Int, totalEarned: Int) {
-      //     val rewardInfo = mapOf(
-      //       "balance" to balance,
-      //       "totalEarned" to totalEarned
-      //     )
-      //     result.success(rewardInfo)
-      //   }
-      //   override fun onError(error: String) {
-      //     result.error("REWARD_ERROR", error, null)
-      //   }
-      // })
-      
-      // 임시 구현: 기본값 반환
-      val rewardInfo = mapOf(
-        "balance" to 0,
-        "totalEarned" to 0
-      )
-      result.success(rewardInfo)
-    } catch (e: Exception) {
-      result.error("REWARD_ERROR", e.message, null)
     }
   }
 

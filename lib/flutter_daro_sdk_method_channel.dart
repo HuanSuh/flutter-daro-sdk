@@ -31,23 +31,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       }
       return DaroAdResult(success: false, errorMessage: 'Unknown error');
     } on PlatformException catch (e) {
-      return DaroAdResult(
-        success: false,
-        errorMessage: e.message ?? 'Failed to show ad',
-      );
-    }
-  }
-
-  @override
-  Future<DaroRewardInfo> getRewardBalance() async {
-    try {
-      final result = await methodChannel.invokeMethod<Map<dynamic, dynamic>>('getRewardBalance');
-      if (result != null) {
-        return DaroRewardInfo.fromMap(result);
-      }
-      return DaroRewardInfo(balance: 0, totalEarned: 0);
-    } on PlatformException catch (e) {
-      throw Exception('Failed to get reward balance: ${e.message}');
+      return DaroAdResult(success: false, errorMessage: e.message ?? 'Failed to show ad');
     }
   }
 

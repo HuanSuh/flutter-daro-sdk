@@ -41,8 +41,6 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       initialize(call: call, result: result)
     case "showAd":
       showAd(result: result)
-    case "getRewardBalance":
-      getRewardBalance(result: result)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -138,34 +136,6 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       "rewardAmount": appCategory == "reward" ? 100 : nil
     ]
     result(adResult)
-  }
-
-  /// 리워드 잔액 조회
-  private func getRewardBalance(result: @escaping FlutterResult) {
-    // TODO: 실제 DARO SDK 리워드 잔액 조회 코드로 교체
-    // 예시:
-    // daroSdk?.getRewardBalance { balance, totalEarned, error in
-    //   if let error = error {
-    //     result(FlutterError(
-    //       code: "REWARD_ERROR",
-    //       message: error,
-    //       details: nil
-    //     ))
-    //   } else {
-    //     let rewardInfo: [String: Any] = [
-    //       "balance": balance,
-    //       "totalEarned": totalEarned
-    //     ]
-    //     result(rewardInfo)
-    //   }
-    // }
-    
-    // 임시 구현: 기본값 반환
-    let rewardInfo: [String: Any] = [
-      "balance": 0,
-      "totalEarned": 0
-    ]
-    result(rewardInfo)
   }
 
   /// 이벤트를 Flutter로 전송

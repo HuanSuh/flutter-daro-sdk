@@ -58,15 +58,7 @@ if (result.success) {
 }
 ```
 
-### 3. 리워드 잔액 조회
-
-```dart
-final rewardInfo = await DaroSdk.getRewardBalance();
-print('현재 잔액: ${rewardInfo.balance}');
-print('총 적립: ${rewardInfo.totalEarned}');
-```
-
-### 4. 이벤트 구독
+### 3. 이벤트 구독
 
 SDK에서 발생하는 이벤트를 구독할 수 있습니다:
 

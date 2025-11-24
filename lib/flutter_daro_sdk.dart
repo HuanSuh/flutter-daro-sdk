@@ -9,9 +9,9 @@ export 'flutter_daro_sdk_method_channel.dart';
 /// DARO SDK 메인 클래스
 class DaroSdk {
   /// SDK 초기화
-  /// 
+  ///
   /// [config] DARO SDK 초기화 설정
-  /// 
+  ///
   /// 예제:
   /// ```dart
   /// await DaroSdk.initialize(DaroSdkConfig(
@@ -25,9 +25,9 @@ class DaroSdk {
   }
 
   /// 광고 표시
-  /// 
+  ///
   /// 광고를 표시하고 결과를 반환합니다.
-  /// 
+  ///
   /// 예제:
   /// ```dart
   /// final result = await DaroSdk.showAd();
@@ -44,25 +44,11 @@ class DaroSdk {
     return await FlutterDaroSdkPlatform.instance.showAd();
   }
 
-  /// 리워드 잔액 조회
-  /// 
-  /// 현재 리워드 잔액과 총 적립된 리워드를 조회합니다.
-  /// 
-  /// 예제:
-  /// ```dart
-  /// final rewardInfo = await DaroSdk.getRewardBalance();
-  /// print('현재 잔액: ${rewardInfo.balance}');
-  /// print('총 적립: ${rewardInfo.totalEarned}');
-  /// ```
-  static Future<DaroRewardInfo> getRewardBalance() async {
-    return await FlutterDaroSdkPlatform.instance.getRewardBalance();
-  }
-
   /// 이벤트 스트림 구독
-  /// 
+  ///
   /// SDK에서 발생하는 이벤트를 구독합니다.
   /// (광고 완료, 리워드 적립 등의 이벤트)
-  /// 
+  ///
   /// 예제:
   /// ```dart
   /// DaroSdk.getEventStream()?.listen((event) {
