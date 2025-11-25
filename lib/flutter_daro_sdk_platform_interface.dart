@@ -152,7 +152,13 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   }
 
   /// SDK 초기화
-  Future<void> initialize(DaroSdkConfig config) {
+  ///
+  /// DARO SDK를 초기화합니다.
+  /// 초기화 성공 여부를 boolean으로 반환합니다.
+  ///
+  /// [config] DARO SDK 초기화 설정
+  /// Returns `true` if initialization succeeds, `false` otherwise
+  Future<bool> initialize(DaroSdkConfig config) {
     throw UnimplementedError('initialize() has not been implemented.');
   }
 

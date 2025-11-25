@@ -22,12 +22,20 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initializeSdk() async {
     try {
       // Non-Reward 앱 초기화
-      await DaroSdk.initialize(
-        DaroSdkConfig(appCategory: DaroAppCategory.nonReward, appKey: 'test-app-key', userId: 'test-user-id'),
+      final success = await DaroSdk.initialize(
+        DaroSdkConfig(
+          appCategory: DaroAppCategory.nonReward,
+          appKey: 'test-app-key',
+          userId: 'test-user-id',
+        ),
       );
-      _addLog('SDK 초기화 완료 (Non-Reward 앱)');
+      if (success) {
+        _addLog('SDK 초기화 완료 (Non-Reward 앱)');
+      } else {
+        _addLog('SDK 초기화 실패 (Non-Reward 앱) - false 반환');
+      }
     } catch (e) {
-      _addLog('SDK 초기화 실패: $e');
+      _addLog('SDK 초기화 오류: $e');
     }
   }
 

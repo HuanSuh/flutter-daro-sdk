@@ -63,11 +63,13 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<void> initialize(DaroSdkConfig config) async {
+  Future<bool> initialize(DaroSdkConfig config) async {
     try {
-      await methodChannel.invokeMethod<void>('initialize', config.toMap());
-    } on PlatformException catch (e) {
-      throw Exception('Failed to initialize DARO SDK: ${e.message}');
+      final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
+      return result ?? false;
+    } on PlatformException {
+      // 초기화 실패 시 false 반환
+      return false;
     }
   }
 

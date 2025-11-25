@@ -72,23 +72,42 @@ dependencies:
 
 ### 1. SDK 초기화
 
+**중요**: 광고를 로드하기 전에 반드시 SDK를 초기화해야 합니다. 초기화 전 광고를 요청하면 광고가 정상적으로 표시되지 않을 수 있습니다.
+
 앱 시작 시 SDK를 초기화하세요:
 
 ```dart
 import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
 // Reward 앱인 경우
-await DaroSdk.initialize(DaroSdkConfig(
+final success = await DaroSdk.initialize(DaroSdkConfig(
   appCategory: DaroAppCategory.reward,
   appKey: 'your-app-key', // 선택사항
   userId: 'user-id', // 선택사항
 ));
 
+if (success) {
+  print('SDK 초기화 성공');
+  // 광고 로드 및 표시 진행
+} else {
+  print('SDK 초기화 실패');
+  // 에러 처리
+}
+
 // Non-reward 앱인 경우
-await DaroSdk.initialize(DaroSdkConfig(
+final success = await DaroSdk.initialize(DaroSdkConfig(
   appCategory: DaroAppCategory.nonReward,
+  appKey: 'your-app-key', // 선택사항
 ));
+
+if (success) {
+  print('SDK 초기화 성공');
+} else {
+  print('SDK 초기화 실패');
+}
 ```
+
+`initialize()` 메서드는 초기화 성공 여부를 `bool` 값으로 반환합니다.
 
 ### 2. 리워드 광고 표시
 
@@ -260,9 +279,42 @@ daroAppKey.Development=YOUR_DEVELOPMENT_KEY
 
 #### 6. SDK 초기화
 
-`flutter_daro_sdk/android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+`flutter_daro_sdk/android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 `initialize()` 메서드에서 실제 SDK 초기화 코드를 작성하세요.
 
-자세한 내용은 [DARO Android SDK 가이드](https://guide.daro.so/ko/sdk-integration/android/get-started)를 참고하세요.
+**Android 초기화 예시:**
+
+```kotlin
+import droom.daro.Daro
+
+val sdkConfig = Daro.SDKConfig.Builder()
+  .setDebugMode(false) // Daro 로그 노출 여부, default: false
+  .setAppMute(false)   // 앱 음소거 설정, default: false
+  .build()
+
+Daro.init(
+  application = currentActivity.application,
+  sdkConfig = sdkConfig
+)
+
+// 초기화 성공
+result.success(true)
+```
+
+**앱 음소거 설정:**
+
+앱 오프닝, 배너, 전면 광고, 보상형, 보상형 전면 광고 형식의 경우 `setAppMute()` 메서드를 사용하여 앱 볼륨이 음소거되었음을 DARO SDK에 알릴 수 있습니다:
+
+```kotlin
+// 앱 음소거 설정
+Daro.setAppMute(true)
+
+// 앱 음소거 해제
+Daro.setAppMute(false)
+```
+
+> **주의**: 앱을 음소거하면 동영상 광고 적합성이 저하되어 앱의 광고 수익이 감소할 수 있습니다. 앱이 사용자에게 맞춤 음소거 컨트롤을 제공하고 사용자의 음소거 결정이 API에 제대로 반영되는 경우에만 이 API를 활용해야 합니다.
+
+자세한 내용은 [DARO Android SDK 가이드](https://guide.daro.so/ko/sdk-integration/android/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0)를 참고하세요.
 
 ### iOS 설정
 
@@ -311,9 +363,42 @@ pod install --repo-update
 
 #### 4. SDK 초기화
 
-`flutter_daro_sdk/ios/Classes/FlutterDaroSdkPlugin.swift`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+`flutter_daro_sdk/ios/Classes/FlutterDaroSdkPlugin.swift`의 `initialize()` 메서드에서 실제 SDK 초기화 코드를 작성하세요.
 
-자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started)를 참고하세요.
+**iOS 초기화 예시:**
+
+```swift
+import DaroAds
+
+let config = DaroSdkConfig(
+  debugMode: false, // Daro 로그 노출 여부, default: false
+  appMute: false    // 앱 음소거 설정, default: false
+)
+
+DaroSdk.shared.initialize(config: config) { success, error in
+  if success {
+    result(true)
+  } else {
+    result(false)
+  }
+}
+```
+
+**앱 음소거 설정:**
+
+앱 오프닝, 배너, 전면 광고, 보상형, 보상형 전면 광고 형식의 경우 `setAppMute()` 메서드를 사용하여 앱 볼륨이 음소거되었음을 DARO SDK에 알릴 수 있습니다:
+
+```swift
+// 앱 음소거 설정
+DaroSdk.shared.setAppMute(true)
+
+// 앱 음소거 해제
+DaroSdk.shared.setAppMute(false)
+```
+
+> **주의**: 앱을 음소거하면 동영상 광고 적합성이 저하되어 앱의 광고 수익이 감소할 수 있습니다. 앱이 사용자에게 맞춤 음소거 컨트롤을 제공하고 사용자의 음소거 결정이 API에 제대로 반영되는 경우에만 이 API를 활용해야 합니다.
+
+자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0)를 참고하세요.
 
 ## 예제 프로젝트
 
