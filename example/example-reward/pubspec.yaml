@@ -10,10 +10,10 @@ dependencies:
     sdk: flutter
 
   flutter_daro_sdk:
-    path: ../
+    path: ../../
   
   daro_core_m:
-    path: ../daro-core-m
+    path: ../../core/daro-core-m
 
   cupertino_icons: ^1.0.8
 
