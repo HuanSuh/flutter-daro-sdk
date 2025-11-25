@@ -78,4 +78,32 @@ class DaroSdk {
   static void removeAdListener(String adId) {
     FlutterDaroSdkPlatform.instance.removeAdListener(adId);
   }
+
+  /// 리워드 광고 인스턴스 생성
+  ///
+  /// 광고 타입과 키를 기반으로 리워드 광고 인스턴스를 생성합니다.
+  ///
+  /// 예제:
+  /// ```dart
+  /// // 인터스티셜 광고
+  /// final interstitialAd = DaroSdk.createRewardAd(
+  ///   DaroAdType.interstitial,
+  ///   'your-ad-key',
+  /// );
+  /// await interstitialAd.load(DaroRewardAdConfig(
+  ///   adType: DaroAdType.interstitial,
+  ///   adKey: 'your-ad-key',
+  ///   placement: 'main-screen',
+  /// ));
+  /// await interstitialAd.show();
+  ///
+  /// // 리워드 비디오 광고
+  /// final rewardVideoAd = DaroSdk.createRewardAd(
+  ///   DaroAdType.rewardedVideo,
+  ///   'your-reward-ad-key',
+  /// );
+  /// ```
+  static DaroRewardAd createRewardAd(DaroAdType type, String adKey) {
+    return DaroRewardAd(type, adKey, FlutterDaroSdkPlatform.instance);
+  }
 }
