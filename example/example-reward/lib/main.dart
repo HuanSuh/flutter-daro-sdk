@@ -23,11 +23,7 @@ class _MyAppState extends State<MyApp> {
     try {
       // Reward 앱 초기화
       final success = await DaroSdk.initialize(
-        DaroSdkConfig(
-          appCategory: DaroAppCategory.reward,
-          appKey: 'test-app-key',
-          userId: 'test-user-id',
-        ),
+        DaroSdkConfig(appCategory: DaroAppCategory.reward, appKey: 'test-app-key', userId: 'test-user-id'),
       );
       if (success) {
         _addLog('SDK 초기화 완료 (Reward 앱)');

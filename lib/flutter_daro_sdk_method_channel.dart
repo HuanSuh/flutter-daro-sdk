@@ -67,8 +67,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     try {
       final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
       return result ?? false;
-    } on PlatformException {
+    } on PlatformException catch (error) {
       // 초기화 실패 시 false 반환
+      debugPrint('initialize failed: ${error.message}');
       return false;
     }
   }

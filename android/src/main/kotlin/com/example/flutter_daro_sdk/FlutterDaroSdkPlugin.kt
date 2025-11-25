@@ -1,6 +1,7 @@
 package com.example.flutter_daro_sdk
 
 import android.app.Activity
+import droom.daro.Daro
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -75,7 +76,11 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// SDK 초기화
   private fun initialize(call: MethodCall, result: Result) {
     try {
-      val args = call.arguments as? Map<*, *> ?: return result.success(false)
+      val args = call.arguments as? Map<*, *> ?: return result.error(
+        "INVALID_ARGUMENT",
+        "Invalid arguments for initialize",
+        null
+      )
       
       appCategory = args["appCategory"] as? String
       val appKey = args["appKey"] as? String
@@ -86,29 +91,21 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         return result.success(false)
       }
       
-      // TODO: 실제 DARO SDK 초기화 코드로 교체
       // 문서 참고: https://guide.daro.so/ko/sdk-integration/android/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0
-      // 
-      // import droom.daro.Daro
-      // 
-      // val sdkConfig = Daro.SDKConfig.Builder()
-      //   .setDebugMode(false) // Daro 로그 노출 여부, default: false
-      //   .setAppMute(false) // 앱 음소거 설정, default: false
-      //   .build()
-      // 
-      // Daro.init(
-      //   application = currentActivity.application,
-      //   sdkConfig = sdkConfig
-      // )
-      // 
-      // // 초기화 성공
-      // result.success(true)
-      
-      // 임시 구현: 초기화 성공으로 처리
+      val sdkConfig = Daro.SDKConfig.Builder()
+         .setDebugMode(false) // Daro 로그 노출 여부, default: false
+         .setAppMute(false) // 앱 음소거 설정, default: false
+         .build()
+       
+       Daro.init(
+         application = currentActivity.application,
+         sdkConfig = sdkConfig
+       )
+       
+      // 초기화 성공
       result.success(true)
     } catch (e: Exception) {
-      // 초기화 실패 시 false 반환
-      result.success(false)
+      result.error("INIT_ERROR", e.message, null)
     }
   }
 

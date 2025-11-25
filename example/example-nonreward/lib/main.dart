@@ -23,11 +23,7 @@ class _MyAppState extends State<MyApp> {
     try {
       // Non-Reward 앱 초기화
       final success = await DaroSdk.initialize(
-        DaroSdkConfig(
-          appCategory: DaroAppCategory.nonReward,
-          appKey: 'test-app-key',
-          userId: 'test-user-id',
-        ),
+        DaroSdkConfig(appCategory: DaroAppCategory.nonReward, appKey: 'test-app-key', userId: 'test-user-id'),
       );
       if (success) {
         _addLog('SDK 초기화 완료 (Non-Reward 앱)');

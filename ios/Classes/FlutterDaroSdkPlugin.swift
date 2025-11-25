@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import DaroAds
 
 public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   /// MethodChannel for method calls from Flutter
@@ -58,7 +59,11 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   /// SDK 초기화
   private func initialize(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
-      result(false)
+      result(FlutterError(
+        code: "INVALID_ARGUMENT",
+        message: "Invalid arguments for initialize",
+        details: nil
+      ))
       return
     }
     
@@ -66,26 +71,19 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     let appKey = args["appKey"] as? String
     let userId = args["userId"] as? String
     
-    // TODO: 실제 DARO SDK 초기화 코드로 교체
     // 문서 참고: https://guide.daro.so/ko/sdk-integration/ios_new/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0
-    // 
-    // import DaroAds
-    // 
-    // let config = DaroSdkConfig(
-    //   debugMode: false, // Daro 로그 노출 여부, default: false
-    //   appMute: false    // 앱 음소거 설정, default: false
-    // )
-    // 
-    // DaroSdk.shared.initialize(config: config) { success, error in
-    //   if success {
-    //     result(true)
-    //   } else {
-    //     result(false)
-    //   }
-    // }
+    let config = DaroSdkConfig(
+      debugMode: false, // Daro 로그 노출 여부, default: false
+      appMute: false    // 앱 음소거 설정, default: false
+    )
     
-    // 임시 구현: 초기화 성공으로 처리
-    result(true)
+    DaroSdk.shared.initialize(config: config) { success, error in
+      if success {
+        result(true)
+      } else {
+        result(false)
+      }
+    }
   }
 
   /// 리워드 광고 표시
