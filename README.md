@@ -315,6 +315,22 @@ pod install --repo-update
 
 자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started)를 참고하세요.
 
+## 예제 프로젝트
+
+프로젝트에는 두 개의 예제 프로젝트가 포함되어 있습니다:
+
+- **example-reward**: Reward 앱용 예제 프로젝트
+  - `daro_core_m` 플러그인 사용
+  - `DaroAppCategory.reward`로 초기화
+  - Reward 앱 개발 시 참고
+
+- **example-nonreward**: Non-Reward 앱용 예제 프로젝트
+  - `daro_core_a` 플러그인 사용
+  - `DaroAppCategory.nonReward`로 초기화
+  - Non-Reward 앱 개발 시 참고
+
+각 예제 프로젝트에서 각 광고 타입별로 load/show/dispose 기능을 테스트할 수 있습니다.
+
 ## 프로젝트 구조 요약
 
 ```
@@ -329,10 +345,18 @@ flutter-daro-sdk/
 │   ├── lib/
 │   ├── android/                  # Non-Reward 앱용 Android 설정
 │   └── ios/                      # Non-Reward 앱용 iOS 설정
-└── daro-core-m/                  # Reward 앱용 core 플러그인
-    ├── lib/
-    ├── android/                  # Reward 앱용 Android 설정
-    └── ios/                      # Reward 앱용 iOS 설정
+├── daro-core-m/                  # Reward 앱용 core 플러그인
+│   ├── lib/
+│   ├── android/                  # Reward 앱용 Android 설정
+│   └── ios/                      # Reward 앱용 iOS 설정
+├── example-reward/               # Reward 앱용 예제 프로젝트
+│   ├── lib/main.dart
+│   ├── android/
+│   └── ios/
+└── example-nonreward/            # Non-Reward 앱용 예제 프로젝트
+    ├── lib/main.dart
+    ├── android/
+    └── ios/
 ```
 
 ## 참고사항
