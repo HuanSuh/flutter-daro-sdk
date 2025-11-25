@@ -128,17 +128,115 @@ DARO SDK는 두 가지 앱 카테고리를 지원합니다:
 
 이 플러그인은 DARO SDK의 네이티브 기능을 Flutter에서 사용할 수 있도록 래핑합니다. 실제 DARO SDK를 연동하려면:
 
-### Android
+### Android 설정
 
-1. `android/build.gradle`에 DARO SDK 의존성 추가
-2. `android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 TODO 주석을 참고하여 실제 SDK 연동 코드 작성
+#### 1. Maven 저장소 설정
 
-### iOS
+`android/settings.gradle`에 필요한 Maven 저장소가 이미 추가되어 있습니다.
 
-1. `ios/flutter_daro_sdk.podspec`에 DARO SDK 의존성 추가
-2. `ios/Classes/FlutterDaroSdkPlugin.swift`의 TODO 주석을 참고하여 실제 SDK 연동 코드 작성
+#### 2. DARO 플러그인 추가
 
-자세한 연동 가이드는 [DARO SDK 가이드](https://guide.daro.so)를 참고하세요.
+`android/build.gradle`의 `buildscript` 섹션에 DARO 플러그인을 추가하세요:
+
+```groovy
+buildscript {
+    dependencies {
+        // Non-Reward 앱인 경우
+        classpath("so.daro:daro-plugin:1.0.12")
+        
+        // Reward 앱인 경우
+        classpath("so.daro:daro-plugin:1.0.12")
+        classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
+    }
+}
+```
+
+#### 3. 플러그인 적용
+
+`android/build.gradle`에 플러그인을 적용하세요:
+
+```groovy
+// Non-Reward 앱인 경우
+apply plugin: "so.daro.a"
+
+// Reward 앱인 경우
+apply plugin: "so.daro.m"
+```
+
+#### 4. 최소 SDK 버전
+
+`minSdk = 23`으로 설정되어 있습니다 (DARO SDK 요구사항).
+
+#### 5. ProGuard 규칙
+
+Non-Reward 앱의 경우 `android/proguard-rules.pro` 파일이 포함되어 있습니다.
+Reward 앱의 경우 별도로 proguard를 설정하지 않아도 됩니다.
+
+#### 6. 앱 키 설정 (선택사항)
+
+`gradle.properties`에 앱 키를 설정할 수 있습니다:
+
+```properties
+daroAppKey=YOUR_APP_KEY
+```
+
+또는 flavor/buildType별로 분기할 수 있습니다:
+
+```properties
+daroAppKey.Production=YOUR_PRODUCTION_KEY
+daroAppKey.Development=YOUR_DEVELOPMENT_KEY
+```
+
+#### 7. SDK 초기화
+
+`android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+
+자세한 내용은 [DARO Android SDK 가이드](https://guide.daro.so/ko/sdk-integration/android/get-started)를 참고하세요.
+
+### iOS 설정
+
+#### 1. CocoaPods 의존성
+
+`ios/flutter_daro_sdk.podspec`에 DARO SDK 의존성을 추가하세요:
+
+```ruby
+s.dependency 'DaroAds', '~> 1.1.45'
+```
+
+최신 버전은 [DARO iOS SDK 릴리즈](https://github.com/delightroom/daro-ios-sdk/releases)에서 확인하세요.
+
+#### 2. Podfile 설정
+
+앱 프로젝트의 `ios/Podfile`에 다음을 추가하세요:
+
+```ruby
+use_frameworks!
+
+# DARO SDK
+pod 'DaroAds', '~> 1.1.45'
+```
+
+그리고 다음 명령어를 실행하세요:
+
+```bash
+cd ios
+pod install --repo-update
+```
+
+#### 3. Info.plist 설정
+
+앱 프로젝트의 `ios/Runner/Info.plist`에 다음을 추가하세요:
+
+```xml
+<key>DaroAppKey</key>
+<string>YOUR_DARO_APP_KEY</string>
+```
+
+#### 4. SDK 초기화
+
+`ios/Classes/FlutterDaroSdkPlugin.swift`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+
+자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started)를 참고하세요.
 
 ## 참고사항
 

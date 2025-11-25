@@ -17,12 +17,10 @@ DARO SDK Flutter plugin that supports both Reward and Non-reward apps.
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
   
-  # TODO: DARO SDK 의존성 추가 (실제 의존성으로 교체)
-  # s.dependency 'DaroSDK', '~> VERSION'
-  # 또는 CocoaPods 외부 소스 사용:
-  # s.dependency 'DaroSDK', :podspec => 'path/to/DaroSDK.podspec'
-  # 또는 SPM 사용 시:
-  # s.dependency 'DaroSDK', :git => 'https://github.com/daro/sdk-ios.git', :tag => 'VERSION'
+  # DARO SDK 의존성 추가
+  # 최신 버전: https://github.com/delightroom/daro-ios-sdk/releases
+  # TODO: 실제 버전으로 교체 (예: '1.1.45')
+  # s.dependency 'DaroAds', '~> 1.1.45'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

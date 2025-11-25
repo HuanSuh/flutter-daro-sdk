@@ -6,11 +6,19 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // DARO SDK 플러그인 저장소 (Reward 앱용)
+        maven { url = uri("https://artifacts.applovin.com/android") }
     }
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+        // TODO: DARO SDK 플러그인 추가 (실제 버전으로 교체)
+        // Non-Reward 앱인 경우:
+        // classpath("so.daro:daro-plugin:1.0.12")
+        // Reward 앱인 경우:
+        // classpath("so.daro:daro-plugin:1.0.12")
+        // classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
     }
 }
 
@@ -27,6 +35,11 @@ allprojects {
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+// TODO: DARO SDK 플러그인 적용 (앱 카테고리에 따라 선택)
+// Non-Reward 앱인 경우:
+// apply plugin: "so.daro.a"
+// Reward 앱인 경우:
+// apply plugin: "so.daro.m"
 
 android {
     namespace = "com.example.flutter_daro_sdk"
@@ -34,8 +47,10 @@ android {
     compileSdk = 35
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        // minSdk 26 미만일 경우 Desugaring 설정 필요
+        // isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -48,15 +63,25 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        // DARO SDK 요구사항: minSdkVersion 23
+        minSdk = 23
+    }
+
+    buildTypes {
+        release {
+            // ProGuard 규칙 적용 (Non-Reward 앱용)
+            // Reward 앱의 경우 별도로 proguard를 설정하지 않아도 됩니다.
+            // consumerProguardFiles 'proguard-rules.pro'
+        }
     }
 
     dependencies {
         // TODO: DARO SDK 의존성 추가 (실제 의존성으로 교체)
-        // implementation("com.daro:sdk:VERSION")
-        // 또는
-        // implementation("com.daro:sdk-reward:VERSION") // Reward 앱용
-        // implementation("com.daro:sdk-nonreward:VERSION") // Non-reward 앱용
+        // DARO SDK 플러그인이 자동으로 의존성을 추가하므로 별도로 추가할 필요 없음
+        // 플러그인 적용 후 자동으로 포함됨
+        
+        // minSdk 26 미만일 경우 Desugaring 추가
+        // coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
         
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
