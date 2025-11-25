@@ -21,11 +21,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initializeSdk() async {
     try {
-      await DaroSdk.initialize(DaroSdkConfig(
-        appCategory: DaroAppCategory.reward,
-        appKey: 'test-app-key',
-        userId: 'test-user-id',
-      ));
+      await DaroSdk.initialize(
+        DaroSdkConfig(appCategory: DaroAppCategory.reward, appKey: 'test-app-key', userId: 'test-user-id'),
+      );
       _addLog('SDK 초기화 완료');
     } catch (e) {
       _addLog('SDK 초기화 실패: $e');
@@ -47,10 +45,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DARO SDK Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('DARO SDK Example'),
@@ -74,11 +69,7 @@ class _MyAppState extends State<MyApp> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildAdSection(
-                      title: '인터스티셜 광고',
-                      adType: DaroAdType.interstitial,
-                      adKey: 'interstitial-ad-key',
-                    ),
+                    _buildAdSection(title: '인터스티셜 광고', adType: DaroAdType.interstitial, adKey: 'interstitial-ad-key'),
                     const SizedBox(height: 16),
                     _buildAdSection(
                       title: '리워드 비디오 광고',
@@ -86,11 +77,7 @@ class _MyAppState extends State<MyApp> {
                       adKey: 'rewarded-video-ad-key',
                     ),
                     const SizedBox(height: 16),
-                    _buildAdSection(
-                      title: '팝업 광고',
-                      adType: DaroAdType.popup,
-                      adKey: 'popup-ad-key',
-                    ),
+                    _buildAdSection(title: '팝업 광고', adType: DaroAdType.popup, adKey: 'popup-ad-key'),
                   ],
                 ),
               ),
@@ -102,10 +89,7 @@ class _MyAppState extends State<MyApp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '로그',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Expanded(
                     child: ListView.builder(
@@ -114,10 +98,7 @@ class _MyAppState extends State<MyApp> {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Text(
-                            _logs[index],
-                            style: const TextStyle(fontSize: 12),
-                          ),
+                          child: Text(_logs[index], style: const TextStyle(fontSize: 12)),
                         );
                       },
                     ),
@@ -131,17 +112,8 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildAdSection({
-    required String title,
-    required DaroAdType adType,
-    required String adKey,
-  }) {
-    return _AdSectionWidget(
-      title: title,
-      adType: adType,
-      adKey: adKey,
-      onLog: _addLog,
-    );
+  Widget _buildAdSection({required String title, required DaroAdType adType, required String adKey}) {
+    return _AdSectionWidget(title: title, adType: adType, adKey: adKey, onLog: _addLog);
   }
 }
 
@@ -151,12 +123,7 @@ class _AdSectionWidget extends StatefulWidget {
   final String adKey;
   final Function(String) onLog;
 
-  const _AdSectionWidget({
-    required this.title,
-    required this.adType,
-    required this.adKey,
-    required this.onLog,
-  });
+  const _AdSectionWidget({required this.title, required this.adType, required this.adKey, required this.onLog});
 
   @override
   State<_AdSectionWidget> createState() => _AdSectionWidgetState();
@@ -180,7 +147,7 @@ class _AdSectionWidgetState extends State<_AdSectionWidget> {
       final eventType = event['type'] as String? ?? 'unknown';
       final data = event['data'] as Map<dynamic, dynamic>?;
       widget.onLog('${widget.title} - 이벤트: $eventType ${data != null ? "- $data" : ""}');
-      
+
       if (eventType == 'onDismiss') {
         setState(() {
           _status = '닫힘';
@@ -205,11 +172,9 @@ class _AdSectionWidgetState extends State<_AdSectionWidget> {
     });
 
     try {
-      await _ad!.load(DaroRewardAdConfig(
-        adType: widget.adType,
-        adKey: widget.adKey,
-        placement: 'example-${widget.adType.name}',
-      ));
+      await _ad!.load(
+        DaroRewardAdConfig(adType: widget.adType, adKey: widget.adKey, placement: 'example-${widget.adType.name}'),
+      );
       widget.onLog('${widget.title} - 로드 성공');
       setState(() {
         _isLoading = false;
@@ -304,40 +269,19 @@ class _AdSectionWidgetState extends State<_AdSectionWidget> {
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                Expanded(child: Text(widget.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: _getStatusColor(), borderRadius: BorderRadius.circular(4)),
                   child: Text(
                     _status,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Ad Key: ${widget.adKey}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
+            Text('Ad Key: ${widget.adKey}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
@@ -345,31 +289,23 @@ class _AdSectionWidgetState extends State<_AdSectionWidget> {
               children: [
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _loadAd,
-                  icon: _isLoading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.download),
+                  icon:
+                      _isLoading
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.download),
                   label: const Text('Load'),
                 ),
                 ElevatedButton.icon(
                   onPressed: _showAd,
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Show'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                 ),
                 OutlinedButton.icon(
                   onPressed: _disposeAd,
                   icon: const Icon(Icons.delete_outline),
                   label: const Text('Dispose'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                  ),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                 ),
               ],
             ),

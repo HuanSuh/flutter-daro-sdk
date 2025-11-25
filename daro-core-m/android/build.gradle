@@ -1,4 +1,4 @@
-group = "com.example.flutter_daro_sdk"
+group = "com.example.daro_core_m"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -6,12 +6,17 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // DARO SDK 플러그인 저장소 (Reward 앱용)
+        maven { url = uri("https://artifacts.applovin.com/android") }
     }
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        // DARO SDK 플러그인은 daro-core-a 또는 daro-core-m 플러그인에서 설정
+        // DARO SDK 플러그인 (Reward 앱용)
+        // TODO: 실제 버전으로 교체
+        // classpath("so.daro:daro-plugin:1.0.12")
+        // classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
     }
 }
 
@@ -19,24 +24,31 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // DARO SDK Maven 저장소는 daro-core-a 또는 daro-core-m 플러그인에서 설정
+        // DARO SDK Maven 저장소 (Reward 앱용)
+        maven { url = uri("https://android-sdk.is.com") }
+        maven { url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea") }
+        maven { url = uri("https://maven.ogury.co") }
+        maven { url = uri("https://artifact.bytedance.com/repository/pangle") }
+        maven { url = uri("https://s3.amazonaws.com/smaato-sdk-releases/") }
+        maven { url = uri("https://verve.jfrog.io/artifactory/verve-gradle-release") }
+        maven { url = uri("https://artifacts.applovin.com/android") }
     }
 }
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-// DARO SDK 플러그인은 daro-core-a (Non-Reward) 또는 daro-core-m (Reward) 플러그인에서 적용
+// DARO SDK 플러그인 적용 (Reward 앱용)
+// TODO: 실제 플러그인 적용
+// apply plugin: "so.daro.m"
 
 android {
-    namespace = "com.example.flutter_daro_sdk"
+    namespace = "com.example.daro_core_m"
 
     compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-        // minSdk 26 미만일 경우 Desugaring 설정 필요
-        // isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -55,12 +67,13 @@ android {
 
     buildTypes {
         release {
-            // ProGuard 규칙은 daro-core-a 플러그인에서 제공
+            // Reward 앱의 경우 별도로 proguard를 설정하지 않아도 됩니다.
         }
     }
 
     dependencies {
-        // DARO SDK 의존성은 daro-core-a 또는 daro-core-m 플러그인에서 제공
+        // DARO SDK 플러그인이 자동으로 의존성을 추가하므로 별도로 추가할 필요 없음
+        // 플러그인 적용 후 자동으로 포함됨
         
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
@@ -78,3 +91,4 @@ android {
         }
     }
 }
+

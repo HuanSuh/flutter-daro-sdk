@@ -1,21 +1,4 @@
 rootProject.name = 'flutter_daro_sdk'
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        // DARO SDK Maven 저장소 (Non-Reward 앱용)
-        maven { url = uri("https://artifact.bytedance.com/repository/pangle") }
-        maven { url = uri("https://verve.jfrog.io/artifactory/verve-gradle-release") }
-        maven { url = uri("https://cboost.jfrog.io/artifactory/chartboost-ads/") }
-        maven { url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/") }
-        maven { url = uri("https://repo.pubmatic.com/artifactory/public-repos") }
-        maven { url = uri("https://s3.amazonaws.com/smaato-sdk-releases/") }
-        maven { url = uri("https://android-sdk.is.com/") }
-        maven { url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea") }
-        // DARO SDK Maven 저장소 (Reward 앱용 - 추가)
-        maven { url = uri("https://maven.ogury.co") }
-        maven { url = uri("https://artifacts.applovin.com/android") }
-    }
-}
+// 메인 플러그인은 공통 설정만 포함
+// Reward/Non-Reward 앱별 설정은 daro-core-a 또는 daro-core-m 플러그인을 사용하세요

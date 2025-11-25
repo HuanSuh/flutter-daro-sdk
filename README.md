@@ -2,7 +2,17 @@
 
 DARO SDK Flutter plugin for Android and iOS. Supports both Reward and Non-reward apps.
 
+## 프로젝트 구조
+
+이 프로젝트는 세 개의 플러그인으로 구성되어 있습니다:
+
+- **flutter_daro_sdk**: 공통 SDK 기능을 제공하는 메인 플러그인
+- **daro_core_a**: Non-Reward 앱용 네이티브 의존성을 제공하는 플러그인
+- **daro_core_m**: Reward 앱용 네이티브 의존성을 제공하는 플러그인
+
 ## 설치
+
+### Reward 앱인 경우
 
 `pubspec.yaml`에 다음을 추가하세요:
 
@@ -12,6 +22,11 @@ dependencies:
     git:
       url: https://github.com/your-repo/flutter-daro-sdk.git
       ref: main
+  daro_core_m:
+    git:
+      url: https://github.com/your-repo/flutter-daro-sdk.git
+      ref: main
+      path: daro-core-m
 ```
 
 또는 로컬에서 사용하는 경우:
@@ -20,7 +35,38 @@ dependencies:
 dependencies:
   flutter_daro_sdk:
     path: ./flutter-daro-sdk
+  daro_core_m:
+    path: ./flutter-daro-sdk/daro-core-m
 ```
+
+### Non-Reward 앱인 경우
+
+`pubspec.yaml`에 다음을 추가하세요:
+
+```yaml
+dependencies:
+  flutter_daro_sdk:
+    git:
+      url: https://github.com/your-repo/flutter-daro-sdk.git
+      ref: main
+  daro_core_a:
+    git:
+      url: https://github.com/your-repo/flutter-daro-sdk.git
+      ref: main
+      path: daro-core-a
+```
+
+또는 로컬에서 사용하는 경우:
+
+```yaml
+dependencies:
+  flutter_daro_sdk:
+    path: ./flutter-daro-sdk
+  daro_core_a:
+    path: ./flutter-daro-sdk/daro-core-a
+```
+
+> **중요**: `flutter_daro_sdk`와 함께 반드시 해당 앱 카테고리에 맞는 core 플러그인(`daro_core_a` 또는 `daro_core_m`)을 함께 추가해야 합니다.
 
 ## 사용 방법
 
@@ -124,57 +170,82 @@ DARO SDK는 두 가지 앱 카테고리를 지원합니다:
 - 광고 시청을 통한 현물성 리워드 획득이 앱의 주요 기능인 앱
 - 예시: 앱테크 앱, 현금과 직접적으로 1:1 교환할 수 있는 포인트 앱
 
+## 플러그인별 역할
+
+### flutter_daro_sdk (메인 플러그인)
+- 공통 SDK 기능 제공
+- Flutter와 네이티브 간 통신 처리
+- 광고 로드/표시/이벤트 관리
+
+### daro_core_a (Non-Reward 앱용)
+- Non-Reward 앱용 Android/iOS 네이티브 의존성 제공
+- Non-Reward 앱용 Maven 저장소 및 플러그인 설정 포함
+- ProGuard 규칙 포함
+
+### daro_core_m (Reward 앱용)
+- Reward 앱용 Android/iOS 네이티브 의존성 제공
+- Reward 앱용 Maven 저장소 및 플러그인 설정 포함
+- AppLovin Quality Service 플러그인 포함
+
 ## 네이티브 SDK 연동
 
 이 플러그인은 DARO SDK의 네이티브 기능을 Flutter에서 사용할 수 있도록 래핑합니다. 실제 DARO SDK를 연동하려면:
 
 ### Android 설정
 
-#### 1. Maven 저장소 설정
+#### Core 플러그인 설정
 
-`android/settings.gradle`에 필요한 Maven 저장소가 이미 추가되어 있습니다.
+**Non-Reward 앱 (`daro_core_a`)의 경우:**
 
-#### 2. DARO 플러그인 추가
-
-`android/build.gradle`의 `buildscript` 섹션에 DARO 플러그인을 추가하세요:
+`daro-core-a/android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요:
 
 ```groovy
 buildscript {
     dependencies {
-        // Non-Reward 앱인 경우
         classpath("so.daro:daro-plugin:1.0.12")
-        
-        // Reward 앱인 경우
+    }
+}
+
+apply plugin: "so.daro.a"
+```
+
+**Reward 앱 (`daro_core_m`)의 경우:**
+
+`daro-core-m/android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요:
+
+```groovy
+buildscript {
+    dependencies {
         classpath("so.daro:daro-plugin:1.0.12")
         classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
     }
 }
-```
 
-#### 3. 플러그인 적용
-
-`android/build.gradle`에 플러그인을 적용하세요:
-
-```groovy
-// Non-Reward 앱인 경우
-apply plugin: "so.daro.a"
-
-// Reward 앱인 경우
 apply plugin: "so.daro.m"
 ```
 
-#### 4. 최소 SDK 버전
+#### 1. Maven 저장소 설정
 
-`minSdk = 23`으로 설정되어 있습니다 (DARO SDK 요구사항).
+각 core 플러그인의 `android/settings.gradle`에 필요한 Maven 저장소가 이미 추가되어 있습니다:
+- `daro-core-a/android/settings.gradle`: Non-Reward 앱용 저장소
+- `daro-core-m/android/settings.gradle`: Reward 앱용 저장소
 
-#### 5. ProGuard 규칙
+#### 2. DARO 플러그인 추가 및 적용
 
-Non-Reward 앱의 경우 `android/proguard-rules.pro` 파일이 포함되어 있습니다.
-Reward 앱의 경우 별도로 proguard를 설정하지 않아도 됩니다.
+각 core 플러그인의 `android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요. 위의 "Core 플러그인 설정" 섹션을 참고하세요.
 
-#### 6. 앱 키 설정 (선택사항)
+#### 3. 최소 SDK 버전
 
-`gradle.properties`에 앱 키를 설정할 수 있습니다:
+각 core 플러그인에서 `minSdk = 23`으로 설정되어 있습니다 (DARO SDK 요구사항).
+
+#### 4. ProGuard 규칙
+
+- **Non-Reward 앱 (`daro_core_a`)**: `daro-core-a/android/proguard-rules.pro` 파일이 포함되어 있습니다.
+- **Reward 앱 (`daro_core_m`)**: 별도로 proguard를 설정하지 않아도 됩니다.
+
+#### 5. 앱 키 설정 (선택사항)
+
+앱 프로젝트의 `android/gradle.properties`에 앱 키를 설정할 수 있습니다:
 
 ```properties
 daroAppKey=YOUR_APP_KEY
@@ -187,9 +258,9 @@ daroAppKey.Production=YOUR_PRODUCTION_KEY
 daroAppKey.Development=YOUR_DEVELOPMENT_KEY
 ```
 
-#### 7. SDK 초기화
+#### 6. SDK 초기화
 
-`android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+`flutter_daro_sdk/android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
 
 자세한 내용은 [DARO Android SDK 가이드](https://guide.daro.so/ko/sdk-integration/android/get-started)를 참고하세요.
 
@@ -197,13 +268,19 @@ daroAppKey.Development=YOUR_DEVELOPMENT_KEY
 
 #### 1. CocoaPods 의존성
 
-`ios/flutter_daro_sdk.podspec`에 DARO SDK 의존성을 추가하세요:
+**Reward 앱 (`daro_core_m`)의 경우:**
+
+`daro-core-m/ios/flutter_daro_sdk.podspec`에 DARO SDK 의존성을 추가하세요:
 
 ```ruby
 s.dependency 'DaroAds', '~> 1.1.45'
 ```
 
 최신 버전은 [DARO iOS SDK 릴리즈](https://github.com/delightroom/daro-ios-sdk/releases)에서 확인하세요.
+
+**Non-Reward 앱 (`daro_core_a`)의 경우:**
+
+Non-Reward 앱용 iOS SDK 의존성이 필요한 경우 `daro-core-a/ios/flutter_daro_sdk.podspec`에 추가하세요.
 
 #### 2. Podfile 설정
 
@@ -234,9 +311,29 @@ pod install --repo-update
 
 #### 4. SDK 초기화
 
-`ios/Classes/FlutterDaroSdkPlugin.swift`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
+`flutter_daro_sdk/ios/Classes/FlutterDaroSdkPlugin.swift`의 TODO 주석을 참고하여 실제 SDK 초기화 코드를 작성하세요.
 
 자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started)를 참고하세요.
+
+## 프로젝트 구조 요약
+
+```
+flutter-daro-sdk/
+├── lib/                          # flutter_daro_sdk 메인 플러그인
+│   ├── flutter_daro_sdk.dart
+│   ├── flutter_daro_sdk_platform_interface.dart
+│   └── flutter_daro_sdk_method_channel.dart
+├── android/                      # flutter_daro_sdk Android 구현
+├── ios/                          # flutter_daro_sdk iOS 구현
+├── daro-core-a/                  # Non-Reward 앱용 core 플러그인
+│   ├── lib/
+│   ├── android/                  # Non-Reward 앱용 Android 설정
+│   └── ios/                      # Non-Reward 앱용 iOS 설정
+└── daro-core-m/                  # Reward 앱용 core 플러그인
+    ├── lib/
+    ├── android/                  # Reward 앱용 Android 설정
+    └── ios/                      # Reward 앱용 iOS 설정
+```
 
 ## 참고사항
 
