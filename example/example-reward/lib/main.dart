@@ -23,11 +23,7 @@ class _MyAppState extends State<MyApp> {
     try {
       // Reward 앱 초기화
       await DaroSdk.initialize(
-        DaroSdkConfig(
-          appCategory: DaroAppCategory.reward,
-          appKey: 'test-app-key',
-          userId: 'test-user-id',
-        ),
+        DaroSdkConfig(appCategory: DaroAppCategory.reward, appKey: 'test-app-key', userId: 'test-user-id'),
       );
       _addLog('SDK 초기화 완료 (Reward 앱)');
     } catch (e) {
@@ -38,11 +34,14 @@ class _MyAppState extends State<MyApp> {
   final List<String> _logs = [];
 
   void _addLog(String message) {
-    setState(() {
-      _logs.insert(0, '${DateTime.now().toString().substring(11, 19)}: $message');
-      if (_logs.length > 50) {
-        _logs.removeLast();
-      }
+    Future.microtask(() {
+      if (!mounted) return;
+      setState(() {
+        _logs.insert(0, '${DateTime.now().toString().substring(11, 19)}: $message');
+        if (_logs.length > 50) {
+          _logs.removeLast();
+        }
+      });
     });
   }
 
@@ -52,20 +51,7 @@ class _MyAppState extends State<MyApp> {
       title: 'DARO SDK Example (Reward)',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('DARO SDK Example'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                setState(() {
-                  _logs.clear();
-                });
-              },
-              tooltip: '로그 지우기',
-            ),
-          ],
-        ),
+        appBar: AppBar(title: const Text('DARO SDK Example (Reward)')),
         body: Column(
           children: [
             Expanded(
@@ -94,7 +80,20 @@ class _MyAppState extends State<MyApp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _logs.clear();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: ListView.builder(

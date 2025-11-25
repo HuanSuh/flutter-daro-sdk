@@ -14,9 +14,7 @@ buildscript {
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
         // DARO SDK 플러그인 (Reward 앱용)
-        // TODO: 실제 버전으로 교체
-        // classpath("so.daro:daro-plugin:1.0.12")
-        // classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
+        classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
     }
 }
 
@@ -38,8 +36,7 @@ allprojects {
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 // DARO SDK 플러그인 적용 (Reward 앱용)
-// TODO: 실제 플러그인 적용
-// apply plugin: "so.daro.m"
+apply plugin: "so.daro.m"
 
 android {
     namespace = "com.example.daro_core_m"
@@ -49,10 +46,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        // minSdk 26 미만일 경우 Desugaring 설정 필요
+        // isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     sourceSets {
