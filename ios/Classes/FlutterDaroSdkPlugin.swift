@@ -296,13 +296,43 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
+    let placement = args["placement"] as? String
     let mapKey = getRewardAdMapKey(adType: adType, adKey: adKey)
-    guard let adInstance = rewardAdMap[mapKey] else {
-      result(false)
+    var adInstance = rewardAdMap[mapKey]
+    
+    // 인스턴스가 없으면 자동으로 생성하고 로드
+    if adInstance == nil {
+      // 새로운 리워드 광고 인스턴스 생성
+      adInstance = RewardAdInstance(
+        adType: adType,
+        adKey: adKey,
+        placement: placement,
+        viewController: rootViewController,
+        onEvent: { [weak self] eventType, data in
+          self?.sendRewardAdEvent(adKey: adKey, eventType: eventType, data: data)
+        }
+      )
+      
+      // 인스턴스를 맵에 저장
+      rewardAdMap[mapKey] = adInstance
+      
+      // 광고 로드 후 표시
+      adInstance?.load { [weak self] success, error in
+        guard let self = self else { return }
+        if success {
+          // 로드 성공 후 표시
+          adInstance?.show(viewController: rootViewController) { showSuccess, showError in
+            result(showSuccess)
+          }
+        } else {
+          result(false)
+        }
+      }
       return
     }
     
-    adInstance.show(viewController: rootViewController) { success, error in
+    // 인스턴스가 있으면 바로 표시
+    adInstance?.show(viewController: rootViewController) { success, error in
       result(success)
     }
   }

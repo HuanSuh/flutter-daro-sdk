@@ -300,17 +300,55 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         null
       )
 
+      val placement = args["placement"] as? String
+
       val currentActivity = activity
       if (currentActivity == null) {
         return result.success(false)
       }
 
       val mapKey = getRewardAdMapKey(adType, adKey)
-      val adInstance = rewardAdMap[mapKey]
+      var adInstance = rewardAdMap[mapKey]
+      
+      // 인스턴스가 없으면 자동으로 생성하고 로드
       if (adInstance == null) {
-        return result.success(false)
+        // 새로운 리워드 광고 인스턴스 생성
+        adInstance = RewardAdInstance(
+          adType = adType,
+          adKey = adKey,
+          placement = placement,
+          activity = currentActivity,
+          onEvent = { eventType, data ->
+            sendRewardAdEvent(adKey, eventType, data)
+          }
+        )
+
+        // 인스턴스를 맵에 저장
+        rewardAdMap[mapKey] = adInstance
+
+        // 광고 로드 후 표시
+        adInstance.load(object : RewardAdLoadCallback {
+          override fun onSuccess() {
+            // 로드 성공 후 표시
+            adInstance?.show(currentActivity, object : RewardAdShowCallback {
+              override fun onSuccess() {
+                result.success(true)
+              }
+
+              override fun onError(error: String) {
+                result.success(false)
+              }
+            })
+          }
+
+          override fun onError(error: String) {
+            result.success(false)
+          }
+        })
+        return
       }
 
+      // 인스턴스가 있으면 바로 표시
       adInstance.show(currentActivity, object : RewardAdShowCallback {
         override fun onSuccess() {
           result.success(true)
