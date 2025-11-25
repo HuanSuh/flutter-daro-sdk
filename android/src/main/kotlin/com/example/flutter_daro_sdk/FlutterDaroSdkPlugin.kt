@@ -29,6 +29,9 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// 앱 카테고리 타입
   private var appCategory: String? = null
 
+  /// 리워드 광고 인스턴스 맵 (타입과 adKey를 조합한 키 사용: "type:adKey")
+  private val rewardAdMap = mutableMapOf<String, RewardAdInstance>()
+
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, "com.daro.flutter_daro_sdk/channel")
     methodChannel.setMethodCallHandler(this)
@@ -51,7 +54,17 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         initialize(call, result)
       }
       "showRewardAd" -> {
+        // 기존 showRewardAd는 다른 용도로 사용되므로 별도 처리
         showRewardAd(call, result)
+      }
+      "loadRewardAd" -> {
+        loadRewardAd(call, result)
+      }
+      "showRewardAdInstance" -> {
+        showRewardAdInstance(call, result)
+      }
+      "disposeRewardAd" -> {
+        disposeRewardAd(call, result)
       }
       else -> {
         result.notImplemented()
@@ -183,6 +196,166 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     eventSink?.success(event)
   }
 
+  /// 리워드 광고 이벤트를 Flutter로 전송
+  private fun sendRewardAdEvent(adKey: String, eventType: String, data: Map<String, Any?>) {
+    val event = mapOf(
+      "adKey" to adKey,
+      "event" to mapOf(
+        "type" to eventType,
+        "data" to data
+      )
+    )
+    eventSink?.success(event)
+  }
+
+  /// 타입과 키를 조합한 맵 키 생성
+  private fun getRewardAdMapKey(adType: String, adKey: String): String {
+    return "$adType:$adKey"
+  }
+
+  /// 리워드 광고 로드
+  private fun loadRewardAd(call: MethodCall, result: Result) {
+    try {
+      val args = call.arguments as? Map<*, *> ?: return result.error(
+        "INVALID_ARGUMENT",
+        "Invalid arguments for loadRewardAd",
+        null
+      )
+
+      val adType = args["adType"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adType is required",
+        null
+      )
+
+      val adKey = args["adKey"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adKey is required",
+        null
+      )
+
+      val placement = args["placement"] as? String
+
+      val currentActivity = activity
+      if (currentActivity == null) {
+        return result.error(
+          "NO_ACTIVITY",
+          "No activity available to load ad",
+          null
+        )
+      }
+
+      val mapKey = getRewardAdMapKey(adType, adKey)
+
+      // 기존 인스턴스가 있으면 해제
+      rewardAdMap[mapKey]?.destroy()
+
+      // 새로운 리워드 광고 인스턴스 생성
+      val adInstance = RewardAdInstance(
+        adType = adType,
+        adKey = adKey,
+        placement = placement,
+        activity = currentActivity,
+        onEvent = { eventType, data ->
+          sendRewardAdEvent(adKey, eventType, data)
+        }
+      )
+
+      // 인스턴스를 맵에 저장
+      rewardAdMap[mapKey] = adInstance
+
+      // 광고 로드
+      adInstance.load(object : RewardAdLoadCallback {
+        override fun onSuccess() {
+          result.success(null)
+        }
+
+        override fun onError(error: String) {
+          result.error("LOAD_ERROR", error, null)
+        }
+      })
+    } catch (e: Exception) {
+      result.error("LOAD_ERROR", e.message, null)
+    }
+  }
+
+  /// 리워드 광고 인스턴스 표시
+  private fun showRewardAdInstance(call: MethodCall, result: Result) {
+    try {
+      val args = call.arguments as? Map<*, *> ?: return result.error(
+        "INVALID_ARGUMENT",
+        "Invalid arguments for showRewardAd",
+        null
+      )
+
+      val adType = args["adType"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adType is required",
+        null
+      )
+
+      val adKey = args["adKey"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adKey is required",
+        null
+      )
+
+      val currentActivity = activity
+      if (currentActivity == null) {
+        return result.success(false)
+      }
+
+      val mapKey = getRewardAdMapKey(adType, adKey)
+      val adInstance = rewardAdMap[mapKey]
+      if (adInstance == null) {
+        return result.success(false)
+      }
+
+      adInstance.show(currentActivity, object : RewardAdShowCallback {
+        override fun onSuccess() {
+          result.success(true)
+        }
+
+        override fun onError(error: String) {
+          result.success(false)
+        }
+      })
+    } catch (e: Exception) {
+      result.success(false)
+    }
+  }
+
+  /// 리워드 광고 인스턴스 해제
+  private fun disposeRewardAd(call: MethodCall, result: Result) {
+    try {
+      val args = call.arguments as? Map<*, *> ?: return result.error(
+        "INVALID_ARGUMENT",
+        "Invalid arguments for disposeRewardAd",
+        null
+      )
+
+      val adType = args["adType"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adType is required",
+        null
+      )
+
+      val adKey = args["adKey"] as? String ?: return result.error(
+        "INVALID_ARGUMENT",
+        "adKey is required",
+        null
+      )
+
+      val mapKey = getRewardAdMapKey(adType, adKey)
+      val adInstance = rewardAdMap.remove(mapKey)
+      adInstance?.destroy()
+
+      result.success(null)
+    } catch (e: Exception) {
+      result.error("DISPOSE_ERROR", e.message, null)
+    }
+  }
+
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     methodChannel.setMethodCallHandler(null)
     eventChannel.setStreamHandler(null)
@@ -202,5 +375,116 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onDetachedFromActivity() {
     activity = null
+    // 모든 리워드 광고 인스턴스 해제
+    rewardAdMap.values.forEach { it.destroy() }
+    rewardAdMap.clear()
   }
+}
+
+/// 리워드 광고 인스턴스 클래스 (인터스티셜, 리워드 비디오, 팝업)
+class RewardAdInstance(
+  private val adType: String,
+  private val adKey: String,
+  private val placement: String?,
+  private val activity: Activity,
+  private val onEvent: (String, Map<String, Any?>) -> Unit
+) {
+  // TODO: 실제 DARO SDK 타입으로 교체 필요
+  // private var loader: Any? = null
+  // private var ad: Any? = null
+
+  /// 광고 로드
+  fun load(callback: RewardAdLoadCallback) {
+    // TODO: 실제 DARO SDK 코드로 교체
+    // when (adType) {
+    //   "interstitial" -> {
+    //     val adUnit = DaroInterstitialAdUnit(
+    //       key = adKey,
+    //       placement = placement ?: ""
+    //     )
+    //     loader = DaroInterstitialAdLoader(
+    //       context = activity,
+    //       adUnit = adUnit
+    //     )
+    //     // ... 리스너 설정 및 로드
+    //   }
+    //   "rewardedVideo" -> {
+    //     val adUnit = DaroRewardedVideoAdUnit(
+    //       key = adKey,
+    //       placement = placement ?: ""
+    //     )
+    //     loader = DaroRewardedVideoAdLoader(
+    //       context = activity,
+    //       adUnit = adUnit
+    //     )
+    //     // ... 리스너 설정 및 로드
+    //   }
+    //   "popup" -> {
+    //     val adUnit = DaroPopupAdUnit(
+    //       key = adKey,
+    //       placement = placement ?: ""
+    //     )
+    //     loader = DaroPopupAdLoader(
+    //       context = activity,
+    //       adUnit = adUnit
+    //     )
+    //     // ... 리스너 설정 및 로드
+    //   }
+    // }
+
+    // 임시 구현: 로드 성공으로 처리
+    callback.onSuccess()
+  }
+
+  /// 광고 표시
+  fun show(activity: Activity, callback: RewardAdShowCallback) {
+    // TODO: 실제 DARO SDK 코드로 교체
+    // when (adType) {
+    //   "interstitial" -> {
+    //     val currentAd = ad as? DaroInterstitialAd
+    //     currentAd?.show(activity = activity)
+    //   }
+    //   "rewardedVideo" -> {
+    //     val currentAd = ad as? DaroRewardedVideoAd
+    //     currentAd?.show(activity = activity)
+    //   }
+    //   "popup" -> {
+    //     val currentAd = ad as? DaroPopupAd
+    //     currentAd?.show(activity = activity)
+    //   }
+    // }
+
+    // 임시 구현: 표시 성공으로 처리
+    callback.onSuccess()
+  }
+
+  /// 광고 인스턴스 해제
+  fun destroy() {
+    // TODO: 실제 DARO SDK 코드로 교체
+    // when (adType) {
+    //   "interstitial" -> {
+    //     (ad as? DaroInterstitialAd)?.destroy()
+    //   }
+    //   "rewardedVideo" -> {
+    //     (ad as? DaroRewardedVideoAd)?.destroy()
+    //   }
+    //   "popup" -> {
+    //     (ad as? DaroPopupAd)?.destroy()
+    //   }
+    // }
+    // ad = null
+    // loader = null
+  }
+}
+
+/// 리워드 광고 로드 콜백
+interface RewardAdLoadCallback {
+  fun onSuccess()
+  fun onError(error: String)
+}
+
+/// 리워드 광고 표시 콜백
+interface RewardAdShowCallback {
+  fun onSuccess()
+  fun onError(error: String)
 }
