@@ -1,4 +1,0 @@
-rootProject.name = 'flutter_daro_sdk'
-
-// 메인 플러그인은 공통 설정만 포함
-// Reward/Non-Reward 앱별 설정은 daro-core-a 또는 daro-core-m 플러그인을 사용하세요

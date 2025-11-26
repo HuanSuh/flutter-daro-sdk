@@ -1,6 +1,5 @@
 # DARO SDK ProGuard Rules
 # Non-Reward 앱용 ProGuard 규칙
-# Reward 앱의 경우 별도로 proguard를 설정하지 않아도 됩니다.
 
 # ByteDance (Pangle)
 -keep class com.bytedance.sdk.** { *; }

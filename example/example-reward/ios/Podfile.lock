@@ -1,0 +1,318 @@
+PODS:
+  - Ads-Global (7.6.0.6):
+    - Ads-Global/BUAdSDK (= 7.6.0.6)
+  - Ads-Global/BUAdSDK (7.6.0.6)
+  - AmazonPublisherServicesSDK (5.3.0)
+  - AppLovinMediationAmazonAdMarketplaceAdapter (5.3.0.0):
+    - AppLovinSDK
+  - AppLovinMediationByteDanceAdapter (7.6.0.6.0):
+    - Ads-Global (= 7.6.0.6)
+    - AppLovinSDK (>= 13.0.0)
+  - AppLovinMediationChartboostAdapter (9.9.2.1):
+    - AppLovinSDK (>= 13.0.0)
+    - ChartboostSDK (= 9.9.2)
+  - AppLovinMediationFacebookAdapter (6.20.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - FBAudienceNetwork (= 6.20.1)
+  - AppLovinMediationFyberAdapter (8.4.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - Fyber_Marketplace_SDK (= 8.4.1)
+  - AppLovinMediationGoogleAdapter (12.8.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - Google-Mobile-Ads-SDK (= 12.8.0)
+  - AppLovinMediationInMobiAdapter (10.8.6.0):
+    - AppLovinSDK (>= 13.0.0)
+    - InMobiSDK (= 10.8.6)
+  - AppLovinMediationIronSourceAdapter (8.11.0.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - IronSourceSDK/Ads (= 8.11.0.0)
+  - AppLovinMediationLineAdapter (2.9.20250912.0):
+    - AppLovinSDK (>= 13.0.0)
+    - FiveAd (= 2.9.20250912)
+  - AppLovinMediationMintegralAdapter (7.7.9.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - MintegralAdSDK (= 7.7.9)
+    - MintegralAdSDK/BidSplashAd (= 7.7.9)
+  - AppLovinMediationMolocoAdapter (3.12.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - MolocoSDKiOS (= 3.12.1)
+  - AppLovinMediationOguryPresageAdapter (5.1.0.1):
+    - AppLovinSDK
+    - OgurySdk (= 5.1.0)
+  - AppLovinMediationSmaatoAdapter (22.9.3.1):
+    - AppLovinSDK (>= 13.0.0)
+    - smaato-ios-sdk (= 22.9.3)
+    - smaato-ios-sdk/InApp (= 22.9.3)
+  - AppLovinMediationUnityAdsAdapter (4.16.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - UnityAds (= 4.16.1)
+  - AppLovinMediationVerveAdapter (3.7.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - HyBid (= 3.7.0)
+  - AppLovinMediationVungleAdapter (7.5.3.0):
+    - AppLovinSDK (>= 13.0.0)
+    - VungleAds (= 7.5.3)
+  - AppLovinSDK (13.4.0)
+  - ATOM-Standalone (3.8.0)
+  - ChartboostSDK (9.9.2)
+  - daro_core_m (0.0.1):
+    - DaroMAds (= 1.1.45)
+    - Flutter
+  - DaroMAds (1.1.45):
+    - AmazonPublisherServicesSDK (= 5.3.0)
+    - AppLovinMediationAmazonAdMarketplaceAdapter (= 5.3.0.0)
+    - AppLovinMediationByteDanceAdapter (= 7.6.0.6.0)
+    - AppLovinMediationChartboostAdapter (= 9.9.2.1)
+    - AppLovinMediationFacebookAdapter (= 6.20.1.0)
+    - AppLovinMediationFyberAdapter (= 8.4.1.0)
+    - AppLovinMediationGoogleAdapter (= 12.8.0.0)
+    - AppLovinMediationInMobiAdapter (= 10.8.6.0)
+    - AppLovinMediationIronSourceAdapter (= 8.11.0.0.0)
+    - AppLovinMediationLineAdapter (= 2.9.20250912.0)
+    - AppLovinMediationMintegralAdapter (= 7.7.9.0.0)
+    - AppLovinMediationMolocoAdapter (= 3.12.1.0)
+    - AppLovinMediationOguryPresageAdapter (= 5.1.0.1)
+    - AppLovinMediationSmaatoAdapter (= 22.9.3.1)
+    - AppLovinMediationUnityAdsAdapter (= 4.16.1.0)
+    - AppLovinMediationVerveAdapter (= 3.7.0.0)
+    - AppLovinMediationVungleAdapter (= 7.5.3.0)
+    - AppLovinSDK (= 13.4.0)
+  - FBAudienceNetwork (6.20.1)
+  - FiveAd (2.9.20250912)
+  - Flutter (1.0.0)
+  - flutter_daro_sdk (0.0.1):
+    - Flutter
+  - Fyber_Marketplace_SDK (8.4.1)
+  - Google-Mobile-Ads-SDK (12.8.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - HyBid (3.7.0):
+    - HyBid/ATOM (= 3.7.0)
+    - HyBid/Banner (= 3.7.0)
+    - HyBid/Core (= 3.7.0)
+    - HyBid/FullScreen (= 3.7.0)
+    - HyBid/Native (= 3.7.0)
+    - HyBid/RewardedVideo (= 3.7.0)
+  - HyBid/ATOM (3.7.0):
+    - ATOM-Standalone
+    - HyBid/Core
+  - HyBid/Banner (3.7.0):
+    - HyBid/Core
+  - HyBid/Core (3.7.0)
+  - HyBid/FullScreen (3.7.0):
+    - HyBid/Core
+  - HyBid/Native (3.7.0):
+    - HyBid/Core
+  - HyBid/RewardedVideo (3.7.0):
+    - HyBid/Core
+  - InMobiSDK (10.8.6)
+  - integration_test (0.0.1):
+    - Flutter
+  - IronSourceSDK/Ads (8.11.0.0)
+  - MintegralAdSDK (7.7.9):
+    - MintegralAdSDK/BannerAd (= 7.7.9)
+    - MintegralAdSDK/BidBannerAd (= 7.7.9)
+    - MintegralAdSDK/BidInterstitialVideoAd (= 7.7.9)
+    - MintegralAdSDK/BidNativeAd (= 7.7.9)
+    - MintegralAdSDK/BidNewInterstitialAd (= 7.7.9)
+    - MintegralAdSDK/BidRewardVideoAd (= 7.7.9)
+    - MintegralAdSDK/InterstitialVideoAd (= 7.7.9)
+    - MintegralAdSDK/NativeAd (= 7.7.9)
+    - MintegralAdSDK/NewInterstitialAd (= 7.7.9)
+    - MintegralAdSDK/RewardVideoAd (= 7.7.9)
+  - MintegralAdSDK/BannerAd (7.7.9):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidBannerAd (7.7.9):
+    - MintegralAdSDK/BannerAd
+    - MintegralAdSDK/BidNativeAd
+  - MintegralAdSDK/BidInterstitialVideoAd (7.7.9):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/InterstitialVideoAd
+  - MintegralAdSDK/BidNativeAd (7.7.9):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidNewInterstitialAd (7.7.9):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/NewInterstitialAd
+  - MintegralAdSDK/BidRewardVideoAd (7.7.9):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/RewardVideoAd
+  - MintegralAdSDK/BidSplashAd (7.7.9):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/SplashAd
+  - MintegralAdSDK/InterstitialVideoAd (7.7.9):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NativeAd (7.7.9)
+  - MintegralAdSDK/NewInterstitialAd (7.7.9):
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/RewardVideoAd (7.7.9):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/SplashAd (7.7.9):
+    - MintegralAdSDK/NativeAd
+  - MolocoSDKiOS (3.12.1)
+  - OguryAds (4.1.0):
+    - OguryAds/OMID (= 4.1.0)
+    - OguryCore (= 2.1.0)
+  - OguryAds/OMID (4.1.0):
+    - OguryCore (= 2.1.0)
+  - OguryCore (2.1.0)
+  - OgurySdk (5.1.0):
+    - OguryCore (= 2.1.0)
+    - OgurySdk/OguryAds (= 5.1.0)
+  - OgurySdk/OguryAds (5.1.0):
+    - OguryAds (= 4.1.0)
+    - OguryCore (= 2.1.0)
+  - smaato-ios-sdk (22.9.3):
+    - smaato-ios-sdk/Full (= 22.9.3)
+  - smaato-ios-sdk/Banner (22.9.3):
+    - smaato-ios-sdk/Modules/Banner
+    - smaato-ios-sdk/Modules/Core
+    - smaato-ios-sdk/Modules/RichMedia
+  - smaato-ios-sdk/Full (22.9.3):
+    - smaato-ios-sdk/Banner
+    - smaato-ios-sdk/Interstitial
+    - smaato-ios-sdk/Native
+    - smaato-ios-sdk/Outstream
+    - smaato-ios-sdk/RewardedAds
+  - smaato-ios-sdk/InApp (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Interstitial (22.9.3):
+    - smaato-ios-sdk/Modules/Interstitial
+    - smaato-ios-sdk/Modules/RichMedia
+    - smaato-ios-sdk/Modules/Video
+  - smaato-ios-sdk/Modules/Banner (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Modules/Core (22.9.3)
+  - smaato-ios-sdk/Modules/Interstitial (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Modules/Native (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Modules/OpenMeasurement (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Modules/Outstream (22.9.3):
+    - smaato-ios-sdk/Modules/Banner
+    - smaato-ios-sdk/Modules/Core
+    - smaato-ios-sdk/Modules/RichMedia
+  - smaato-ios-sdk/Modules/RewardedAds (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+  - smaato-ios-sdk/Modules/RichMedia (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+    - smaato-ios-sdk/Modules/OpenMeasurement
+  - smaato-ios-sdk/Modules/Video (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+    - smaato-ios-sdk/Modules/OpenMeasurement
+  - smaato-ios-sdk/Native (22.9.3):
+    - smaato-ios-sdk/Modules/Core
+    - smaato-ios-sdk/Modules/Native
+  - smaato-ios-sdk/Outstream (22.9.3):
+    - smaato-ios-sdk/Modules/Outstream
+  - smaato-ios-sdk/RewardedAds (22.9.3):
+    - smaato-ios-sdk/Modules/RewardedAds
+    - smaato-ios-sdk/Modules/Video
+  - UnityAds (4.16.1)
+  - VungleAds (7.5.3)
+
+DEPENDENCIES:
+  - daro_core_m (from `.symlinks/plugins/daro_core_m/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_daro_sdk (from `.symlinks/plugins/flutter_daro_sdk/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Ads-Global
+    - AmazonPublisherServicesSDK
+    - AppLovinMediationAmazonAdMarketplaceAdapter
+    - AppLovinMediationByteDanceAdapter
+    - AppLovinMediationChartboostAdapter
+    - AppLovinMediationFacebookAdapter
+    - AppLovinMediationFyberAdapter
+    - AppLovinMediationGoogleAdapter
+    - AppLovinMediationInMobiAdapter
+    - AppLovinMediationIronSourceAdapter
+    - AppLovinMediationLineAdapter
+    - AppLovinMediationMintegralAdapter
+    - AppLovinMediationMolocoAdapter
+    - AppLovinMediationOguryPresageAdapter
+    - AppLovinMediationSmaatoAdapter
+    - AppLovinMediationUnityAdsAdapter
+    - AppLovinMediationVerveAdapter
+    - AppLovinMediationVungleAdapter
+    - AppLovinSDK
+    - ATOM-Standalone
+    - ChartboostSDK
+    - DaroMAds
+    - FBAudienceNetwork
+    - FiveAd
+    - Fyber_Marketplace_SDK
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - HyBid
+    - InMobiSDK
+    - IronSourceSDK
+    - MintegralAdSDK
+    - MolocoSDKiOS
+    - OguryAds
+    - OguryCore
+    - OgurySdk
+    - smaato-ios-sdk
+    - UnityAds
+    - VungleAds
+
+EXTERNAL SOURCES:
+  daro_core_m:
+    :path: ".symlinks/plugins/daro_core_m/ios"
+  Flutter:
+    :path: Flutter
+  flutter_daro_sdk:
+    :path: ".symlinks/plugins/flutter_daro_sdk/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  Ads-Global: 38b8eccaad869384e267e047e5db9a2efb0a94be
+  AmazonPublisherServicesSDK: 351eb855ee50b7dfb15f7e2569c1bf31a5fa9fe7
+  AppLovinMediationAmazonAdMarketplaceAdapter: 323c253d768e8103970a7dc45010b47f24ce6e27
+  AppLovinMediationByteDanceAdapter: fc35cd402e66eb8e7b026bad3969fcebbd173c44
+  AppLovinMediationChartboostAdapter: cce48c961ebdf5db8fcca2a06962b4e074659231
+  AppLovinMediationFacebookAdapter: 7c9837eb64a43823812dc23609eac01973ff8b74
+  AppLovinMediationFyberAdapter: 1c35089d48d1c5e35652d45411f65ff992c49417
+  AppLovinMediationGoogleAdapter: 837516e3e432ebcd09e6565cac7ea7d69f5ec23d
+  AppLovinMediationInMobiAdapter: 4699701fa946b78151dc5aa0394cc1feda249809
+  AppLovinMediationIronSourceAdapter: 5a970d97567bc5576bd963a83fc4465c0fada0a9
+  AppLovinMediationLineAdapter: 2ec48034e66cc04caf747938873e19c2d3382e30
+  AppLovinMediationMintegralAdapter: c73b2cbce91600868c49c08adae5cc2664bc330c
+  AppLovinMediationMolocoAdapter: 956347a16d8d0839d436e4dd53fdcddadb37d0f5
+  AppLovinMediationOguryPresageAdapter: d4cb4f9e1d0a5f014bf528826e2661dadc3aefd0
+  AppLovinMediationSmaatoAdapter: 364c81c15f796198c34c66f0c711a21a771c8b7a
+  AppLovinMediationUnityAdsAdapter: 16e2c3cc72761ce5bd395a5c91222ad15c040cb5
+  AppLovinMediationVerveAdapter: bc32be287d096c77c60890d0cb5258fdc6b25d2f
+  AppLovinMediationVungleAdapter: 0c957ff2f95dc5ec8e078b00cb7dbece2724f745
+  AppLovinSDK: 33fcc783889e2d522ae26886b31e5551246a5b2f
+  ATOM-Standalone: ad17f0d0e60b22f67ed99e5a336425d68d324f3e
+  ChartboostSDK: 9298ec2ea9ae6c5881877f87ca6bc3f68449fe0f
+  daro_core_m: 40f326795a5dbbd8a93521c27a958413dc94a060
+  DaroMAds: 20a26c3105e6f4e75bdb910f2eec1c0d588a802f
+  FBAudienceNetwork: 08e86d63a05b3a5a59414af12e4af8d756943c80
+  FiveAd: 31ad62dbf730e7cd064c8ddd4c6a814c02bd500b
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_daro_sdk: 4e708b82146557ff61da4e18278986fec0d48656
+  Fyber_Marketplace_SDK: c908580dc3d65e67f2862df137f8ae7dad6e3321
+  Google-Mobile-Ads-SDK: ece122bc89b38cab319543bc464a9ceabfe1d307
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  HyBid: 84608b62cdebde3dcab171948959fa617957063b
+  InMobiSDK: a6e7bfbecb698c83183f42c5a3cfa1ac52f16bff
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  IronSourceSDK: 32eeb199f608b590112a8263028a485e50f8d1b7
+  MintegralAdSDK: 054814f99bb7e967b8974fe635d9005b225cbe42
+  MolocoSDKiOS: 0383b7b2f825c2244b9e7e14d5c0b63c30467b7f
+  OguryAds: 93c866029f09c186a3ee8b203cfaa06d759d3f24
+  OguryCore: 77ba11cdb95d58d7093a36401140516b5bacbc7b
+  OgurySdk: 84eb65e374beaf9fc4f6f0c0d2ffa963ebf67288
+  smaato-ios-sdk: afa210ca22398b9ae75fddc921472b05e0bb3d37
+  UnityAds: 24cb6536614958aefcd5a44576eb4f3157c781d0
+  VungleAds: 3b273eba0219680dbef90d51e690d165422702d9
+
+PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
+
+COCOAPODS: 1.16.2
