@@ -42,15 +42,54 @@ class DaroAdResult {
 }
 
 /// 광고 이벤트 리스너
-typedef DaroAdListener = void Function(String adId, Map<dynamic, dynamic> event);
+enum DaroRewardAdEvent {
+  onAdLoadSuccess,
+  onAdLoadFail,
+  onAdImpression,
+  onAdClicked,
+  onShown,
+  onRewarded,
+  onDismiss,
+  onFailedToShow;
+
+  static DaroRewardAdEvent? byName(String? name) {
+    if (name == null) return null;
+    try {
+      return DaroRewardAdEvent.values.firstWhere((e) => e.name == name);
+    } catch (_) {
+      return null;
+    }
+  }
+}
 
 class DaroRewardAdListener {
-  final void Function(String adId, Map<dynamic, dynamic> event)? onShown;
-  final void Function(String adId, Map<dynamic, dynamic> event)? onRewarded;
-  final void Function(String adId, Map<dynamic, dynamic> event)? onDismiss;
-  final void Function(String adId, Map<dynamic, dynamic> event)? onFailedToShow;
+  // 광고 로드 성공
+  final void Function(String adId)? onAdLoadSuccess;
+  // 광고 로드 실패
+  final void Function(String adId, Map<dynamic, dynamic> data)? onAdLoadFail;
+  // 광고 노출(성과 집계)
+  final void Function(String adId)? onAdImpression;
+  // 광고 클릭
+  final void Function(String adId)? onAdClicked;
+  // 광고 표시
+  final void Function(String adId)? onShown;
+  // 광고 리워드 적립
+  final void Function(String adId, Map<dynamic, dynamic> data)? onRewarded;
+  // 광고 닫힘
+  final void Function(String adId)? onDismiss;
+  // 광고 표시 실패
+  final void Function(String adId, Map<dynamic, dynamic> data)? onFailedToShow;
 
-  DaroRewardAdListener({this.onShown, this.onRewarded, this.onDismiss, this.onFailedToShow});
+  DaroRewardAdListener({
+    this.onAdLoadSuccess,
+    this.onAdLoadFail,
+    this.onAdImpression,
+    this.onAdClicked,
+    this.onShown,
+    this.onRewarded,
+    this.onDismiss,
+    this.onFailedToShow,
+  });
 }
 
 /// 리워드 광고 클래스 (인터스티셜, 리워드 비디오, 팝업)
@@ -67,13 +106,13 @@ class DaroRewardAd {
   DaroRewardAd._(this.adType, this.adUnit);
 
   /// 광고 로드
-  Future<void> load() async {
-    await _platform.loadRewardAd(adType, adUnit);
+  Future<bool> load() async {
+    return _platform.loadRewardAd(adType, adUnit);
   }
 
   /// 광고 표시
   Future<bool> show() async {
-    return await _platform.showRewardAd(adType, adUnit);
+    return _platform.showRewardAd(adType, adUnit);
   }
 
   /// 광고 이벤트 리스너 등록

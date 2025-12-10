@@ -16,7 +16,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   final eventChannel = const EventChannel('com.daro.flutter_daro_sdk/events');
 
   // /// 광고 ID별 이벤트 리스너 맵
-  // final Map<String, DaroAdListener> _adListeners = {};
+  final Map<String, DaroRewardAdListener> _rewardAdListeners = {};
 
   /// 이벤트 스트림 구독
   StreamSubscription<dynamic>? _eventSubscription;
@@ -32,15 +32,34 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
         (event) {
           if (event is Map) {
             final adUnit = event['adUnit'] as String?;
-            final eventData = event['event'] as Map<dynamic, dynamic>?;
+            final eventData = event['data'] as Map<dynamic, dynamic>?;
 
-            if (eventData != null) {
-              // 리워드 광고 이벤트 처리
-              if (adUnit != null) {
-                // final rewardAdListener = _rewardAdListeners[adUnit];
-                // if (rewardAdListener != null) {
-                //   rewardAdListener(adUnit, eventData);
-                // }
+            // 리워드 광고 이벤트 처리
+            if (adUnit != null) {
+              final eventName = DaroRewardAdEvent.byName(event['eventName'] as String?);
+              debugPrint('[DARO] $eventName - $adUnit ${eventData?.isNotEmpty == true ? ' : $eventData' : ''}');
+              final rewardAdListener = _rewardAdListeners[adUnit];
+              if (rewardAdListener != null) {
+                switch (eventName) {
+                  case DaroRewardAdEvent.onAdLoadSuccess:
+                    rewardAdListener.onAdLoadSuccess?.call(adUnit);
+                  case DaroRewardAdEvent.onAdLoadFail:
+                    rewardAdListener.onAdLoadFail?.call(adUnit, eventData ?? {});
+                  case DaroRewardAdEvent.onAdImpression:
+                    rewardAdListener.onAdImpression?.call(adUnit);
+                  case DaroRewardAdEvent.onAdClicked:
+                    rewardAdListener.onAdClicked?.call(adUnit);
+                  case DaroRewardAdEvent.onShown:
+                    rewardAdListener.onShown?.call(adUnit);
+                  case DaroRewardAdEvent.onRewarded:
+                    rewardAdListener.onRewarded?.call(adUnit, eventData ?? {});
+                  case DaroRewardAdEvent.onDismiss:
+                    rewardAdListener.onDismiss?.call(adUnit);
+                  case DaroRewardAdEvent.onFailedToShow:
+                    rewardAdListener.onFailedToShow?.call(adUnit, eventData ?? {});
+                  case null:
+                    break;
+                }
               }
             }
           }
@@ -68,28 +87,32 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     try {
       final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
       return result ?? false;
-    } on PlatformException catch (error) {
-      // 초기화 실패 시 false 반환
-      debugPrint('initialize failed: ${error.message}');
+    } catch (e) {
+      debugPrint('[DARO] initialize failed: $e');
       return false;
     }
   }
 
   @override
-  Future<void> setOptions(DaroSdkOptions options) async {
+  Future<bool> setOptions(DaroSdkOptions options) async {
     try {
-      await methodChannel.invokeMethod<void>('setOptions', options.toMap());
-    } on PlatformException catch (e) {
-      throw Exception('Failed to set options: ${e.message}');
+      final result = await methodChannel.invokeMethod<bool>('setOptions', options.toMap());
+      return result ?? false;
+    } catch (e) {
+      debugPrint('[DARO] setOptions failed: $e');
+      return false;
     }
   }
 
   @override
-  Future<void> loadRewardAd(DaroRewardAdType type, String adUnit) async {
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
-      return methodChannel.invokeMethod<void>('loadRewardAd', {'adType': type.name, 'adUnit': adUnit});
-    } on PlatformException catch (e) {
-      throw Exception('Failed to load reward ad: ${e.message}');
+      final result = await methodChannel.invokeMethod<bool>('loadRewardAd', {'adType': type.name, 'adUnit': adUnit});
+      return result ?? false;
+    } catch (e) {
+      debugPrint('[DARO] loadRewardAd failed: $e');
+      _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, {'error': e});
+      return false;
     }
   }
 
@@ -98,27 +121,29 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     try {
       final result = await methodChannel.invokeMethod<bool>('showRewardAd', {'adType': type.name, 'adUnit': adUnit});
       return result ?? false;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to show reward ad: ${e.message}');
+    } catch (e) {
+      _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, {'error': e});
+      return false;
     }
   }
 
   @override
   void addRewardAdListener(String adUnit, DaroRewardAdListener listener) {
-    // TODO: implement addRewardAdListener
+    _rewardAdListeners[adUnit] = listener;
   }
 
   @override
   void removeRewardAdListener(String adUnit) {
-    // TODO: implement removeRewardAdListener
+    _rewardAdListeners.remove(adUnit);
   }
 
   @override
   Future<void> disposeRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
       await methodChannel.invokeMethod<void>('disposeRewardAd', {'adType': type.name, 'adUnit': adUnit});
+      removeRewardAdListener(adUnit);
     } on PlatformException catch (e) {
-      throw Exception('Failed to dispose reward ad: ${e.message}');
+      debugPrint('[DARO] disposeRewardAd failed: ${e.message}');
     }
   }
 }

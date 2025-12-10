@@ -128,11 +128,9 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   /// 리워드 광고 이벤트를 Flutter로 전송
   private func sendRewardAdEvent(adUnit: String, eventType: String, data: [String: Any?] = [:]) {
     let event: [String: Any] = [
+      "eventName": eventType,
       "adUnit": adUnit,
-      "event": [
-        "type": eventType,
-        "data": data
-      ]
+      "data": data
     ]
     eventSink?(event)
   }
@@ -267,7 +265,10 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
         },
         onRewarded: { adInfo, reward in
           self.sendRewardAdEvent(adUnit: adUnit, eventType: "onRewarded", data: [
-            "reward": String(describing: reward as Any)
+            "reward": [
+              "amount": reward?.amount ?? 0,
+              "type": reward?.rewardType ?? ""
+            ]
           ])
         },
         onDismiss: { adInfo in

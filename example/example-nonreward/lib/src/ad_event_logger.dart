@@ -4,7 +4,7 @@ class AdLogController {
   final List<String> _logs = [];
 
   void addLog(String message) {
-    _logs.insert(0, '${DateTime.now().toString().substring(11, 19)}: $message');
+    _logs.insert(0, '[${DateTime.now().toString().substring(11, 19)}] $message');
     if (_logs.length > 50) {
       _logs.removeLast();
     }
@@ -51,37 +51,38 @@ class _AdEventLoggerState extends State<AdEventLogger> {
     return Column(
       children: [
         const Divider(),
-        Container(
+        SizedBox(
           height: 200,
-          padding: const EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      setState(() {
+              Container(
+                color: Colors.grey[200],
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  children: [
+                    const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    InkWell(
+                      child: const Icon(Icons.clear),
+                      onTap: () {
                         widget.controller.clearLogs();
-                      });
-                    },
-                  ),
-                ],
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 8),
               Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: widget.controller.logs.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(widget.controller.logs[index], style: const TextStyle(fontSize: 12)),
-                    );
-                  },
+                child: SafeArea(
+                  child: ListView.builder(
+                    reverse: true,
+                    itemCount: widget.controller.logs.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    itemBuilder: (context, index) {
+                      return Text(widget.controller.logs[index], style: const TextStyle(fontSize: 12));
+                    },
+                  ),
                 ),
               ),
             ],

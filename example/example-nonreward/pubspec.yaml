@@ -12,7 +12,7 @@ dependencies:
   flutter_daro_sdk:
     path: ../../
   
-  # daro_core_a:
+  # flutter_daro_core_a:
   #   path: ../../core/daro-core-a
 
   cupertino_icons: ^1.0.8

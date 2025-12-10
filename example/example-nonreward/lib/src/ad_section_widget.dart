@@ -22,7 +22,6 @@ class AdSectionWidget extends StatefulWidget {
 class _AdSectionWidgetState extends State<AdSectionWidget> {
   DaroRewardAd? _ad;
   bool _isLoading = false;
-  bool _isLoaded = false;
   String _status = '준비';
 
   void _createAd() {
@@ -32,17 +31,48 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
       DaroRewardAdType.popup => DaroPopupAd(widget.adKey),
       DaroRewardAdType.opening => DaroOpeningAd(widget.adKey),
     };
-    // _ad?.addListener((adKey, event) {
-    //   final eventType = event['type'] as String? ?? 'unknown';
-    //   final data = event['data'] as Map<dynamic, dynamic>?;
-    //   widget.onLog('${widget.title} - 이벤트: $eventType ${data != null ? "- $data" : ""}');
-
-    //   if (eventType == 'onDismiss') {
-    //     setState(() {
-    //       _status = '닫힘';
-    //     });
-    //   }
-    // });
+    _ad?.addListener(
+      DaroRewardAdListener(
+        onAdLoadSuccess: (adKey) {
+          widget.onLog('${widget.title} - 로드 성공');
+          setState(() {
+            _isLoading = false;
+            _status = '로드 완료';
+          });
+        },
+        onAdLoadFail: (adKey, data) {
+          widget.onLog('${widget.title} - 로드 실패: $data');
+          setState(() {
+            _isLoading = false;
+            _status = '로드 실패';
+          });
+        },
+        onAdImpression: (adKey) {
+          widget.onLog('${widget.title} - 노출');
+        },
+        onAdClicked: (adKey) {
+          widget.onLog('${widget.title} - 클릭');
+        },
+        onShown: (adKey) {
+          widget.onLog('${widget.title} - 표시');
+          setState(() {
+            _status = '표시됨';
+          });
+        },
+        onRewarded: (adKey, data) {
+          widget.onLog('${widget.title} - 리워드: $data');
+        },
+        onDismiss: (adKey) {
+          widget.onLog('${widget.title} - 닫힘');
+        },
+        onFailedToShow: (adKey, data) {
+          widget.onLog('${widget.title} - 표시 실패: $data');
+          setState(() {
+            _status = '표시 오류';
+          });
+        },
+      ),
+    );
     widget.onLog('${widget.title} - 인스턴스 생성 완료');
     setState(() {
       _status = '인스턴스 생성됨';
@@ -52,7 +82,7 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
   Future<void> _loadAd() async {
     if (_ad == null) {
       widget.onLog('${widget.title} - 광고 인스턴스가 없습니다');
-      // 인스턴스가 없으면 자동으로 생성하고 로드 후 표시
+      // 인스턴스가 없으면 자동으로 생성하고 로드
       _createAd();
     }
 
@@ -61,32 +91,13 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
       _status = '로딩 중...';
     });
 
-    try {
-      await _ad!.load();
-      widget.onLog('${widget.title} - 로드 성공');
-      setState(() {
-        _isLoading = false;
-        _isLoaded = true;
-        _status = '로드 완료';
-      });
-    } catch (e) {
-      widget.onLog('${widget.title} - 로드 실패: $e');
-      setState(() {
-        _isLoading = false;
-        _isLoaded = false;
-        _status = '로드 실패';
-      });
-    }
+    await _ad!.load();
   }
 
   Future<void> _showAd() async {
     if (_ad == null) {
+      // 인스턴스가 없으면 자동으로 생성하고 표시
       _createAd();
-      // widget.onLog('${widget.title} - 광고 인스턴스가 없습니다. 자동으로 로드 후 표시합니다.');
-      // await _loadAd();
-      // } else if (!_isLoaded) {
-      //   widget.onLog('${widget.title} - 광고가 로드되지 않았습니다. 자동으로 로드 후 표시합니다.');
-      //   await _loadAd();
     }
 
     if (_ad == null) {
@@ -98,25 +109,7 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
       _status = '표시 중...';
     });
 
-    try {
-      final success = await _ad!.show();
-      if (success) {
-        widget.onLog('${widget.title} - 표시 성공');
-        setState(() {
-          _status = '표시됨';
-        });
-      } else {
-        widget.onLog('${widget.title} - 표시 실패');
-        setState(() {
-          _status = '표시 실패';
-        });
-      }
-    } catch (e) {
-      widget.onLog('${widget.title} - 표시 오류: $e');
-      setState(() {
-        _status = '표시 오류';
-      });
-    }
+    await _ad!.show();
   }
 
   Future<void> _disposeAd() async {
@@ -125,18 +118,13 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
       return;
     }
 
-    try {
-      await _ad!.dispose();
-      widget.onLog('${widget.title} - 해제 완료');
-      setState(() {
-        _ad = null;
-        _isLoading = false;
-        _isLoaded = false;
-        _status = '해제됨';
-      });
-    } catch (e) {
-      widget.onLog('${widget.title} - 해제 실패: $e');
-    }
+    await _ad!.dispose();
+    widget.onLog('${widget.title} - 해제');
+    setState(() {
+      _ad = null;
+      _isLoading = false;
+      _status = '해제됨';
+    });
   }
 
   @override

@@ -92,7 +92,7 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   ///
   /// [options] SDK 옵션 설정
   /// Returns `true` if options setting succeeds, `false` otherwise
-  Future<void> setOptions(DaroSdkOptions options);
+  Future<bool> setOptions(DaroSdkOptions options);
 
   //// 리워드 광고 (인터스티셜, 리워드 비디오, 팝업, 앱 오프닝)
   ///
@@ -101,7 +101,7 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   /// [addRewardAdListener] 리워드 광고 리스너 등록
   /// [removeRewardAdListener] 리워드 광고 리스너 제거
   /// [disposeRewardAd] 리워드 광고 인스턴스 해제
-  Future<void> loadRewardAd(DaroRewardAdType type, String adUnit);
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit);
   Future<bool> showRewardAd(DaroRewardAdType type, String adUnit);
   void addRewardAdListener(String adUnit, DaroRewardAdListener listener);
   void removeRewardAdListener(String adUnit);

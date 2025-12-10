@@ -76,6 +76,11 @@ class _MyAppState extends State<MyApp> {
                       adType: DaroRewardAdType.popup,
                       adKey: 'df5f7623-21a6-49a6-8b14-0679a75b4b43',
                     ),
+                    _buildAdSection(
+                      title: '앱오프닝 광고',
+                      adType: DaroRewardAdType.opening,
+                      adKey: '7763af9c-0456-4e37-808a-5478eb9e0aa3',
+                    ),
                   ],
                 ),
               ),
