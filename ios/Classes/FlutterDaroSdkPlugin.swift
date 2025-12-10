@@ -10,14 +10,8 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   private var eventChannel: FlutterEventChannel?
   private var eventSink: FlutterEventSink?
   
-  /// DARO SDK 인스턴스 (실제 DARO SDK로 교체 필요)
-  // private var daroSdk: DaroSdk?
-  
-  /// 앱 카테고리 타입
-  private var appCategory: String?
-  
-  /// 리워드 광고 인스턴스 맵 (타입과 adKey를 조합한 키 사용: "type:adKey")
-  private var rewardAdMap: [String: RewardAdInstance] = [:]
+  /// 리워드 광고 인스턴스 맵 (타입과 adUnit를 조합한 키 사용: "type:adUnit")
+  private var rewardAdMap: [String: FlutterDaroRewardAd] = [:]
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let instance = FlutterDaroSdkPlugin()
@@ -43,12 +37,12 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "initialize":
       initialize(call: call, result: result)
+    case "setOptions":
+      setOptions(call: call, result: result)
     case "loadRewardAd":
       loadRewardAd(call: call, result: result)
     case "showRewardAd":
-      showRewardAdInstance(call: call, result: result)
-    case "showRewardAdInstance":
-      showRewardAdInstance(call: call, result: result)
+      showRewardAd(call: call, result: result)
     case "disposeRewardAd":
       disposeRewardAd(call: call, result: result)
     default:
@@ -67,36 +61,74 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
-    appCategory = args["appCategory"] as? String
-    let appKey = args["appKey"] as? String
-    let userId = args["userId"] as? String
-    
+    // appCategory = args["appCategory"] as? String
     // 문서 참고: https://guide.daro.so/ko/sdk-integration/ios_new/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0    
     DaroAds.shared.initialized { error in
       if let error {
-        result(false)
+        result(FlutterError(
+          code: "INITIALIZE_FAILED",
+          message: "Daro SDK initilized error : \(error)",
+          details: nil
+        ))
       } else {
+        let options = args["options"] as? [String: Any]
+        if let options {
+          self._setOptions(
+            userId: options["userId"] as? String, 
+            logLevel: options["logLevel"] as? String, 
+            appMute: options["appMute"] as? Bool
+          )
+        }
         result(true)
       }
     }
   }
 
-  /// 광고 ID별 이벤트를 Flutter로 전송
-  private func sendAdEvent(adId: String, eventType: String, data: [String: Any?]) {
-    let event: [String: Any] = [
-      "adId": adId,
-      "event": [
-        "type": eventType,
-        "data": data
-      ]
-    ]
-    eventSink?(event)
+  /// SDK 옵션 설정
+  private func setOptions(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any] else {
+      result(FlutterError(
+        code: "INVALID_ARGUMENT",
+        message: "Invalid arguments for setOptions",
+        details: nil
+      ))
+      return
+    }
+    
+    self._setOptions(
+      userId: args["userId"] as? String, 
+      logLevel: args["logLevel"] as? String, 
+      appMute: args["appMute"] as? Bool
+    )
+
+    result(true)
+  }
+
+  private func _setOptions(userId: String?, logLevel: String?, appMute: Bool?) {
+    if let userId {
+      DaroAds.shared.userId = userId
+    }
+    if let logLevel {
+      switch logLevel {
+        case "off":
+          DaroAds.shared.logLevel = .off
+        case "error":
+          DaroAds.shared.logLevel = .error
+        case "debug":
+          DaroAds.shared.logLevel = .debug
+        default:
+          print("Invalid logLevel: \(logLevel)")
+      }
+    }
+    if let appMute {
+      DaroAds.shared.setAppMuted(appMute)
+    }
   }
   
   /// 리워드 광고 이벤트를 Flutter로 전송
-  private func sendRewardAdEvent(adKey: String, eventType: String, data: [String: Any?]) {
+  private func sendRewardAdEvent(adUnit: String, eventType: String, data: [String: Any?] = [:]) {
     let event: [String: Any] = [
-      "adKey": adKey,
+      "adUnit": adUnit,
       "event": [
         "type": eventType,
         "data": data
@@ -104,10 +136,36 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     ]
     eventSink?(event)
   }
-  
-  /// 타입과 키를 조합한 맵 키 생성
-  private func getRewardAdMapKey(adType: String, adKey: String) -> String {
-    return "\(adType):\(adKey)"
+
+  /// 리워드 광고 인스턴스 생성
+  private func _createRewardAdInstance(adType: FlutterDaroRewardAdType, adUnit: String, placement: String?) -> FlutterDaroRewardAd {
+    let adInstance = FlutterDaroRewardAd(
+      adType: adType,
+      adUnit: adUnit,
+      placement: placement,
+      listener: FlutterDaroRewardAdLoadListener(
+        onAdLoadSuccess: { adItem, ad, adInfo in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdLoadSuccess", data: [
+            "ad": String(describing: ad as Any),
+            "adInfo": String(describing: adInfo as Any)
+          ])
+        },
+        onAdLoadFail: { error in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdLoadFail", data: [
+            "error": error.localizedDescription
+          ])
+          self._dispose(adUnit: adUnit)
+        },
+        onAdImpression: { adInfo in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdImpression")
+        },
+        onAdClicked: { adInfo in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdClicked")
+        }
+      )
+    )
+    self.rewardAdMap[adUnit] = adInstance
+    return adInstance
   }
   
   /// 리워드 광고 로드
@@ -130,53 +188,38 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
-    guard let adKey = args["adKey"] as? String else {
+    guard let adUnit = args["adUnit"] as? String else {
       result(FlutterError(
         code: "INVALID_ARGUMENT",
-        message: "adKey is required",
-        details: nil
-      ))
-      return
-    }
-    
-    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-          let rootViewController = windowScene.windows.first?.rootViewController else {
-      result(FlutterError(
-        code: "NO_VIEW_CONTROLLER",
-        message: "No root view controller available to load ad",
+        message: "adUnit is required",
         details: nil
       ))
       return
     }
     
     let placement = args["placement"] as? String
-    let mapKey = getRewardAdMapKey(adType: adType, adKey: adKey)
     
-    // 기존 인스턴스가 있으면 해제
-    rewardAdMap[mapKey]?.destroy()
+    // String을 enum으로 변환
+    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
+      result(FlutterError(
+        code: "INVALID_ARGUMENT",
+        message: "Invalid adType: \(adType)",
+        details: nil
+      ))
+      return
+    }
     
     // 새로운 리워드 광고 인스턴스 생성
-    let adInstance = RewardAdInstance(
-      adType: adType,
-      adKey: adKey,
-      placement: placement,
-      viewController: rootViewController,
-      onEvent: { [weak self] eventType, data in
-        self?.sendRewardAdEvent(adKey: adKey, eventType: eventType, data: data)
-      }
-    )
-    
-    // 인스턴스를 맵에 저장
-    rewardAdMap[mapKey] = adInstance
+    let adInstance: FlutterDaroRewardAd = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement)
     
     // 광고 로드
-    adInstance.load { success, error in
+    adInstance.loadAd() { success, error in
       if success {
         result(nil)
       } else {
         result(FlutterError(
           code: "LOAD_ERROR",
-          message: error ?? "Unknown error",
+          message: error?.localizedDescription ?? "Failed to load ad",
           details: nil
         ))
       }
@@ -184,7 +227,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   }
   
   /// 리워드 광고 인스턴스 표시
-  private func showRewardAdInstance(call: FlutterMethodCall, result: @escaping FlutterResult) {
+  private func showRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(false)
       return
@@ -195,59 +238,63 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
-    guard let adKey = args["adKey"] as? String else {
-      result(false)
-      return
-    }
-    
-    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-          let rootViewController = windowScene.windows.first?.rootViewController else {
+    guard let adUnit = args["adUnit"] as? String else {
       result(false)
       return
     }
     
     let placement = args["placement"] as? String
-    let mapKey = getRewardAdMapKey(adType: adType, adKey: adKey)
-    var adInstance = rewardAdMap[mapKey]
+    
+    // String을 enum으로 변환
+    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
+      result(false)
+      return
+    }
+    
+    var adInstance = rewardAdMap[adUnit]
     
     // 인스턴스가 없으면 자동으로 생성하고 로드
     if adInstance == nil {
       // 새로운 리워드 광고 인스턴스 생성
-      adInstance = RewardAdInstance(
-        adType: adType,
-        adKey: adKey,
-        placement: placement,
-        viewController: rootViewController,
-        onEvent: { [weak self] eventType, data in
-          self?.sendRewardAdEvent(adKey: adKey, eventType: eventType, data: data)
-        }
-      )
-      
-      // 인스턴스를 맵에 저장
-      rewardAdMap[mapKey] = adInstance
-      
-      // 광고 로드 후 표시
-      adInstance?.load { [weak self] success, error in
-        guard let self = self else { return }
-        if success {
-          // 로드 성공 후 표시
-          adInstance?.show(viewController: rootViewController) { showSuccess, showError in
-            result(showSuccess)
-          }
-        } else {
-          result(false)
-        }
-      }
-      return
+      adInstance = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement)
     }
     
     // 인스턴스가 있으면 바로 표시
-    adInstance?.show(viewController: rootViewController) { success, error in
-      result(success)
+    adInstance?.showAd(
+      listener: FlutterDaroRewardAdListener(
+        onShown: { adInfo in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onShown")
+        },
+        onRewarded: { adInfo, reward in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onRewarded", data: [
+            "reward": String(describing: reward as Any)
+          ])
+        },
+        onDismiss: { adInfo in
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onDismiss")
+          self._dispose(adUnit: adUnit)
+        },
+        onFailedToShow: { adInfo, error in
+          self.sendRewardAdEvent(
+            adUnit: adUnit, 
+            eventType: "onFailedToShow", 
+            data: ["error": error.localizedDescription]
+          )
+        }
+    )) { success, error in
+      result(success ? true : FlutterError(
+        code: "SHOW_ERROR",
+        message: "Failed to show ad: \(error)",
+        details: nil
+      ))
     }
   }
   
   /// 리워드 광고 인스턴스 해제
+  private func _dispose(adUnit: String) {
+    rewardAdMap[adUnit]?.destroy()
+    rewardAdMap.removeValue(forKey: adUnit)
+  }
   private func disposeRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(FlutterError(
@@ -258,27 +305,16 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       return
     }
     
-    guard let adType = args["adType"] as? String else {
+    guard let adUnit = args["adUnit"] as? String else {
       result(FlutterError(
         code: "INVALID_ARGUMENT",
-        message: "adType is required",
+        message: "adUnit is required",
         details: nil
       ))
       return
     }
     
-    guard let adKey = args["adKey"] as? String else {
-      result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "adKey is required",
-        details: nil
-      ))
-      return
-    }
-    
-    let mapKey = getRewardAdMapKey(adType: adType, adKey: adKey)
-    rewardAdMap[mapKey]?.destroy()
-    rewardAdMap.removeValue(forKey: mapKey)
+    self._dispose(adUnit: adUnit)
     
     result(nil)
   }
@@ -297,117 +333,5 @@ extension FlutterDaroSdkPlugin: FlutterStreamHandler {
     rewardAdMap.values.forEach { $0.destroy() }
     rewardAdMap.removeAll()
     return nil
-  }
-}
-
-/// 리워드 광고 인스턴스 클래스 (인터스티셜, 리워드 비디오, 팝업)
-class RewardAdInstance {
-  private let adType: String
-  private let adKey: String
-  private let placement: String?
-  private weak var viewController: UIViewController?
-  private let onEvent: (String, [String: Any?]) -> Void
-  
-  // TODO: 실제 DARO SDK 타입으로 교체 필요
-  // private var loader: Any?
-  // private var ad: Any?
-  
-  init(adType: String, adKey: String, placement: String?, viewController: UIViewController?, onEvent: @escaping (String, [String: Any?]) -> Void) {
-    self.adType = adType
-    self.adKey = adKey
-    self.placement = placement
-    self.viewController = viewController
-    self.onEvent = onEvent
-  }
-  
-  /// 광고 로드
-  func load(completion: @escaping (Bool, String?) -> Void) {
-    // TODO: 실제 DARO SDK 코드로 교체
-    // switch adType {
-    // case "interstitial":
-    //   let adUnit = DaroInterstitialAdUnit(
-    //     key: adKey,
-    //     placement: placement ?? ""
-    //   )
-    //   loader = DaroInterstitialAdLoader(
-    //     context: viewController,
-    //     adUnit: adUnit
-    //   )
-    //   // ... 리스너 설정 및 로드
-    // case "rewardedVideo":
-    //   let adUnit = DaroRewardedVideoAdUnit(
-    //     key: adKey,
-    //     placement: placement ?? ""
-    //   )
-    //   loader = DaroRewardedVideoAdLoader(
-    //     context: viewController,
-    //     adUnit: adUnit
-    //   )
-    //   // ... 리스너 설정 및 로드
-    // case "popup":
-    //   let adUnit = DaroPopupAdUnit(
-    //     key: adKey,
-    //     placement: placement ?? ""
-    //   )
-    //   loader = DaroPopupAdLoader(
-    //     context: viewController,
-    //     adUnit: adUnit
-    //   )
-    //   // ... 리스너 설정 및 로드
-    // default:
-    //   completion(false, "Unknown ad type")
-    //   return
-    // }
-    
-    // 임시 구현: 로드 성공으로 처리
-    completion(true, nil)
-  }
-  
-  /// 광고 표시
-  func show(viewController: UIViewController, completion: @escaping (Bool, String?) -> Void) {
-    // TODO: 실제 DARO SDK 코드로 교체
-    // switch adType {
-    // case "interstitial":
-    //   guard let currentAd = ad as? DaroInterstitialAd else {
-    //     completion(false, "Ad not loaded")
-    //     return
-    //   }
-    //   currentAd.show(viewController: viewController)
-    // case "rewardedVideo":
-    //   guard let currentAd = ad as? DaroRewardedVideoAd else {
-    //     completion(false, "Ad not loaded")
-    //     return
-    //   }
-    //   currentAd.show(viewController: viewController)
-    // case "popup":
-    //   guard let currentAd = ad as? DaroPopupAd else {
-    //     completion(false, "Ad not loaded")
-    //     return
-    //   }
-    //   currentAd.show(viewController: viewController)
-    // default:
-    //   completion(false, "Unknown ad type")
-    //   return
-    // }
-    
-    // 임시 구현: 표시 성공으로 처리
-    completion(true, nil)
-  }
-  
-  /// 광고 인스턴스 해제
-  func destroy() {
-    // TODO: 실제 DARO SDK 코드로 교체
-    // switch adType {
-    // case "interstitial":
-    //   (ad as? DaroInterstitialAd)?.destroy()
-    // case "rewardedVideo":
-    //   (ad as? DaroRewardedVideoAd)?.destroy()
-    // case "popup":
-    //   (ad as? DaroPopupAd)?.destroy()
-    // default:
-    //   break
-    // }
-    // ad = nil
-    // loader = nil
   }
 }

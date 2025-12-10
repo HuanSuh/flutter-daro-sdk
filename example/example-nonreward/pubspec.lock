@@ -49,13 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  daro_core_a:
-    dependency: "direct main"
-    description:
-      path: "../../core/daro-core-a"
-      relative: true
-    source: path
-    version: "0.0.1"
   fake_async:
     dependency: transitive
     description:

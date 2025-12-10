@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'flutter_daro_sdk_platform_interface.dart';
+import 'src/reward_ad/daro_reward_ad.dart';
 
 /// An implementation of [FlutterDaroSdkPlatform] that uses method channels.
 class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
@@ -14,8 +15,8 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   @visibleForTesting
   final eventChannel = const EventChannel('com.daro.flutter_daro_sdk/events');
 
-  /// 광고 ID별 이벤트 리스너 맵
-  final Map<String, DaroAdListener> _adListeners = {};
+  // /// 광고 ID별 이벤트 리스너 맵
+  // final Map<String, DaroAdListener> _adListeners = {};
 
   /// 이벤트 스트림 구독
   StreamSubscription<dynamic>? _eventSubscription;
@@ -30,25 +31,16 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       _eventSubscription = eventChannel.receiveBroadcastStream().listen(
         (event) {
           if (event is Map) {
-            final adId = event['adId'] as String?;
-            final adKey = event['adKey'] as String?;
+            final adUnit = event['adUnit'] as String?;
             final eventData = event['event'] as Map<dynamic, dynamic>?;
 
             if (eventData != null) {
-              // 일반 광고 이벤트 처리
-              if (adId != null) {
-                final listener = _adListeners[adId];
-                if (listener != null) {
-                  listener(adId, eventData);
-                }
-              }
-
               // 리워드 광고 이벤트 처리
-              if (adKey != null) {
-                final rewardAdListener = _rewardAdListeners[adKey];
-                if (rewardAdListener != null) {
-                  rewardAdListener(adKey, eventData);
-                }
+              if (adUnit != null) {
+                // final rewardAdListener = _rewardAdListeners[adUnit];
+                // if (rewardAdListener != null) {
+                //   rewardAdListener(adUnit, eventData);
+                // }
               }
             }
           }
@@ -59,6 +51,15 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       );
     } catch (e) {
       // 에러 처리
+    }
+  }
+
+  /// 이벤트 스트림 구독 (내부 사용)
+  Stream<Map<dynamic, dynamic>>? getEventStream() {
+    try {
+      return eventChannel.receiveBroadcastStream().cast<Map<dynamic, dynamic>>();
+    } catch (e) {
+      return null;
     }
   }
 
@@ -75,47 +76,27 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<DaroAdResult> showRewardAd(DaroRewardAdConfig config) async {
+  Future<void> setOptions(DaroSdkOptions options) async {
     try {
-      final result = await methodChannel.invokeMethod<Map<dynamic, dynamic>>('showRewardAd', config.toMap());
-      if (result != null) {
-        return DaroAdResult.fromMap(result);
-      }
-      return DaroAdResult(adId: '', success: false, errorMessage: 'Unknown error');
+      await methodChannel.invokeMethod<void>('setOptions', options.toMap());
     } on PlatformException catch (e) {
-      return DaroAdResult(adId: '', success: false, errorMessage: e.message ?? 'Failed to show ad');
+      throw Exception('Failed to set options: ${e.message}');
     }
   }
 
   @override
-  void addAdListener(String adId, DaroAdListener listener) {
-    _adListeners[adId] = listener;
-  }
-
-  @override
-  void removeAdListener(String adId) {
-    _adListeners.remove(adId);
-  }
-
-  /// 리워드 광고 리스너 맵
-  final Map<String, DaroAdListener> _rewardAdListeners = {};
-
-  @override
-  Future<void> loadRewardAd(DaroAdType type, String adKey, DaroRewardAdConfig config) async {
+  Future<void> loadRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
-      await methodChannel.invokeMethod<void>('loadRewardAd', {'adType': type.name, 'adKey': adKey, ...config.toMap()});
+      return methodChannel.invokeMethod<void>('loadRewardAd', {'adType': type.name, 'adUnit': adUnit});
     } on PlatformException catch (e) {
       throw Exception('Failed to load reward ad: ${e.message}');
     }
   }
 
   @override
-  Future<bool> showRewardAdInstance(DaroAdType type, String adKey) async {
+  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
-      final result = await methodChannel.invokeMethod<bool>('showRewardAdInstance', {
-        'adType': type.name,
-        'adKey': adKey,
-      });
+      final result = await methodChannel.invokeMethod<bool>('showRewardAd', {'adType': type.name, 'adUnit': adUnit});
       return result ?? false;
     } on PlatformException catch (e) {
       throw Exception('Failed to show reward ad: ${e.message}');
@@ -123,31 +104,21 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  void addRewardAdListener(String adKey, DaroAdListener listener) {
-    _rewardAdListeners[adKey] = listener;
+  void addRewardAdListener(String adUnit, DaroRewardAdListener listener) {
+    // TODO: implement addRewardAdListener
   }
 
   @override
-  void removeRewardAdListener(String adKey) {
-    _rewardAdListeners.remove(adKey);
+  void removeRewardAdListener(String adUnit) {
+    // TODO: implement removeRewardAdListener
   }
 
   @override
-  Future<void> disposeRewardAd(DaroAdType type, String adKey) async {
+  Future<void> disposeRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
-      await methodChannel.invokeMethod<void>('disposeRewardAd', {'adType': type.name, 'adKey': adKey});
-      _rewardAdListeners.remove(adKey);
+      await methodChannel.invokeMethod<void>('disposeRewardAd', {'adType': type.name, 'adUnit': adUnit});
     } on PlatformException catch (e) {
       throw Exception('Failed to dispose reward ad: ${e.message}');
-    }
-  }
-
-  /// 이벤트 스트림 구독 (내부 사용)
-  Stream<Map<dynamic, dynamic>>? getEventStream() {
-    try {
-      return eventChannel.receiveBroadcastStream().cast<Map<dynamic, dynamic>>();
-    } catch (e) {
-      return null;
     }
   }
 }

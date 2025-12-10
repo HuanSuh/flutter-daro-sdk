@@ -5,9 +5,6 @@ PODS:
   - AmazonPublisherServicesSDK (5.3.0)
   - AppLovinSDK (13.4.0)
   - ChartboostSDK (9.9.2)
-  - daro_core_a (0.0.1):
-    - DaroAds (= 1.1.45)
-    - Flutter
   - DaroAds (1.1.45):
     - AmazonPublisherServicesSDK (= 5.3.0)
     - Google-Mobile-Ads-SDK (= 12.8.0)
@@ -109,7 +106,6 @@ PODS:
   - VungleAds (7.5.3)
 
 DEPENDENCIES:
-  - daro_core_a (from `.symlinks/plugins/daro_core_a/ios`)
   - Flutter (from `Flutter`)
   - flutter_daro_sdk (from `.symlinks/plugins/flutter_daro_sdk/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -147,8 +143,6 @@ SPEC REPOS:
     - VungleAds
 
 EXTERNAL SOURCES:
-  daro_core_a:
-    :path: ".symlinks/plugins/daro_core_a/ios"
   Flutter:
     :path: Flutter
   flutter_daro_sdk:
@@ -161,12 +155,11 @@ SPEC CHECKSUMS:
   AmazonPublisherServicesSDK: 351eb855ee50b7dfb15f7e2569c1bf31a5fa9fe7
   AppLovinSDK: 33fcc783889e2d522ae26886b31e5551246a5b2f
   ChartboostSDK: 9298ec2ea9ae6c5881877f87ca6bc3f68449fe0f
-  daro_core_a: dbddff9bbd4ca723f75c76fa44d4b296d9bcdf01
   DaroAds: 869bca4c7c3554a50db556c6d490443d79323aee
   FBAudienceNetwork: 08e86d63a05b3a5a59414af12e4af8d756943c80
   FiveAd: 31ad62dbf730e7cd064c8ddd4c6a814c02bd500b
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_daro_sdk: 154d62fb1d128084a9de4293f9d6a5cc613aadc2
+  flutter_daro_sdk: 9c3c11893c898b1799ba8cced45b7701ecfd18ff
   Fyber_Marketplace_SDK: c908580dc3d65e67f2862df137f8ae7dad6e3321
   Google-Mobile-Ads-SDK: ece122bc89b38cab319543bc464a9ceabfe1d307
   GoogleMobileAdsMediationAppLovin: 604d93a0913908be064558a90170004f35b57a96
@@ -191,6 +184,6 @@ SPEC CHECKSUMS:
   UnityAds: 24cb6536614958aefcd5a44576eb4f3157c781d0
   VungleAds: 3b273eba0219680dbef90d51e690d165422702d9
 
-PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
+PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 
 COCOAPODS: 1.16.2
