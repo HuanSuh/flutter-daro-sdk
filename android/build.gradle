@@ -2,7 +2,10 @@ group = "com.example.flutter_daro_sdk"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.8.22"
+    ext.kotlin_version = "2.1.0"
+    ext.daro_plugin_version = "1.0.12"
+    ext.daro_core_version = "1.3.8"
+    ext.daro_a_version = "1.3.6"
     repositories {
         google()
         mavenCentral()
@@ -11,21 +14,14 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        // DARO SDK 플러그인은 daro-core-a 또는 daro-core-m 플러그인에서 설정
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        // DARO SDK Maven 저장소는 daro-core-a 또는 daro-core-m 플러그인에서 설정
+        // DARO SDK 플러그인
+        classpath("so.daro:daro-plugin:$daro_plugin_version")
     }
 }
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-// DARO SDK 플러그인은 daro-core-a (Non-Reward) 또는 daro-core-m (Reward) 플러그인에서 적용
+apply plugin: "so.daro.a"
 
 android {
     namespace = "com.example.flutter_daro_sdk"
@@ -55,14 +51,17 @@ android {
 
     buildTypes {
         release {
-            // ProGuard 규칙은 daro-core-a 플러그인에서 제공
+            //
         }
     }
 
     dependencies {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
-        // DARO SDK 의존성은 daro-core-a 또는 daro-core-m 플러그인에서 제공        
+        // DARO SDK 플러그인 의존성 추가
+        implementation("so.daro:daro-core:$daro_core_version")
+        implementation("so.daro:daro-a:$daro_a_version")
+        // implementation("so.daro:daro-compose-util:1.3.1") // Compose-Only
     }
 
     testOptions {

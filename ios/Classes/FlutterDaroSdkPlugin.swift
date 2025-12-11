@@ -281,6 +281,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
             eventType: "onFailedToShow", 
             data: ["error": error.localizedDescription]
           )
+          self._dispose(adUnit: adUnit)
         }
     )) { success, error in
       result(success ? true : FlutterError(
