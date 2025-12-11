@@ -6,15 +6,15 @@
     "configurations": [
         {
             "name": "example-nonreward",
-            "cwd": "example/example-nonreward",
+            "cwd": "flutter-daro-sdk-a/example-nonreward",
             "request": "launch",
             "type": "dart"
         },
-        {
-            "name": "example-reward",
-            "cwd": "example/example-reward",
-            "request": "launch",
-            "type": "dart"
-        }
+        // {
+        //     "name": "example-reward",
+        //     "cwd": "flutter-daro-sdk-m/example-reward",
+        //     "request": "launch",
+        //     "type": "dart"
+        // }
     ]
 }
