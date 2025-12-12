@@ -136,11 +136,20 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   }
 
   /// 리워드 광고 인스턴스 생성
-  private func _createRewardAdInstance(adType: FlutterDaroRewardAdType, adUnit: String, placement: String?) -> FlutterDaroRewardAd {
-    let adInstance = FlutterDaroRewardAd(
+  private func _createRewardAdInstance(
+    adType: FlutterDaroRewardAdType, 
+    adUnit: String, 
+    placement: String?, 
+    options: [String: Any]? = nil
+  ) -> FlutterDaroRewardAd {
+    if let adInstance = rewardAdMap[adUnit] {
+      return adInstance
+    }
+    let adInstance = FlutterDaroRewardAdFactory.create(
       adType: adType,
       adUnit: adUnit,
       placement: placement,
+      options: options,
       listener: FlutterDaroRewardAdLoadListener(
         onAdLoadSuccess: { adItem, ad, adInfo in
           self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdLoadSuccess", data: [
@@ -196,6 +205,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     }
     
     let placement = args["placement"] as? String
+    let options = args["options"] as? [String: Any]
     
     // String을 enum으로 변환
     guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
@@ -208,7 +218,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     }
     
     // 새로운 리워드 광고 인스턴스 생성
-    let adInstance: FlutterDaroRewardAd = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement)
+    let adInstance: FlutterDaroRewardAd = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement, options: options)
     
     // 광고 로드
     adInstance.loadAd() { success, error in
@@ -254,7 +264,8 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     // 인스턴스가 없으면 자동으로 생성하고 로드
     if adInstance == nil {
       // 새로운 리워드 광고 인스턴스 생성
-      adInstance = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement)
+      let options = args["options"] as? [String: Any]
+      adInstance = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement, options: options)
     }
     
     // 인스턴스가 있으면 바로 표시

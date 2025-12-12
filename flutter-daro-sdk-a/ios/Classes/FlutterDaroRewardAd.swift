@@ -1,4 +1,5 @@
 import Daro
+import UIKit
 
 public class FlutterDaroRewardAdLoadListener {
     var onAdLoadSuccess: ((_ adItem: FlutterDaroRewardAd, _ ad: Any?, _ adInfo: Any?) -> Void)?
@@ -25,6 +26,7 @@ public class FlutterDaroRewardAdLoadListener {
         onAdClicked = nil
     }
 }
+
 public class FlutterDaroRewardAdListener {
     var onShown: ((_ adInfo: Any?) -> Void)?
     var onRewarded: ((_ adInfo: Any?, _ reward: DaroRewardedItem?) -> Void)?
@@ -57,254 +59,136 @@ public enum FlutterDaroRewardAdType: String {
     case rewardedVideo
     case popup
     case opening
+    
+    static func fromString(_ value: String?) -> FlutterDaroRewardAdType? {
+        guard let value = value else { return nil }
+        return FlutterDaroRewardAdType(rawValue: value)
+    }
 }
 
-public class FlutterDaroRewardAd: UIViewController {
-    private var adType: FlutterDaroRewardAdType
-    private var adUnit: String
-    private var placement: String?
-    private var loader: Any?
-    private var ad: Any?
+// Factory 클래스
+public struct FlutterDaroRewardAdFactory {
+    static func create(
+        adType: FlutterDaroRewardAdType,
+        adUnit: String,
+        placement: String? = nil,
+        options: [String: Any]? = nil,
+        listener: FlutterDaroRewardAdLoadListener? = nil,
+    ) -> FlutterDaroRewardAd {
+        switch adType {
+        case .interstitial:
+            return FlutterDaroInterstitialAd(adUnit: adUnit, placement: placement, loadListener: listener)
+        case .rewardedVideo:
+            return FlutterDaroRewardedVideoAd(adUnit: adUnit, placement: placement, loadListener: listener)
+        case .popup:
+            return FlutterDaroPopupAd(adUnit: adUnit, placement: placement, loadListener: listener, options: options)
+        case .opening:
+            return FlutterDaroOpeningAd(adUnit: adUnit, placement: placement, loadListener: listener)
+        }
+    }
+}
 
-    // 광고 리스너
+// 추상 광고 클래스
+public class FlutterDaroRewardAd: UIViewController {
+    // 상위 클래스에서 공통으로 관리하는 loader와 ad
+    private var loader: Any?
+    var ad: Any?
+    
+    // 공통 프로퍼티
+    let adUnit: String
+    let placement: String?
     var loadListener: FlutterDaroRewardAdLoadListener?
     
-    public init(
-        adType: FlutterDaroRewardAdType, 
-        adUnit: String, 
-        placement: String? = nil, 
-        listener: FlutterDaroRewardAdLoadListener? = nil) {
-            self.adType = adType
-            self.adUnit = adUnit
-            self.placement = placement
-            self.loadListener = listener
-            super.init(nibName: nil, bundle: nil)
-            setupLoader()
+    // 각 구체 클래스에서 로더 생성 구현
+    func createLoader() -> Any? {
+        fatalError("createLoader() must be implemented by subclass")
     }
-
+    
+    // 각 구체 클래스에서 로더 구현
+    func loadAdInternal(
+        loader: Any,
+        autoShow: Bool,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        fatalError("loadAdInternal() must be implemented by subclass")
+    }
+    
+    // 각 구체 클래스에서 광고 리스너 설정 및 표시 구현
+    func showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        fatalError("showAdInternal() must be implemented by subclass")
+    }
+    
+    // 각 구체 클래스에서 광고 해제 구현
+    func destroyAd(_ ad: Any?) {
+        fatalError("destroyAd() must be implemented by subclass")
+    }
+    
+    init(adUnit: String, placement: String? = nil, loadListener: FlutterDaroRewardAdLoadListener? = nil) {
+        self.adUnit = adUnit
+        self.placement = placement
+        self.loadListener = loadListener
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
     }
-
-    // 광고 타입에 따라 알맞은 로더 인스턴스 생성
+    
     private func setupLoader() {
-        switch adType {
-        case .interstitial:
-            let unit = DaroAdUnit(unitId: adUnit)
-            self.loader = DaroInterstitialAdLoader(unit: unit)
-        case .rewardedVideo:
-            let unit = DaroAdUnit(unitId: adUnit)
-            self.loader = DaroRewardedAdLoader(unit: unit)
-        case .popup:
-            let unit = DaroAdUnit(unitId: adUnit)
-            self.loader = DaroLightPopupAdLoader(unit: unit)
-        case .opening:
-            let unit = DaroAdUnit(unitId: adUnit)
-            self.loader = DaroAppOpenAdLoader(unit: unit)
-        }
+        loader = createLoader()
     }
     
-    // 광고 로드 실행
+    // 공통 로드 로직
     public func loadAd(autoShow: Bool = false, listener: FlutterDaroRewardAdListener? = nil, result: @escaping (Bool, Error?) -> Void) {
-        if self.loader == nil {
-            self.setupLoader()
-        }
-        if let interstitialLoader = self.loader as? DaroInterstitialAdLoader {
-            interstitialLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
-                self?.ad = ad
-                self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
-                // 즉시 노출 옵션이 true일 경우 광고 표시
-                if autoShow {
-                    self?.showAd(listener: listener) { success, error in 
-                        result(success, error)
-                    }
-                } else {
-                    result(true, nil)
-                }
-            }
-            interstitialLoader.listener.onAdLoadFail = { [weak self] error in
-                self?.loadListener?.onAdLoadFail?(error)
-                result(false, error)
-            }
-            interstitialLoader.listener.onAdImpression = { [weak self] adInfo in
-                self?.loadListener?.onAdImpression?(adInfo)
-            }
-            interstitialLoader.listener.onAdClicked = { [weak self] adInfo in
-                self?.loadListener?.onAdClicked?(adInfo)
-            }
-            interstitialLoader.loadAd()
-        } else if let rewardedLoader = self.loader as? DaroRewardedAdLoader {
-            rewardedLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
-                self?.ad = ad
-                self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
-                // 즉시 노출 옵션이 true일 경우 광고 표시
-                if autoShow {
-                    self?.showAd(listener: listener) { success, error in 
-                        result(success, error)
-                    }
-                } else {
-                    result(true, nil)
-                }
-            }
-            rewardedLoader.listener.onAdLoadFail = { [weak self] error in
-                self?.loadListener?.onAdLoadFail?(error)
-                result(false, error)
-            }
-            rewardedLoader.listener.onAdImpression = { [weak self] adInfo in
-                self?.loadListener?.onAdImpression?(adInfo)
-            }
-            rewardedLoader.listener.onAdClicked = { [weak self] adInfo in
-                self?.loadListener?.onAdClicked?(adInfo)
-            }
-
-            rewardedLoader.loadAd()
-        } else if let popupLoader = self.loader as? DaroLightPopupAdLoader {
-            popupLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
-                self?.ad = ad
-                self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
-                // 즉시 노출 옵션이 true일 경우 광고 표시
-                if autoShow {
-                    self?.showAd(listener: listener) { success, error in 
-                        result(success, error)
-                    }
-                } else {
-                    result(true, nil)
-                }
-            }
-            popupLoader.listener.onAdLoadFail = { [weak self] error in
-                self?.loadListener?.onAdLoadFail?(error)
-                result(false, error)
-            }
-            popupLoader.listener.onAdImpression = { [weak self] adInfo in
-                self?.loadListener?.onAdImpression?(adInfo)
-            }
-            popupLoader.listener.onAdClicked = { [weak self] adInfo in
-                self?.loadListener?.onAdClicked?(adInfo)
-            }
-            
-            popupLoader.loadAd()
-        } else if let openingLoader = self.loader as? DaroAppOpenAdLoader {
-            openingLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
-                self?.ad = ad
-                self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
-                // 즉시 노출 옵션이 true일 경우 광고 표시
-                if autoShow {
-                    self?.showAd(listener: listener) { success, error in 
-                        result(success, error)
-                    }
-                } else {
-                    result(true, nil)
-                }
-            }
-            openingLoader.listener.onAdLoadFail = { [weak self] error in
-                self?.loadListener?.onAdLoadFail?(error)
-                result(false, error)
-            }
-            openingLoader.listener.onAdImpression = { [weak self] adInfo in
-                self?.loadListener?.onAdImpression?(adInfo)
-            }
-            openingLoader.listener.onAdClicked = { [weak self] adInfo in
-                self?.loadListener?.onAdClicked?(adInfo)
-            }
-            openingLoader.loadAd()
-        } else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
-        }
-    }
-
-    // 광고 표시 처리
-    public func showAd(listener: FlutterDaroRewardAdListener?, result: @escaping (Bool, Error?) -> Void) {
-        // rootViewController 가져오기
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+        if ad != nil {
+            // 이미 로드된 광고가 있으면 바로 리턴
+            loadListener?.onAdLoadSuccess?(self, ad, nil)
+            result(true, nil)
             return
         }
         
-        // 광고 타입별로 실제 광고 표시 함수 호출 및 리스너 연결
-        if let interstitialAd = self.ad as? DaroInterstitialAd {
-            interstitialAd.interstitialListener.onShown = { adInfo in
-                listener?.onShown?(adInfo)
-            }
-            interstitialAd.interstitialListener.onDismiss = { adInfo in
-                listener?.onDismiss?(adInfo)
-                result(true, nil)
-            }
-            interstitialAd.interstitialListener.onFailedToShow = { adInfo, error in
-                listener?.onFailedToShow?(adInfo, error)
-                result(false, error)
-            }
-            // Interstitial 광고 표시 - rootViewController 사용
-            interstitialAd.show(viewController: rootViewController)
-        } else if let rewardedAd = self.ad as? DaroRewardedAd {
-            var reward: DaroRewardedItem?
-            rewardedAd.rewardedAdListener.onShown = { adInfo in
-                listener?.onShown?(adInfo)
-            }
-            rewardedAd.rewardedAdListener.onEarnedReward = { adInfo, rewardedItem in
-                listener?.onRewarded?(adInfo, rewardedItem)
-                reward = rewardedItem
-            }
-            rewardedAd.rewardedAdListener.onDismiss = { adInfo in
-                listener?.onDismiss?(adInfo)
-                result(reward != nil, nil)
-            }
-            rewardedAd.rewardedAdListener.onFailedToShow = { adInfo, error in
-                listener?.onFailedToShow?(adInfo, error)
-                result(false, error)
-            }
-            // Rewarded Video 광고 표시 - rootViewController 사용
-            rewardedAd.show(viewController: rootViewController)
-        } else if let popupAd = self.ad as? DaroLightPopupAd {
-            popupAd.lightPopupAdListener.onShown = { adInfo in
-                listener?.onShown?(adInfo)
-            }
-            popupAd.lightPopupAdListener.onDismiss = { adInfo in
-                listener?.onDismiss?(adInfo)
-                result(true, nil)
-            }
-            popupAd.lightPopupAdListener.onFailedToShow = { adInfo, error in
-                listener?.onFailedToShow?(adInfo, error)
-                result(false, error)
-            }
-            // Popup 광고 표시 - rootViewController 사용
-            popupAd.show(viewController: rootViewController)
-        } else if let openingAd = self.ad as? DaroAppOpenAd {
-            openingAd.appOpenAdListener.onShown = { adInfo in
-                listener?.onShown?(adInfo)
-            }
-            openingAd.appOpenAdListener.onDismiss = { adInfo in
-                listener?.onDismiss?(adInfo)
-            }
-            openingAd.appOpenAdListener.onFailedToShow = { adInfo, error in
-                listener?.onFailedToShow?(adInfo, error)
-            }
-            // Opening 광고 표시
-            openingAd.show()
-        } else {
-            self.loadAd(autoShow: true, listener: listener, result: result)
+        if loader == nil {
+            setupLoader()
         }
+        
+        guard let currentLoader = loader else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create loader"]))
+            return
+        }
+        
+        loadAdInternal(loader: currentLoader, autoShow: autoShow, listener: listener, result: result)
     }
-
-    deinit {
-        self.destroy()
+    
+    // 공통 표시 로직
+    public func showAd(listener: FlutterDaroRewardAdListener?, result: @escaping (Bool, Error?) -> Void) {
+        guard let currentAd = ad else {
+            loadAd(autoShow: true, listener: listener, result: result)
+            return
+        }
+        
+        showAdInternal(ad: currentAd, listener: listener, result: result)
     }
-
-    public override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        self.destroy()
-    }
-
+    
+    // 공통 해제 로직
     public func destroy() {
+        if let currentAd = ad {
+            destroyAd(currentAd)
+        }
         removeListeners()
-        self.loader = nil
-        self.ad = nil
+        ad = nil
+        loader = nil
+        loadListener = nil
     }
-
+    
     private func removeListeners() {
         // 리스너 nil 처리로 강한 참조 해제
         if let interstitialAd = ad as? DaroInterstitialAd {
@@ -347,6 +231,440 @@ public class FlutterDaroRewardAd: UIViewController {
             openingLoader.listener.onAdClicked = nil
             openingLoader.listener.onAdImpression = nil
         }
-        self.loadListener = nil
+    }
+    
+    deinit {
+        destroy()
+    }
+    
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        destroy()
+    }
+}
+
+// 전면 광고 클래스
+class FlutterDaroInterstitialAd: FlutterDaroRewardAd {
+    
+    override func createLoader() -> Any? {
+        let unit = DaroAdUnit(unitId: adUnit)
+        return DaroInterstitialAdLoader(unit: unit)
+    }
+    
+    override func loadAdInternal(
+        loader: Any,
+        autoShow: Bool,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let interstitialLoader = loader as? DaroInterstitialAdLoader else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            return
+        }
+        
+        interstitialLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
+            self?.ad = ad
+            self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
+            
+            if autoShow {
+                self?.showAd(listener: listener) { success, error in
+                    result(success, error)
+                }
+            } else {
+                result(true, nil)
+            }
+        }
+        
+        interstitialLoader.listener.onAdLoadFail = { [weak self] error in
+            self?.loadListener?.onAdLoadFail?(error)
+            result(false, error)
+        }
+        
+        interstitialLoader.listener.onAdImpression = { [weak self] adInfo in
+            self?.loadListener?.onAdImpression?(adInfo)
+        }
+        
+        interstitialLoader.listener.onAdClicked = { [weak self] adInfo in
+            self?.loadListener?.onAdClicked?(adInfo)
+        }
+        
+        interstitialLoader.loadAd()
+    }
+    
+    override func showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let interstitialAd = ad as? DaroInterstitialAd else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            return
+        }
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            return
+        }
+        
+        interstitialAd.interstitialListener.onShown = { adInfo in
+            listener?.onShown?(adInfo)
+        }
+        
+        interstitialAd.interstitialListener.onDismiss = { [weak self] adInfo in
+            listener?.onDismiss?(adInfo)
+            self?.destroy()
+            result(true, nil)
+        }
+        
+        interstitialAd.interstitialListener.onFailedToShow = { [weak self] adInfo, error in
+            listener?.onFailedToShow?(adInfo, error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        interstitialAd.show(viewController: rootViewController)
+    }
+    
+    override func destroyAd(_ ad: Any?) {
+        // DaroInterstitialAd는 destroy 메서드가 없을 수 있음
+    }
+}
+
+// 리워드 비디오 광고 클래스
+class FlutterDaroRewardedVideoAd: FlutterDaroRewardAd {
+    
+    override func createLoader() -> Any? {
+        let unit = DaroAdUnit(unitId: adUnit)
+        return DaroRewardedAdLoader(unit: unit)
+    }
+    
+    override func loadAdInternal(
+        loader: Any,
+        autoShow: Bool,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let rewardedLoader = loader as? DaroRewardedAdLoader else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            return
+        }
+        
+        rewardedLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
+            self?.ad = ad
+            self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
+            
+            if autoShow {
+                self?.showAd(listener: listener) { success, error in
+                    result(success, error)
+                }
+            } else {
+                result(true, nil)
+            }
+        }
+        
+        rewardedLoader.listener.onAdLoadFail = { [weak self] error in
+            self?.loadListener?.onAdLoadFail?(error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        rewardedLoader.listener.onAdImpression = { [weak self] adInfo in
+            self?.loadListener?.onAdImpression?(adInfo)
+        }
+        
+        rewardedLoader.listener.onAdClicked = { [weak self] adInfo in
+            self?.loadListener?.onAdClicked?(adInfo)
+        }
+        
+        rewardedLoader.loadAd()
+    }
+    
+    override func showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let rewardedAd = ad as? DaroRewardedAd else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            return
+        }
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            return
+        }
+        
+        var reward: DaroRewardedItem?
+        
+        rewardedAd.rewardedAdListener.onShown = { adInfo in
+            listener?.onShown?(adInfo)
+        }
+        
+        rewardedAd.rewardedAdListener.onEarnedReward = { adInfo, rewardedItem in
+            listener?.onRewarded?(adInfo, rewardedItem)
+            reward = rewardedItem
+        }
+        
+        rewardedAd.rewardedAdListener.onDismiss = { [weak self] adInfo in
+            listener?.onDismiss?(adInfo)
+            self?.destroy()
+            result(reward != nil, nil)
+        }
+        
+        rewardedAd.rewardedAdListener.onFailedToShow = { [weak self] adInfo, error in
+            listener?.onFailedToShow?(adInfo, error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        rewardedAd.show(viewController: rootViewController)
+    }
+    
+    override func destroyAd(_ ad: Any?) {
+        // DaroRewardedAd는 destroy 메서드가 없을 수 있음
+    }
+}
+
+// 팝업 광고 클래스
+class FlutterDaroPopupAd: FlutterDaroRewardAd {
+    private let options: [String: Any]?
+    
+    init(adUnit: String, placement: String? = nil, loadListener: FlutterDaroRewardAdLoadListener? = nil, options: [String: Any]? = nil) {
+        self.options = options
+        super.init(adUnit: adUnit, placement: placement, loadListener: loadListener)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func createLoader() -> Any? {
+        let unit = DaroAdUnit(unitId: adUnit)
+        return DaroLightPopupAdLoader(unit: unit)
+    }
+    
+    override func loadAdInternal(
+        loader: Any,
+        autoShow: Bool,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let popupLoader = loader as? DaroLightPopupAdLoader else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            return
+        }
+        
+        popupLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
+            self?.ad = ad
+            self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
+            
+            if autoShow {
+                self?.showAd(listener: listener) { success, error in
+                    result(success, error)
+                }
+            } else {
+                result(true, nil)
+            }
+        }
+        
+        popupLoader.listener.onAdLoadFail = { [weak self] error in
+            self?.loadListener?.onAdLoadFail?(error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        popupLoader.listener.onAdImpression = { [weak self] adInfo in
+            self?.loadListener?.onAdImpression?(adInfo)
+        }
+        
+        popupLoader.listener.onAdClicked = { [weak self] adInfo in
+            self?.loadListener?.onAdClicked?(adInfo)
+        }
+        
+        popupLoader.loadAd()
+    }
+
+    
+    // ARGB 형식의 Int/Long을 UIColor로 변환
+    private func valueToUIColor(_ value: Any?, defaultValue: String) -> UIColor {
+        if let intValue = value as? Int {
+            let a = CGFloat((intValue >> 24) & 0xFF) / 255.0
+            let r = CGFloat((intValue >> 16) & 0xFF) / 255.0
+            let g = CGFloat((intValue >> 8) & 0xFF) / 255.0
+            let b = CGFloat(intValue & 0xFF) / 255.0
+            return UIColor(red: r, green: g, blue: b, alpha: a)
+        } else if let longValue = value as? Int64 {
+            let a = CGFloat((longValue >> 24) & 0xFF) / 255.0
+            let r = CGFloat((longValue >> 16) & 0xFF) / 255.0
+            let g = CGFloat((longValue >> 8) & 0xFF) / 255.0
+            let b = CGFloat(longValue & 0xFF) / 255.0
+            return UIColor(red: r, green: g, blue: b, alpha: a)
+        } else if let stringValue = value as? String {
+            return UIColor(hexCode: stringValue) ?? UIColor(hexCode: defaultValue) ?? UIColor.clear
+        } else if let uiColor = value as? UIColor {
+            return uiColor
+        } else {
+            return UIColor(hexCode: defaultValue) ?? UIColor.clear
+        }
+    }
+
+    override func showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let popupAd = ad as? DaroLightPopupAd else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            return
+        }
+
+        if let options = options {
+            let configuration = DaroLightPopupConfiguration()
+            configuration.backgroundColor = valueToUIColor(options["backgroundColor"], defaultValue: "#B2121416")
+            configuration.cardViewBackgroundColor = valueToUIColor(options["containerColor"], defaultValue: "#121416")
+            configuration.adMarkLabelTextColor = valueToUIColor(options["adMarkLabelTextColor"], defaultValue: "#F7FAFF")
+            configuration.adMarkLabelBackgroundColor = valueToUIColor(options["adMarkLabelBackgroundColor"], defaultValue: "#3E434F")
+            configuration.titleTextColor = valueToUIColor(options["titleColor"], defaultValue: "#F7FAFF")
+            configuration.bodyTextColor = valueToUIColor(options["bodyColor"], defaultValue: "#B6BECC")
+            configuration.ctaButtonTextColor = valueToUIColor(options["ctaTextColor"], defaultValue: "#FFFFFF")
+            configuration.ctaButtonBackgroundColor = valueToUIColor(options["ctaBackgroundColor"], defaultValue: "#EB2640")
+            configuration.closeButtonText = options["closeButtonText"] as? String ?? "Close"
+            configuration.closeButtonTextColor = valueToUIColor(options["closeButtonColor"], defaultValue: "#F7FAFF")
+
+            popupAd.configuration = configuration
+        }
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            return
+        }
+        
+        popupAd.lightPopupAdListener.onShown = { adInfo in
+            listener?.onShown?(adInfo)
+        }
+        
+        popupAd.lightPopupAdListener.onDismiss = { [weak self] adInfo in
+            listener?.onDismiss?(adInfo)
+            self?.destroy()
+            result(true, nil)
+        }
+        
+        popupAd.lightPopupAdListener.onFailedToShow = { [weak self] adInfo, error in
+            listener?.onFailedToShow?(adInfo, error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        popupAd.show(viewController: rootViewController)
+    }
+    
+    override func destroyAd(_ ad: Any?) {
+        // DaroLightPopupAd는 destroy 메서드가 없을 수 있음
+    }
+}
+
+// 앱 오프닝 광고 클래스
+class FlutterDaroOpeningAd: FlutterDaroRewardAd {
+    
+    override func createLoader() -> Any? {
+        let unit = DaroAdUnit(unitId: adUnit)
+        return DaroAppOpenAdLoader(unit: unit)
+    }
+    
+    override func loadAdInternal(
+        loader: Any,
+        autoShow: Bool,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let openingLoader = loader as? DaroAppOpenAdLoader else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            return
+        }
+        
+        openingLoader.listener.onAdLoadSuccess = { [weak self] ad, adInfo in
+            self?.ad = ad
+            self?.loadListener?.onAdLoadSuccess?(self!, ad, adInfo)
+            
+            if autoShow {
+                self?.showAd(listener: listener) { success, error in
+                    result(success, error)
+                }
+            } else {
+                result(true, nil)
+            }
+        }
+        
+        openingLoader.listener.onAdLoadFail = { [weak self] error in
+            self?.loadListener?.onAdLoadFail?(error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        openingLoader.listener.onAdImpression = { [weak self] adInfo in
+            self?.loadListener?.onAdImpression?(adInfo)
+        }
+        
+        openingLoader.listener.onAdClicked = { [weak self] adInfo in
+            self?.loadListener?.onAdClicked?(adInfo)
+        }
+        
+        openingLoader.loadAd()
+    }
+    
+    override func showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let openingAd = ad as? DaroAppOpenAd else {
+            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            return
+        }
+        
+        openingAd.appOpenAdListener.onShown = { adInfo in
+            listener?.onShown?(adInfo)
+        }
+        
+        openingAd.appOpenAdListener.onDismiss = { [weak self] adInfo in
+            listener?.onDismiss?(adInfo)
+            self?.destroy()
+            result(true, nil)
+        }
+        
+        openingAd.appOpenAdListener.onFailedToShow = { [weak self] adInfo, error in
+            listener?.onFailedToShow?(adInfo, error)
+            self?.destroy()
+            result(false, error)
+        }
+        
+        openingAd.show()
+    }
+    
+    override func destroyAd(_ ad: Any?) {
+        // DaroAppOpenAd는 destroy 메서드가 없을 수 있음
+    }
+}
+extension UIColor {
+    
+    convenience init(hexCode: String, alpha: CGFloat = 1.0) {
+        var hexFormatted: String = hexCode.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).uppercased()
+        
+        if hexFormatted.hasPrefix("#") {
+            hexFormatted = String(hexFormatted.dropFirst())
+        }
+        
+        assert(hexFormatted.count == 6, "Invalid hex code used.")
+        
+        var rgbValue: UInt64 = 0
+        Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
+        
+        self.init(red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+                  green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+                  blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+                  alpha: alpha)
     }
 }
