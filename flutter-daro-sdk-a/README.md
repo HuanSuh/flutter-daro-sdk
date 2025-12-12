@@ -1,104 +1,552 @@
 # flutter_daro_sdk
 
-DARO SDK Flutter plugin for Android and iOS. Supports both Reward and Non-reward apps.
+DARO SDK Flutter plugin for Android and iOS.
+> ⚠️ DARO 에서 제공하는 패키지가 아닙니다.
 
-## 프로젝트 구조
+#### 구현 사항
 
-이 프로젝트는 세 개의 플러그인으로 구성되어 있습니다:
+- [x] Non-Reward
+  - [x] 배너 & MREC 광고
+  - [ ] 네이티브 광고
+  - [x] 인터스티셜 광고
+  - [x] 리워드 비디오 광고
+  - [x] 앱 오프닝 광고
+  - [x] 라이트 팝업 광고
+- [ ] Reward
 
-- **flutter_daro_sdk**: 공통 SDK 기능을 제공하는 메인 플러그인
-- **daro_core_a**: Non-Reward 앱용 네이티브 의존성을 제공하는 플러그인
-- **daro_core_m**: Reward 앱용 네이티브 의존성을 제공하는 플러그인
 
-## 설치
+## 프로젝트 초기화
 
-### Reward 앱인 경우
+### Flutter
 
-`pubspec.yaml`에 다음을 추가하세요:
+#### 요구사항
+- 안드로이드 minSdkVersion : 26
+- iOS 13.0 이상
 
-```yaml
-dependencies:
-  flutter_daro_sdk:
-    git:
-      url: https://github.com/your-repo/flutter-daro-sdk.git
-      ref: main
-  daro_core_m:
-    git:
-      url: https://github.com/your-repo/flutter-daro-sdk.git
-      ref: main
-      path: core/daro-core-m
-```
+> [app-ads.txt 파일 설정(링크)](https://guide.daro.so/ko/app-ads-txt-settings)이 잘 되었는지 다시 한 번 확인해주세요.
 
-또는 로컬에서 사용하는 경우:
+#### pubspec.yaml 추가
 
 ```yaml
-dependencies:
-  flutter_daro_sdk:
-    path: ./flutter-daro-sdk
-  daro_core_m:
-    path: ./flutter-daro-sdk/core/daro-core-m
+flutter_daro_sdk: {version}
 ```
 
-### Non-Reward 앱인 경우
+### Android
 
-`pubspec.yaml`에 다음을 추가하세요:
+#### 1. android-daro-key.txt 추가
+제공받은 android-daro-key.txt 파일을 추가합니다. 
+> ⚠️ SDK를 초기화하기 위해서는 android-daro-key.txt 파일이 프로젝트에 반드시 포함되어야 합니다.
+```
+app/
+ └── android-daro-key.txt
 
-```yaml
-dependencies:
-  flutter_daro_sdk:
-    git:
-      url: https://github.com/your-repo/flutter-daro-sdk.git
-      ref: main
-  daro_core_a:
-    git:
-      url: https://github.com/your-repo/flutter-daro-sdk.git
-      ref: main
-      path: core/daro-core-a
+// flavor/buildType 별 분기가 필요한 경우
+app/
+└── src/
+    ├── EnvA/
+    │   └── android-daro-key.txt
+    └── EnvB/
+        └── android-daro-key.txt
 ```
 
-또는 로컬에서 사용하는 경우:
+#### 2. daroAppKey 설정
+아래 중 한 곳에 daroAppKey를 설정합니다.
+<details><summary>gradle.properties 에 설정 </summary>
 
-```yaml
-dependencies:
-  flutter_daro_sdk:
-    path: ./flutter-daro-sdk
-  daro_core_a:
-    path: ./flutter-daro-sdk/core/daro-core-a
+```
+android.useAndroidX=true
+android.enableJetifier=true
+daroAppKey={APP_KEY}
+
+// flavor/buildType 별 분기가 필요한 경우
+daroAppKey.EnvA={APP_KEY}
+daroAppKey.EnvB={APP_KEY}
+```
+</details>
+
+<details><summary>app 모듈의 gradle에 설정</summary>
+
+```
+buildscript{
+    extra["daroAppKey"] = "APP_KEY"
+
+    // flavor/buildType 별 분기가 필요한 경우
+    extra["daroAppKey.EnvA"] = "APP_KEY"
+    extra["daroAppKey.EnvB"] = "APP_KEY"
+}
+```
+</details>
+
+#### 3. build.gradle 설정
+
+앱 프로젝트의 `android/app/build.gradle` (또는 `build.gradle.kts`)에 DARO 플러그인을 추가합니다:
+
+**Non-Reward 앱인 경우:**
+```kotlin
+plugins {
+    ...
+    id("so.daro.a")  // Non-Reward 앱용 플러그인
+}
+
+dependencies {
+    implementation("so.daro:daro-core:1.3.8")
+    implementation("so.daro:daro-a:1.3.6")
+}
 ```
 
-> **중요**: `flutter_daro_sdk`와 함께 반드시 해당 앱 카테고리에 맞는 core 플러그인(`daro_core_a` 또는 `daro_core_m`)을 함께 추가해야 합니다.
+#### 2. buildscript 설정
 
-## 사용 방법
+프로젝트 루트의 `android/build.gradle` (또는 `build.gradle.kts`)에 DARO 플러그인을 추가합니다:
 
-### 1. SDK 초기화
+**Non-Reward 앱인 경우:**
+```kotlin
+buildscript {
+    dependencies {
+        classpath("so.daro:daro-plugin:1.0.12")
+    }
+}
+```
 
-**중요**: 광고를 로드하기 전에 반드시 SDK를 초기화해야 합니다. 초기화 전 광고를 요청하면 광고가 정상적으로 표시되지 않을 수 있습니다.
+#### 3. 최소 SDK 버전
 
-앱 시작 시 SDK를 초기화하세요:
+`android/app/build.gradle`에서 최소 SDK 버전을 26 이상으로 설정합니다:
+
+```kotlin
+android {
+    defaultConfig {
+        minSdk = 26
+    }
+}
+```
+
+### iOS
+
+#### 요구사항
+
+- iOS 13.0 이상
+- Xcode 14.0 이상
+
+
+#### 1. ios-daro-key.txt 추가
+Xcode 프로젝트에 제공받은 ios-daro-key.txt 파일을 추가합니다.
+> ⚠️ SDK를 초기화하기 위해서는 ios-daro-key.txt 파일이 프로젝트에 반드시 포함되어야 합니다.
+
+Xcode > BuildPhase 예시
+<img src="https://mintcdn.com/delightroom-5a71a6a8/zubkjN5vMaM7lt41/sdk-integration/ios_new/img/daro-key-import.png?w=1650&fit=max&auto=format&n=zubkjN5vMaM7lt41&q=85&s=8874b9f1304c93134dcfcbf8cedf8126" />
+
+#### 2. Other Linker Flags 설정 (Objective-C)
+
+> Objective-C로 개발하는 경우, 빌드 설정에 -ObjC 플래그를 반드시 추가해야 합니다. 
+> 이 플래그가 없으면 SDK가 정상적으로 작동하지 않을 수 있습니다.
+1. Xcode 프로젝트 설정에서 다음 단계를 진행하세요:
+2. Xcode에서 프로젝트 파일을 선택합니다
+3. Build Settings 탭을 선택합니다
+4. 검색창에 “Other Linker Flags”를 입력합니다
+5. Other Linker Flags 항목에 -ObjC를 추가합니다
+
+#### 3. Info.plist 설정
+
+앱 프로젝트의 `ios/Runner/Info.plist`에 앱 키를 추가합니다:
+
+```xml
+<key>GADApplicationIdentifier</key>
+<string> /* Daro 대시보드에서 발급받은 Admob Key 추가 */ </string>
+<key>DaroAppKey</key>
+<string> /* Daro 대시보드에서 발급받은 Daro App Key 추가 */ </string>
+<key>NSUserTrackingUsageDescription</key>
+<string> /* 광고 제공을 위해 사용자 정보를 이용합니다 */ </string>
+```
+
+SKAdNetworkItems 를 추가합니다:
+<details>
+<summary>SKAdNetworkItems</summary>
+
+```xml
+<key>SKAdNetworkItems</key>
+<array>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>cstr6suwn9.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>4fzdc2evr5.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>4pfyvq9l8r.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>2fnua5tdw4.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>ydx93a7ass.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>5a6flpkh64.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>p78axxw29g.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>v72qych5uu.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>ludvb6z3bs.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>cp8zw746q7.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>3sh42y64q3.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>c6k4g5qg8m.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>s39g8k73mm.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>3qy4746246.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>f38h382jlk.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>hs6bdukanm.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>v4nxqhlyqp.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>wzmmz9fp6w.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>yclnxrl5pm.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>t38b2kh725.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>7ug5zh24hu.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>gta9lk7p23.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>vutu7akeur.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>y5ghdn5j9k.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>n6fk4nfna4.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>v9wttpbfk9.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>n38lu8286q.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>47vhws6wlr.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>kbd757ywx3.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>9t245vhmpl.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>eh6m2bh4zr.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>a2p9lx4jpn.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>22mmun2rn5.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>4468km3ulz.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>2u9pt9hc89.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>8s468mfl3y.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>klf5c3l5u5.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>ppxm28t8ap.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>ecpz2srf59.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>uw77j35x4d.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>pwa73g5rt2.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>mlmmfzh3r3.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>578prtvx9j.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>4dzt52r2t5.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>e5fvkxwrpn.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>8c4e2ghe7u.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>zq492l623r.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>3rd42ekr43.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>3qcr597p9d.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>mj797d8u6f.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>55644vm79v.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>6yxyv74ff7.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>55y65gfgn7.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>cwn433xbcr.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>nu4557a4je.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>w7jznl3r6g.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>577p5t736z.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>6rd35atwn8.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>7bxrt786m8.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>7fbxrn65az.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>dt3cjx1a9i.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>fz2k2k5tej.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>jk2fsx2rgz.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>r8lj5b58b5.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>tmhh9296z4.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>k6y4y55b64.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>qwpu75vrh2.skadnetwork</string>
+  </dict>
+  <dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>252b5q8x7y.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>4mn522wn87.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>7fmhfwg9en.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>8r8llnkz5a.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>dbu4b84rxf.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>dkc879ngq3.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>eh6m2bh4zr.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>f7s53z58qe.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>g6gcrrvk4p.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>gta8lk7p23.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>krvm3zuq6h.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>lr83yxwka7.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>mj797d8u6f.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>qu637u8glc.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>s69wq72ugq.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>v79kvwwj4g.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>vhf287vqwu.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>vutu7akeur.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>x5l83yy675.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>x8jxxk4ff5.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>x8uqf25wch.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>xga6mpmplv.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>ln5gz23vtd.skadnetwork</string>
+</dict>
+<dict>
+    <key>SKAdNetworkIdentifier</key>
+    <string>z959bm4gru.skadnetwork</string>
+</dict>
+</array>
+
+```
+</details>
+
+
+## 사용법
+
+### 1. initialize - SDK 초기화
+
+**중요**: 광고를 로드하기 전에 반드시 SDK를 초기화해야 합니다.
 
 ```dart
 import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
-// Reward 앱인 경우
-final success = await DaroSdk.initialize(DaroSdkConfig(
-  appCategory: DaroAppCategory.reward,
-  appKey: 'your-app-key', // 선택사항
-  userId: 'user-id', // 선택사항
-));
-
-if (success) {
-  print('SDK 초기화 성공');
-  // 광고 로드 및 표시 진행
-} else {
-  print('SDK 초기화 실패');
-  // 에러 처리
-}
-
-// Non-reward 앱인 경우
-final success = await DaroSdk.initialize(DaroSdkConfig(
-  appCategory: DaroAppCategory.nonReward,
-  appKey: 'your-app-key', // 선택사항
-));
+// Non-Reward 앱 초기화
+final success = await DaroSdk.initialize(
+  DaroSdkConfig.nonReward(),
+);
 
 if (success) {
   print('SDK 초기화 성공');
@@ -107,350 +555,242 @@ if (success) {
 }
 ```
 
-`initialize()` 메서드는 초기화 성공 여부를 `bool` 값으로 반환합니다.
+#### DaroSdkConfig
 
-### 2. 리워드 광고 표시
+- `DaroSdkConfig.nonReward()`: Non-Reward 앱용 설정
 
-광고 타입(전면광고, 리워드 비디오 광고, 팝업광고)과 광고 키를 지정하여 광고를 표시합니다:
+#### DaroSdkOptions (optional)
 
-```dart
-// 리워드 비디오 광고 표시
-final result = await DaroSdk.showRewardAd(DaroRewardAdConfig(
-  adType: DaroAdType.rewardedVideo,
-  adKey: 'your-ad-key', // 선택사항
-  extraParams: {'customParam': 'value'}, // 선택사항
-));
+- `userId` (String?): 사용자 ID
+- `logLevel` (DaroLogLevel?): 로그 레벨
+  - `DaroLogLevel.off`: 로그 출력 없음
+  - `DaroLogLevel.error`: 에러 로그만 출력
+  - `DaroLogLevel.debug`: 모든 로그 출력 (개발 시 권장)
+- `appMute` (bool?): 앱 음소거 설정
 
-if (result.success) {
-  print('광고 ID: ${result.adId}');
-  
-  // 광고 이벤트 리스너 등록
-  DaroSdk.addAdListener(result.adId, (adId, event) {
-    final eventType = event['type'] as String;
-    final data = event['data'] as Map<dynamic, dynamic>;
-    
-    switch (eventType) {
-      case 'adShown':
-        print('광고가 표시되었습니다');
-        break;
-      case 'adClosed':
-        print('광고가 닫혔습니다');
-        break;
-      case 'rewardEarned':
-        final amount = data['amount'] as int;
-        print('리워드 적립: $amount');
-        break;
-      case 'error':
-        final errorMessage = data['errorMessage'] as String;
-        print('에러 발생: $errorMessage');
-        break;
-    }
-  });
-  
-  if (result.rewardAmount != null) {
-    print('리워드: ${result.rewardAmount}');
-  }
-} else {
-  print('광고 표시 실패: ${result.errorMessage}');
-}
-```
+### 2. setOptions - SDK 옵션 설정
 
-### 3. 광고 타입
-
-지원하는 광고 타입:
-
-- `DaroAdType.interstitial`: 전면광고
-- `DaroAdType.rewardedVideo`: 리워드 비디오 광고
-- `DaroAdType.popup`: 팝업광고
-
-### 4. 이벤트 리스너 관리
-
-광고 인스턴스별로 이벤트 리스너를 등록하고 제거할 수 있습니다:
+초기화 후 SDK 옵션을 변경할 수 있습니다:
 
 ```dart
-// 리스너 등록
-DaroSdk.addAdListener('ad-id', (adId, event) {
-  // 이벤트 처리
-});
+final success = await DaroSdk.setOptions(
+  DaroSdkOptions(
+    userId: 'user-id',
+    logLevel: DaroLogLevel.error,
+    appMute: true,
+  ),
+);
 
-// 리스너 제거
-DaroSdk.removeAdListener('ad-id');
-```
-
-## 앱 카테고리 선택
-
-DARO SDK는 두 가지 앱 카테고리를 지원합니다:
-
-### Non-reward 앱
-- 앱의 주요 목적이 현물성 리워드 제공 없이 특정 서비스나 기능을 제공하는 앱
-- 예시: 유틸리티 앱, 플랫폼 앱, 쇼핑 앱, 음악 재생 앱, 메신저 앱 등
-
-### Reward 앱
-- 광고 시청을 통한 현물성 리워드 획득이 앱의 주요 기능인 앱
-- 예시: 앱테크 앱, 현금과 직접적으로 1:1 교환할 수 있는 포인트 앱
-
-## 플러그인별 역할
-
-### flutter_daro_sdk (메인 플러그인)
-- 공통 SDK 기능 제공
-- Flutter와 네이티브 간 통신 처리
-- 광고 로드/표시/이벤트 관리
-
-### daro_core_a (Non-Reward 앱용)
-- Non-Reward 앱용 Android/iOS 네이티브 의존성 제공
-- Non-Reward 앱용 Maven 저장소 및 플러그인 설정 포함
-- ProGuard 규칙 포함
-
-### daro_core_m (Reward 앱용)
-- Reward 앱용 Android/iOS 네이티브 의존성 제공
-- Reward 앱용 Maven 저장소 및 플러그인 설정 포함
-- AppLovin Quality Service 플러그인 포함
-
-## 네이티브 SDK 연동
-
-이 플러그인은 DARO SDK의 네이티브 기능을 Flutter에서 사용할 수 있도록 래핑합니다. 실제 DARO SDK를 연동하려면:
-
-### Android 설정
-
-#### Core 플러그인 설정
-
-**Non-Reward 앱 (`daro_core_a`)의 경우:**
-
-`core/daro-core-a/android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요:
-
-```groovy
-buildscript {
-    dependencies {
-        classpath("so.daro:daro-plugin:1.0.12")
-    }
+if (success) {
+  print('옵션 설정 성공');
 }
-
-apply plugin: "so.daro.a"
 ```
 
-**Reward 앱 (`daro_core_m`)의 경우:**
+### 3. bannerAd - 배너 광고
 
-`core/daro-core-m/android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요:
+배너 광고는 `DaroBannerAdView` 위젯을 사용하여 표시합니다.
 
-```groovy
-buildscript {
-    dependencies {
-        classpath("so.daro:daro-plugin:1.0.12")
-        classpath("com.applovin.quality:AppLovinQualityServiceGradlePlugin:5.5.2")
-    }
-}
+#### 기본 사용법
 
-apply plugin: "so.daro.m"
-```
+```dart
+import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
-#### 1. Maven 저장소 설정
-
-각 core 플러그인의 `android/settings.gradle`에 필요한 Maven 저장소가 이미 추가되어 있습니다:
-- `core/daro-core-a/android/settings.gradle`: Non-Reward 앱용 저장소
-- `core/daro-core-m/android/settings.gradle`: Reward 앱용 저장소
-
-#### 2. DARO 플러그인 추가 및 적용
-
-각 core 플러그인의 `android/build.gradle`에서 TODO 주석을 제거하고 실제 설정을 적용하세요. 위의 "Core 플러그인 설정" 섹션을 참고하세요.
-
-#### 3. 최소 SDK 버전
-
-각 core 플러그인에서 `minSdk = 23`으로 설정되어 있습니다 (DARO SDK 요구사항).
-
-#### 4. ProGuard 규칙
-
-- **Non-Reward 앱 (`daro_core_a`)**: `core/daro-core-a/android/proguard-rules.pro` 파일이 포함되어 있습니다.
-- **Reward 앱 (`daro_core_m`)**: 별도로 proguard를 설정하지 않아도 됩니다.
-
-#### 5. 앱 키 설정 (선택사항)
-
-앱 프로젝트의 `android/gradle.properties`에 앱 키를 설정할 수 있습니다:
-
-```properties
-daroAppKey=YOUR_APP_KEY
-```
-
-또는 flavor/buildType별로 분기할 수 있습니다:
-
-```properties
-daroAppKey.Production=YOUR_PRODUCTION_KEY
-daroAppKey.Development=YOUR_DEVELOPMENT_KEY
-```
-
-#### 6. SDK 초기화
-
-`flutter_daro_sdk/android/src/main/kotlin/.../FlutterDaroSdkPlugin.kt`의 `initialize()` 메서드에서 실제 SDK 초기화 코드를 작성하세요.
-
-**Android 초기화 예시:**
-
-```kotlin
-import droom.daro.Daro
-
-val sdkConfig = Daro.SDKConfig.Builder()
-  .setDebugMode(false) // Daro 로그 노출 여부, default: false
-  .setAppMute(false)   // 앱 음소거 설정, default: false
-  .build()
-
-Daro.init(
-  application = currentActivity.application,
-  sdkConfig = sdkConfig
+// 320x50 배너
+DaroBannerAdView(
+  ad: DaroBannerAd.banner('your-ad-unit-id',
+    placement: 'placement', // (optional)
+  ),
+  listener: DaroBannerAdListener(
+    onAdLoaded: (ad) => print('광고 로드 완료'),
+    onAdFailedToLoad: (ad, error) => print('광고 로드 실패: $error'),
+    onAdImpression: (ad) => print('광고 노출'),
+    onAdClicked: (ad) => print('광고 클릭'),
+  ),
 )
 
-// 초기화 성공
-result.success(true)
-```
-
-**앱 음소거 설정:**
-
-앱 오프닝, 배너, 전면 광고, 보상형, 보상형 전면 광고 형식의 경우 `setAppMute()` 메서드를 사용하여 앱 볼륨이 음소거되었음을 DARO SDK에 알릴 수 있습니다:
-
-```kotlin
-// 앱 음소거 설정
-Daro.setAppMute(true)
-
-// 앱 음소거 해제
-Daro.setAppMute(false)
-```
-
-> **주의**: 앱을 음소거하면 동영상 광고 적합성이 저하되어 앱의 광고 수익이 감소할 수 있습니다. 앱이 사용자에게 맞춤 음소거 컨트롤을 제공하고 사용자의 음소거 결정이 API에 제대로 반영되는 경우에만 이 API를 활용해야 합니다.
-
-자세한 내용은 [DARO Android SDK 가이드](https://guide.daro.so/ko/sdk-integration/android/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0)를 참고하세요.
-
-### iOS 설정
-
-#### 1. CocoaPods 의존성
-
-**Reward 앱 (`daro_core_m`)의 경우:**
-
-`core/daro-core-m/ios/flutter_daro_sdk.podspec`에 DARO SDK 의존성을 추가하세요:
-
-```ruby
-s.dependency 'DaroAds', '~> 1.1.45'
-```
-
-최신 버전은 [DARO iOS SDK 릴리즈](https://github.com/delightroom/daro-ios-sdk/releases)에서 확인하세요.
-
-**Non-Reward 앱 (`daro_core_a`)의 경우:**
-
-Non-Reward 앱용 iOS SDK 의존성이 필요한 경우 `core/daro-core-a/ios/flutter_daro_sdk.podspec`에 추가하세요.
-
-#### 2. Podfile 설정
-
-앱 프로젝트의 `ios/Podfile`에 다음을 추가하세요:
-
-```ruby
-use_frameworks!
-
-# DARO SDK
-pod 'DaroAds', '~> 1.1.45'
-```
-
-그리고 다음 명령어를 실행하세요:
-
-```bash
-cd ios
-pod install --repo-update
-```
-
-#### 3. Info.plist 설정
-
-앱 프로젝트의 `ios/Runner/Info.plist`에 다음을 추가하세요:
-
-```xml
-<key>DaroAppKey</key>
-<string>YOUR_DARO_APP_KEY</string>
-```
-
-#### 4. SDK 초기화
-
-`flutter_daro_sdk/ios/Classes/FlutterDaroSdkPlugin.swift`의 `initialize()` 메서드에서 실제 SDK 초기화 코드를 작성하세요.
-
-**iOS 초기화 예시:**
-
-```swift
-import DaroAds
-
-let config = DaroSdkConfig(
-  debugMode: false, // Daro 로그 노출 여부, default: false
-  appMute: false    // 앱 음소거 설정, default: false
+// 320x250 MREC 배너
+DaroBannerAdView(
+  ad: DaroBannerAd.mrec('your-ad-unit-id',
+    placement: 'placement', // (optional)
+  ),
+  listener: DaroBannerAdListener(
+    onAdLoaded: (ad) => print('광고 로드 완료'),
+    onAdFailedToLoad: (ad, error) => print('광고 로드 실패: $error'),
+    onAdImpression: (ad) => print('광고 노출'),
+    onAdClicked: (ad) => print('광고 클릭'),
+  ),
 )
+```
 
-DaroSdk.shared.initialize(config: config) { success, error in
-  if success {
-    result(true)
-  } else {
-    result(false)
+
+### 4. rewardAd - 리워드 광고
+
+리워드 광고는 `DaroRewardAd` 클래스를 사용합니다. 지원하는 광고 타입:
+- 전면광고 (`DaroInterstitialAd`)
+- 리워드 비디오 광고 (`DaroRewardedVideoAd`)
+- 팝업광고 (`DaroPopupAd`)
+- 앱 오프닝 (`DaroOpeningAd`)
+
+> - 각 리워드 광고는 `DaroRewardAd`를 상속받아 구현되어있습니다.
+> - 각 리워드 광고는 `load()` 와 `show()`를 지원하며, `load()` 없이 `show()` 호출 시 로드가 완료되면 자동으로 노출됩니다.
+
+#### 전면광고 (Interstitial)
+
+```dart
+// 광고 인스턴스 생성
+final interstitialAd = DaroInterstitialAd('your-ad-unit-id');
+
+// 이벤트 리스너 등록
+interstitialAd.addListener(
+  DaroRewardAdListener(
+    onAdLoadSuccess: (adId) => print('광고 로드 성공: $adId'),
+    onAdLoadFail: (adId, data) => print('광고 로드 실패: $adId, $data'),
+    onShown: (adId) => print('광고 표시: $adId'),
+    onAdImpression: (adId) => print('광고 노출: $adId'),
+    onAdClicked: (adId) => print('광고 클릭: $adId'),
+    onDismiss: (adId) => print('광고 닫힘: $adId'),
+    onFailedToShow: (adId, data) => print('광고 표시 실패: $adId, $data'),
+  ),
+);
+
+// 광고 로드
+final loadSuccess = await interstitialAd.load();
+if (loadSuccess) {
+  print('광고 로드 성공');
+  
+  // 광고 표시
+  final showSuccess = await interstitialAd.show();
+  if (showSuccess) {
+    print('광고 표시 성공');
   }
 }
+
+// 사용 후 해제
+await interstitialAd.dispose();
 ```
 
-**앱 음소거 설정:**
+#### 리워드 비디오 광고 (Rewarded Video)
 
-앱 오프닝, 배너, 전면 광고, 보상형, 보상형 전면 광고 형식의 경우 `setAppMute()` 메서드를 사용하여 앱 볼륨이 음소거되었음을 DARO SDK에 알릴 수 있습니다:
+```dart
+// 광고 인스턴스 생성
+final rewardedVideoAd = DaroRewardedVideoAd('your-ad-unit-id');
 
-```swift
-// 앱 음소거 설정
-DaroSdk.shared.setAppMute(true)
+// 이벤트 리스너 등록
+rewardedVideoAd.addListener(
+  DaroRewardAdListener(
+    onAdLoadSuccess: (adId) => print('광고 로드 성공: $adId'),
+    onAdLoadFail: (adId, data) => print('광고 로드 실패: $adId, $data'),
+    onShown: (adId) => print('광고 표시: $adId'),
+    onRewarded: (adId, data) {
+      final amount = data['reward']?['amount'] ?? 0;
+      final type = data['reward']?['type'] ?? '';
+      print('리워드 적립: $amount, 타입: $type');
+    },
+    onAdImpression: (adId) => print('광고 노출: $adId'),
+    onAdClicked: (adId) => print('광고 클릭: $adId'),
+    onDismiss: (adId) => print('광고 닫힘: $adId'),
+    onFailedToShow: (adId, data) => print('광고 표시 실패: $adId, $data'),
+  ),
+);
 
-// 앱 음소거 해제
-DaroSdk.shared.setAppMute(false)
+// 광고 로드
+final loadSuccess = await rewardedVideoAd.load();
+if (loadSuccess) {
+  // 광고 표시
+  await rewardedVideoAd.show();
+}
+
+// 사용 후 해제
+await rewardedVideoAd.dispose();
 ```
 
-> **주의**: 앱을 음소거하면 동영상 광고 적합성이 저하되어 앱의 광고 수익이 감소할 수 있습니다. 앱이 사용자에게 맞춤 음소거 컨트롤을 제공하고 사용자의 음소거 결정이 API에 제대로 반영되는 경우에만 이 API를 활용해야 합니다.
+#### 팝업광고 (Popup)
 
-자세한 내용은 [DARO iOS SDK 가이드](https://guide.daro.so/ko/sdk-integration/ios_new/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0)를 참고하세요.
+```dart
+// 광고 인스턴스 생성
+final popupAd = DaroPopupAd('your-ad-unit-id',
+  options: DaroPopupAdOptions(  // optional
+      backgroundColor: Colors.black26,
+      containerColor: Colors.black,
+      adMarkLabelTextColor: Colors.white,
+      adMarkLabelBackgroundColor: Colors.black12,
+      titleColor: Colors.white,
+      bodyColor: Colors.white,
+      ctaBackgroundColor: Colors.blue,
+      ctaTextColor: Colors.white,
+      closeButtonText: closeButtonText,
+      closeButtonColor: Colors.white,
+  ),
+);
 
-## 예제 프로젝트
+// 이벤트 리스너 등록
+popupAd.addListener(
+  DaroRewardAdListener(
+    onAdLoadSuccess: (adId) => print('광고 로드 성공: $adId'),
+    onAdLoadFail: (adId, data) => print('광고 로드 실패: $adId, $data'),
+    onShown: (adId) => print('광고 표시: $adId'),
+    onAdImpression: (adId) => print('광고 노출: $adId'),
+    onAdClicked: (adId) => print('광고 클릭: $adId'),
+    onDismiss: (adId) => print('광고 닫힘: $adId'),
+    onFailedToShow: (adId, data) => print('광고 표시 실패: $adId, $data'),
+  ),
+);
 
-프로젝트에는 두 개의 예제 프로젝트가 포함되어 있습니다:
+// 광고 로드
+final loadSuccess = await popupAd.load();
+if (loadSuccess) {
+  // 광고 표시
+  await popupAd.show();
+}
 
-- **example-reward**: Reward 앱용 예제 프로젝트
-  - `daro_core_m` 플러그인 사용
-  - `DaroAppCategory.reward`로 초기화
-  - Reward 앱 개발 시 참고
-
-- **example-nonreward**: Non-Reward 앱용 예제 프로젝트
-  - `daro_core_a` 플러그인 사용
-  - `DaroAppCategory.nonReward`로 초기화
-  - Non-Reward 앱 개발 시 참고
-
-각 예제 프로젝트에서 각 광고 타입별로 load/show/dispose 기능을 테스트할 수 있습니다.
-
-## 프로젝트 구조 요약
-
-```
-flutter-daro-sdk/
-├── lib/                          # flutter_daro_sdk 메인 플러그인
-│   ├── flutter_daro_sdk.dart
-│   ├── flutter_daro_sdk_platform_interface.dart
-│   └── flutter_daro_sdk_method_channel.dart
-├── android/                      # flutter_daro_sdk Android 구현
-├── ios/                          # flutter_daro_sdk iOS 구현
-├── core/                          # Core 플러그인 폴더
-│   ├── daro-core-a/              # Non-Reward 앱용 core 플러그인
-│   │   ├── lib/
-│   │   ├── android/               # Non-Reward 앱용 Android 설정
-│   │   └── ios/                   # Non-Reward 앱용 iOS 설정
-│   └── daro-core-m/               # Reward 앱용 core 플러그인
-│       ├── lib/
-│       ├── android/               # Reward 앱용 Android 설정
-│       └── ios/                   # Reward 앱용 iOS 설정
-└── example/                       # 예제 프로젝트 폴더
-    ├── example-reward/            # Reward 앱용 예제 프로젝트
-    │   ├── lib/main.dart
-    │   ├── android/
-    │   └── ios/
-    └── example-nonreward/        # Non-Reward 앱용 예제 프로젝트
-        ├── lib/main.dart
-        ├── android/
-        └── ios/
+// 사용 후 해제
+await popupAd.dispose();
 ```
 
-## 참고사항
+#### 앱 오프닝 (Opening)
 
-- 현재 게임 앱은 DARO SDK 연동이 지원되지 않습니다.
-- 카테고리 선택에 어려움이 있으시다면 [cs@daro.so](mailto:cs@daro.so)으로 문의해주세요.
+```dart
+// 광고 인스턴스 생성
+final openingAd = DaroOpeningAd('your-ad-unit-id');
 
-## 라이선스
+// 이벤트 리스너 등록
+openingAd.addListener(
+  DaroRewardAdListener(
+    onAdLoadSuccess: (adId) => print('광고 로드 성공: $adId'),
+    onAdLoadFail: (adId, data) => print('광고 로드 실패: $adId, $data'),
+    onShown: (adId) => print('광고 표시: $adId'),
+    onAdImpression: (adId) => print('광고 노출: $adId'),
+    onAdClicked: (adId) => print('광고 클릭: $adId'),
+    onDismiss: (adId) => print('광고 닫힘: $adId'),
+    onFailedToShow: (adId, data) => print('광고 표시 실패: $adId, $data'),
+  ),
+);
 
-이 프로젝트의 라이선스는 LICENSE 파일을 참고하세요.
+// 광고 로드
+final loadSuccess = await openingAd.load();
+if (loadSuccess) {
+  // 광고 표시
+  await openingAd.show();
+}
+
+// 사용 후 해제
+await openingAd.dispose();
+```
+
+#### 리워드 광고 이벤트
+
+`DaroRewardAdListener`에서 사용 가능한 이벤트:
+
+- `onAdLoadSuccess`: 광고 로드 성공
+- `onAdLoadFail`: 광고 로드 실패
+- `onShown`: 광고 표시됨
+- `onRewarded`: 리워드 적립 (리워드 비디오 광고만)
+- `onAdImpression`: 광고 노출 (성과 집계)
+- `onAdClicked`: 광고 클릭
+- `onDismiss`: 광고 닫힘
+- `onFailedToShow`: 광고 표시 실패
+
+## 주의사항
+
+1. **리소스 해제**: 리워드 광고 인스턴스는 사용 후 `dispose()` 메서드를 호출하여 해제해야 합니다.
+2. **앱 음소거**: `appMute` 옵션을 사용하면 동영상 광고 적합성이 저하되어 광고 수익이 감소할 수 있습니다. 사용자에게 맞춤 음소거 컨트롤을 제공하는 경우에만 사용하세요.
