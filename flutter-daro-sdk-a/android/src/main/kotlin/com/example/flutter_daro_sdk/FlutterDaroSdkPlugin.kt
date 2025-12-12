@@ -109,13 +109,22 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun createAdInstance(context: Activity, adType: FlutterDaroRewardAdType, adUnit: String, placement: String?): FlutterDaroRewardAd {
-
-    val result = FlutterDaroRewardAd(
+  private fun createAdInstance(
+    context: Activity,
+    adType: FlutterDaroRewardAdType,
+    adUnit: String,
+    placement: String?,
+    options: Map<*,*>?
+  ): FlutterDaroRewardAd {
+    rewardAdMap[adUnit]?.let {
+      return it
+    }
+    val result = FlutterDaroRewardAdFactory.create(
       context = context,
       adType = adType,
       adUnit = adUnit,
       placement = placement,
+      options = options,
       loadListener = object: FlutterDaroRewardAdLoadListener {
         override fun onAdLoadSuccess(ad: FlutterDaroRewardAd, adInstance: Any?, adInfo: DaroAdInfo?) {
           sendRewardAdEvent(
@@ -170,12 +179,14 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           null
         )
 
+      val options = args["options"] as? Map<*, *>
+
 
       // 기존 인스턴스가 있으면 해제
-      rewardAdMap[adUnit]?.destroy()
+//      rewardAdMap[adUnit]?.destroy()
 
       // 새로운 리워드 광고 인스턴스 생성
-      val adInstance = createAdInstance(currentActivity, adType, adUnit, placement)
+      val adInstance = createAdInstance(currentActivity, adType, adUnit, placement, options)
 
       // 광고 로드
       adInstance.loadAd(
@@ -221,12 +232,12 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           "adKey is required",
           null
         )
-        val placement = args["placement"] as? String
-      val extraParams = args["extraParams"] as? Map<*, *>
+      val placement = args["placement"] as? String
+      val options = args["options"] as? Map<*, *>
 
       var adInstance = rewardAdMap[adUnit]
       if (adInstance == null) {
-        adInstance = createAdInstance(currentActivity, adType, adUnit, placement)
+        adInstance = createAdInstance(currentActivity, adType, adUnit, placement, options)
       }
 
       adInstance.showAd(

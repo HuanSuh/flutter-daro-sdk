@@ -2,6 +2,7 @@ package com.example.flutter_daro_sdk
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import droom.daro.core.adunit.DaroAppOpenAdUnit
 import droom.daro.core.adunit.DaroInterstitialAdUnit
 import droom.daro.core.adunit.DaroLightPopupAdUnit
@@ -57,327 +58,495 @@ interface FlutterDaroRewardAdListener {
     fun onFailedToShow(adInfo: DaroAdInfo, error: Any) {}
 }
 
-class FlutterDaroRewardAd(
-    private val adType: FlutterDaroRewardAdType,
-    private val adUnit: String,
-    private val placement: String? = null,
-    private val context: Context,
-    private var loadListener: FlutterDaroRewardAdLoadListener? = null
+// Factory 클래스
+object FlutterDaroRewardAdFactory {
+    fun create(
+        context: Context,
+        adType: FlutterDaroRewardAdType,
+        adUnit: String,
+        placement: String? = null,
+        options: Map<*,*>? = null,
+        loadListener: FlutterDaroRewardAdLoadListener? = null
+    ): FlutterDaroRewardAd {
+        return when (adType) {
+            FlutterDaroRewardAdType.INTERSTITIAL -> {
+                FlutterDaroInterstitialAd(context, adUnit, placement, loadListener)
+            }
+            FlutterDaroRewardAdType.REWARDED_VIDEO -> {
+                FlutterDaroRewardedVideoAd(context, adUnit, placement, loadListener)
+            }
+            FlutterDaroRewardAdType.POPUP -> {
+                FlutterDaroPopupAd(context, adUnit, placement, loadListener, options)
+            }
+            FlutterDaroRewardAdType.OPENING -> {
+                FlutterDaroOpeningAd(context, adUnit, placement, loadListener)
+            }
+        }
+    }
+}
+
+// 추상 광고 클래스
+abstract class FlutterDaroRewardAd(
+    protected val context: Context,
+    protected val adUnit: String,
+    protected val placement: String? = null,
+    protected var loadListener: FlutterDaroRewardAdLoadListener? = null
 ) {
+    // 상위 클래스에서 공통으로 관리하는 loader와 ad
     private var loader: Any? = null
-    private var ad: Any? = null
+    protected var ad: Any? = null
 
     init {
         setupLoader()
     }
 
-    // 광고 타입에 따라 알맞은 로더 인스턴스 생성
+    // 각 구체 클래스에서 로더 생성 구현
+    protected abstract fun createLoader(): Any
+
+    // 각 구체 클래스에서 로더 구현
+    protected abstract fun loadAdInternal(
+        loader: Any,
+        autoShow: Boolean,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    )
+
+    // 각 구체 클래스에서 광고 리스너 설정 및 표시 구현
+    protected abstract fun showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    )
+
+    // 각 구체 클래스에서 광고 해제 구현
+    protected abstract fun destroyAd(ad: Any?)
+
     private fun setupLoader() {
-        loader = when (adType) {
-            FlutterDaroRewardAdType.INTERSTITIAL -> {
-                val unit = DaroInterstitialAdUnit(
-                    key = adUnit,
-                    placement = placement ?: ""
-                )
-                DaroInterstitialAdLoader(
-                    context = context,
-                    adUnit = unit
-                )
-            }
-            FlutterDaroRewardAdType.REWARDED_VIDEO -> {
-                val unit = DaroRewardedAdUnit(
-                    key = adUnit,
-                    placement = placement ?: ""
-                )
-                DaroRewardedAdLoader(
-                    context = context,
-                    adUnit = unit
-                )
-            }
-            FlutterDaroRewardAdType.POPUP -> {
-                val unit = DaroLightPopupAdUnit(
-                    key = adUnit,
-                    placement = placement ?: ""
-                )
-                DaroLightPopupAdLoader(
-                    context = context,
-                    adUnit = unit
-                )
-            }
-            FlutterDaroRewardAdType.OPENING -> {
-                val unit = DaroAppOpenAdUnit(
-                    key = adUnit,
-                    placement = placement ?: ""
-                )
-                DaroAppOpenAdLoader(
-                    context = context,
-                    adUnit = unit
-                )
-            }
-        }
+        loader = createLoader()
     }
 
-    // 광고 로드 실행
+    // 공통 로드 로직
     fun loadAd(
         autoShow: Boolean = false,
         listener: FlutterDaroRewardAdListener? = null,
         result: (Boolean, Any?) -> Unit
     ) {
+        if(ad != null) {
+            // 이미 로드된 광고가 있으면 바로 리턴
+            loadListener?.onAdLoadSuccess(this@FlutterDaroRewardAd, ad, null)
+            result(true, null)
+            return
+        }
         if (loader == null) {
             setupLoader()
         }
 
-        when (val currentLoader = loader) {
-            is DaroInterstitialAdLoader -> {
-                currentLoader.setListener(object : DaroInterstitialAdLoaderListener {
-                    override fun onAdLoadSuccess(ad: DaroInterstitialAd, adInfo: DaroAdInfo) {
-                        this@FlutterDaroRewardAd.ad = ad
-                        loadListener?.onAdLoadSuccess(this@FlutterDaroRewardAd, ad, adInfo)
-                        
-                        if (autoShow) {
-                            showAd(listener) { success, error ->
-                                result(success, error)
-                            }
-                        } else {
-                            result(true, null)
-                        }
-                    }
-
-                    override fun onAdLoadFail(err: DaroAdLoadError) {
-                        val error = Exception(err.message)
-                        loadListener?.onAdLoadFail(error)
-                        result(false, error)
-                    }
-                })
-                currentLoader.load()
-            }
-            is DaroRewardedAdLoader -> {
-                currentLoader.setListener(object : DaroRewardedAdLoaderListener {
-                    override fun onAdLoadSuccess(ad: DaroRewardedAd, adInfo: DaroAdInfo) {
-                        this@FlutterDaroRewardAd.ad = ad
-                        loadListener?.onAdLoadSuccess(this@FlutterDaroRewardAd, ad, adInfo)
-                        
-                        if (autoShow) {
-                            showAd(listener) { success, error ->
-                                result(success, error)
-                            }
-                        } else {
-                            result(true, null)
-                        }
-                    }
-
-                    override fun onAdLoadFail(err: DaroAdLoadError) {
-                        val error = Exception(err.message)
-                        loadListener?.onAdLoadFail(error)
-                        result(false, error)
-                    }
-                })
-                currentLoader.load()
-            }
-            is DaroLightPopupAdLoader -> {
-                currentLoader.setListener(object : DaroLightPopupAdLoaderListener {
-                    override fun onAdLoadSuccess(ad: DaroLightPopupAd, adInfo: DaroAdInfo) {
-                        this@FlutterDaroRewardAd.ad = ad
-                        loadListener?.onAdLoadSuccess(this@FlutterDaroRewardAd, ad, adInfo)
-                        
-                        if (autoShow) {
-                            showAd(listener) { success, error ->
-                                result(success, error)
-                            }
-                        } else {
-                            result(true, null)
-                        }
-                    }
-
-                    override fun onAdLoadFail(err: DaroAdLoadError) {
-                        val error = Exception(err.message)
-                        loadListener?.onAdLoadFail(error)
-                        result(false, error)
-                    }
-                })
-                currentLoader.load()
-            }
-            is DaroAppOpenAdLoader -> {
-                currentLoader.setListener(object : DaroAppOpenAdLoaderListener {
-                    override fun onAdLoadSuccess(ad: DaroAppOpenAd, adInfo: DaroAdInfo) {
-                        this@FlutterDaroRewardAd.ad = ad
-                        loadListener?.onAdLoadSuccess(this@FlutterDaroRewardAd, ad, adInfo)
-                        
-                        if (autoShow) {
-                            showAd(listener) { success, error ->
-                                result(success, error)
-                            }
-                        } else {
-                            result(true, null)
-                        }
-                    }
-
-                    override fun onAdLoadFail(err: DaroAdLoadError) {
-                        val error = Exception(err.message)
-                        loadListener?.onAdLoadFail(error)
-                        result(false, error)
-                    }
-                })
-                currentLoader.load()
-            }
-            else -> {
-                result(false, Exception("Invalid ad type"))
-            }
-        }
+        loader?.let {
+            loadAdInternal(it, autoShow, listener, result)
+        } ?: result(false, Exception("Failed to create loader"))
     }
 
-    // 광고 표시 처리
+    // 공통 표시 로직
     fun showAd(
         listener: FlutterDaroRewardAdListener?,
         result: (Boolean, Any?) -> Unit
     ) {
-        val currentActivity = context as? Activity
-        if (currentActivity == null) {
-            result(false, Exception("No activity available to show ad"))
-            return
+        ad?.let { currentAd ->
+            showAdInternal(currentAd, listener, result)
+        } ?: run {
+            loadAd(autoShow = true, listener = listener, result = result)
         }
+    }
 
-        when (val currentAd = ad) {
-            is DaroInterstitialAd -> {
-                currentAd.setListener(object : DaroInterstitialAdListener {
-                    override fun onAdImpression(adInfo: DaroAdInfo) {
-                        listener?.onAdImpression(adInfo)
-                    }
+    // 공통 해제 로직
+    fun destroy() {
+        ad?.let { destroyAd(it) }
+        ad = null
+        loader = null
+        loadListener = null
+    }
+}
 
-                    override fun onAdClicked(adInfo: DaroAdInfo) {
-                        listener?.onAdClicked(adInfo)
-                    }
+// 전면 광고 클래스
+class FlutterDaroInterstitialAd(
+    context: Context,
+    adUnit: String,
+    placement: String? = null,
+    loadListener: FlutterDaroRewardAdLoadListener? = null
+) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
 
-                    override fun onShown(adInfo: DaroAdInfo) {
-                        listener?.onShown(adInfo)
-                    }
+    override fun createLoader(): DaroInterstitialAdLoader {
+        val unit = DaroInterstitialAdUnit(
+            key = adUnit,
+            placement = placement ?: ""
+        )
+        return DaroInterstitialAdLoader(
+            context = context,
+            adUnit = unit
+        )
+    }
 
-                    override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                        val exception = Exception(error.message)
-                        listener?.onFailedToShow(adInfo, exception)
-                        result(false, exception)
+    override fun loadAdInternal(
+        loader: Any,
+        autoShow: Boolean,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (loader as? DaroInterstitialAdLoader)?.setListener(object : DaroInterstitialAdLoaderListener {
+            override fun onAdLoadSuccess(ad: DaroInterstitialAd, adInfo: DaroAdInfo) {
+                this@FlutterDaroInterstitialAd.ad = ad
+                loadListener?.onAdLoadSuccess(this@FlutterDaroInterstitialAd, ad, adInfo)
+                
+                if (autoShow) {
+                    showAd(listener) { success, error ->
+                        result(success, error)
                     }
-
-                    override fun onDismiss(adInfo: DaroAdInfo) {
-                        listener?.onDismiss(adInfo)
-                        result(true, null)
-                    }
-                })
-                currentAd.show(activity = currentActivity)
+                } else {
+                    result(true, null)
+                }
             }
-            is DaroRewardedAd -> {
-                var reward: DaroRewardedAd.DaroRewardedItem? = null
-                currentAd.setListener(object : DaroRewardedAdListener {
-                    override fun onAdImpression(adInfo: DaroAdInfo) {
-                        listener?.onAdImpression(adInfo)
-                    }
 
-                    override fun onAdClicked(adInfo: DaroAdInfo) {
-                        listener?.onAdClicked(adInfo)
-                    }
-
-                    override fun onShown(adInfo: DaroAdInfo) {
-                        listener?.onShown(adInfo)
-                    }
-
-                    override fun onEarnedReward(adInfo: DaroAdInfo, rewardItem: DaroRewardedAd.DaroRewardedItem) {
-                        reward = rewardItem
-                        listener?.onRewarded(adInfo, rewardItem)
-                    }
-
-                    override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                        val exception = Exception(error.message)
-                        listener?.onFailedToShow(adInfo, exception)
-                        result(false, exception)
-                    }
-
-                    override fun onDismiss(adInfo: DaroAdInfo) {
-                        listener?.onDismiss(adInfo)
-                        result(reward != null, null)
-                    }
-                })
-                currentAd.show(activity = currentActivity)
+            override fun onAdLoadFail(err: DaroAdLoadError) {
+                val error = Exception(err.message)
+                loadListener?.onAdLoadFail(error)
+                result(false, error)
             }
-            is DaroLightPopupAd -> {
-                currentAd.setListener(object : DaroLightPopupAdListener {
-                    override fun onAdImpression(adInfo: DaroAdInfo) {
-                        listener?.onAdImpression(adInfo)
-                    }
+        })
+        (loader as? DaroInterstitialAdLoader)?.load()
+    }
 
-                    override fun onAdClicked(adInfo: DaroAdInfo) {
-                        listener?.onAdClicked(adInfo)
-                    }
+    override fun showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (ad as? DaroInterstitialAd)?.let { interstitialAd ->
+            interstitialAd.setListener(object : DaroInterstitialAdListener {
+                override fun onAdImpression(adInfo: DaroAdInfo) {
+                    listener?.onAdImpression(adInfo)
+                }
 
-                    override fun onShown(adInfo: DaroAdInfo) {
-                        listener?.onShown(adInfo)
-                    }
+                override fun onAdClicked(adInfo: DaroAdInfo) {
+                    listener?.onAdClicked(adInfo)
+                }
 
-                    override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                        val exception = Exception(error.message)
-                        listener?.onFailedToShow(adInfo, exception)
-                        result(false, exception)
-                    }
+                override fun onShown(adInfo: DaroAdInfo) {
+                    listener?.onShown(adInfo)
+                }
 
-                    override fun onDismiss(adInfo: DaroAdInfo) {
-                        listener?.onDismiss(adInfo)
-                        result(true, null)
-                    }
-                })
-                currentAd.show(activity = currentActivity)
-            }
-            is DaroAppOpenAd -> {
-                currentAd.setListener(object : DaroAppOpenAdListener {
-                    override fun onAdImpression(adInfo: DaroAdInfo) {
-                        listener?.onAdImpression(adInfo)
-                    }
+                override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
+                    val exception = Exception(error.message)
+                    listener?.onFailedToShow(adInfo, exception)
+                    destroy()
+                    result(false, exception)
+                }
 
-                    override fun onAdClicked(adInfo: DaroAdInfo) {
-                        listener?.onAdClicked(adInfo)
-                    }
-
-                    override fun onShown(adInfo: DaroAdInfo) {
-                        listener?.onShown(adInfo)
-                    }
-
-                    override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                        val exception = Exception(error.message)
-                        listener?.onFailedToShow(adInfo, exception)
-                        result(false, exception)
-                    }
-
-                    override fun onDismiss(adInfo: DaroAdInfo) {
-                        listener?.onDismiss(adInfo)
-                        result(true, null)
-                    }
-                })
-                currentAd.show(activity = context)
-            }
-            else -> {
-                // 광고가 로드되지 않았으면 자동으로 로드 후 표시
-                loadAd(autoShow = true, listener = listener, result = result)
+                override fun onDismiss(adInfo: DaroAdInfo) {
+                    listener?.onDismiss(adInfo)
+                    destroy()
+                    result(true, null)
+                }
+            })
+            (context as? Activity)?.let { currentActivity ->
+                interstitialAd.show(activity = currentActivity)
+            } ?: {
+                result(false, Exception("No activity available to show ad"))
             }
         }
     }
 
-    // 광고 인스턴스 해제
-    fun destroy() {
-        when (val currentAd = ad) {
-            is DaroInterstitialAd -> {
-                currentAd.destroy()
+    override fun destroyAd(ad: Any?) {
+        (ad as? DaroInterstitialAd)?.destroy()
+    }
+}
+
+// 리워드 비디오 광고 클래스
+class FlutterDaroRewardedVideoAd(
+    context: Context,
+    adUnit: String,
+    placement: String? = null,
+    loadListener: FlutterDaroRewardAdLoadListener? = null
+) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
+
+    override fun createLoader(): DaroRewardedAdLoader {
+        val unit = DaroRewardedAdUnit(
+            key = adUnit,
+            placement = placement ?: ""
+        )
+        return DaroRewardedAdLoader(
+            context = context,
+            adUnit = unit
+        )
+    }
+
+    override fun loadAdInternal(
+        loader: Any,
+        autoShow: Boolean,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (loader as? DaroRewardedAdLoader)?.setListener(object : DaroRewardedAdLoaderListener {
+            override fun onAdLoadSuccess(ad: DaroRewardedAd, adInfo: DaroAdInfo) {
+                this@FlutterDaroRewardedVideoAd.ad = ad
+                loadListener?.onAdLoadSuccess(this@FlutterDaroRewardedVideoAd, ad, adInfo)
+                
+                if (autoShow) {
+                    showAd(listener) { success, error ->
+                        result(success, error)
+                    }
+                } else {
+                    result(true, null)
+                }
             }
-            is DaroRewardedAd -> {
-                currentAd.destroy()
+
+            override fun onAdLoadFail(err: DaroAdLoadError) {
+                val error = Exception(err.message)
+                loadListener?.onAdLoadFail(error)
+                destroy()
+                result(false, error)
             }
-            is DaroLightPopupAd -> {
-                currentAd.destroy()
-            }
-            is DaroAppOpenAd -> {
-                currentAd.destroy()
+        })
+        (loader as? DaroRewardedAdLoader)?.load()
+    }
+
+    override fun showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (ad as? DaroRewardedAd)?.let { rewardedAd ->
+            var reward: DaroRewardedAd.DaroRewardedItem? = null
+            rewardedAd.setListener(object : DaroRewardedAdListener {
+                override fun onAdImpression(adInfo: DaroAdInfo) {
+                    listener?.onAdImpression(adInfo)
+                }
+
+                override fun onAdClicked(adInfo: DaroAdInfo) {
+                    listener?.onAdClicked(adInfo)
+                }
+
+                override fun onShown(adInfo: DaroAdInfo) {
+                    listener?.onShown(adInfo)
+                }
+
+                override fun onEarnedReward(adInfo: DaroAdInfo, rewardItem: DaroRewardedAd.DaroRewardedItem) {
+                    reward = rewardItem
+                    listener?.onRewarded(adInfo, rewardItem)
+                }
+
+                override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
+                    val exception = Exception(error.message)
+                    listener?.onFailedToShow(adInfo, exception)
+                    destroy()
+                    result(false, exception)
+                }
+
+                override fun onDismiss(adInfo: DaroAdInfo) {
+                    listener?.onDismiss(adInfo)
+                    destroy()
+                    result(reward != null, null)
+                }
+            })
+            (context as? Activity)?.let { currentActivity ->
+                rewardedAd.show(activity = currentActivity)
+            } ?: {
+                result(false, Exception("No activity available to show ad"))
             }
         }
-        
-        ad = null
-        loader = null
-        loadListener = null
+    }
+
+    override fun destroyAd(ad: Any?) {
+        (ad as? DaroRewardedAd)?.destroy()
+    }
+}
+
+// 팝업 광고 클래스
+class FlutterDaroPopupAd(
+    context: Context,
+    adUnit: String,
+    placement: String? = null,
+    loadListener: FlutterDaroRewardAdLoadListener? = null,
+    private val options: Map<*,*>?,
+) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
+
+    override fun createLoader(): DaroLightPopupAdLoader {
+        Log.d("FlutterDaroPopupAd", "Creating DaroLightPopupAdLoader with options: $options")
+        val unit = DaroLightPopupAdUnit(
+            key = adUnit,
+            placement = placement ?: ""
+        )
+        return DaroLightPopupAdLoader(
+            context = context,
+            adUnit = unit
+        )
+    }
+
+    override fun loadAdInternal(
+        loader: Any,
+        autoShow: Boolean,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (loader as? DaroLightPopupAdLoader)?.setListener(object : DaroLightPopupAdLoaderListener {
+            override fun onAdLoadSuccess(ad: DaroLightPopupAd, adInfo: DaroAdInfo) {
+                this@FlutterDaroPopupAd.ad = ad
+                loadListener?.onAdLoadSuccess(this@FlutterDaroPopupAd, ad, adInfo)
+                
+                if (autoShow) {
+                    showAd(listener) { success, error ->
+                        result(success, error)
+                    }
+                } else {
+                    result(true, null)
+                }
+            }
+
+            override fun onAdLoadFail(err: DaroAdLoadError) {
+                val error = Exception(err.message)
+                loadListener?.onAdLoadFail(error)
+                destroy()
+                result(false, error)
+            }
+        })
+        (loader as? DaroLightPopupAdLoader)?.load()
+    }
+
+    override fun showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (ad as? DaroLightPopupAd)?.let { popupAd ->
+            popupAd.setListener(object : DaroLightPopupAdListener {
+                override fun onAdImpression(adInfo: DaroAdInfo) {
+                    listener?.onAdImpression(adInfo)
+                }
+
+                override fun onAdClicked(adInfo: DaroAdInfo) {
+                    listener?.onAdClicked(adInfo)
+                }
+
+                override fun onShown(adInfo: DaroAdInfo) {
+                    listener?.onShown(adInfo)
+                }
+
+                override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
+                    val exception = Exception(error.message)
+                    listener?.onFailedToShow(adInfo, exception)
+                    destroy()
+                    result(false, exception)
+                }
+
+                override fun onDismiss(adInfo: DaroAdInfo) {
+                    listener?.onDismiss(adInfo)
+                    destroy()
+                    result(true, null)
+                }
+            })
+            (context as? Activity)?.let { currentActivity ->
+                popupAd.show(activity = currentActivity)
+            } ?: {
+                result(false, Exception("No activity available to show ad"))
+            }
+        }
+    }
+
+    override fun destroyAd(ad: Any?) {
+        (ad as? DaroLightPopupAd)?.destroy()
+    }
+}
+
+// 앱 오프닝 광고 클래스
+class FlutterDaroOpeningAd(
+    context: Context,
+    adUnit: String,
+    placement: String? = null,
+    loadListener: FlutterDaroRewardAdLoadListener? = null
+) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
+
+    override fun createLoader(): DaroAppOpenAdLoader {
+        val unit = DaroAppOpenAdUnit(
+            key = adUnit,
+            placement = placement ?: ""
+        )
+        return DaroAppOpenAdLoader(
+            context = context,
+            adUnit = unit
+        )
+    }
+
+    override fun loadAdInternal(
+        loader: Any,
+        autoShow: Boolean,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (loader as? DaroAppOpenAdLoader)?.setListener(object : DaroAppOpenAdLoaderListener {
+            override fun onAdLoadSuccess(ad: DaroAppOpenAd, adInfo: DaroAdInfo) {
+                this@FlutterDaroOpeningAd.ad = ad
+                loadListener?.onAdLoadSuccess(this@FlutterDaroOpeningAd, ad, adInfo)
+                
+                if (autoShow) {
+                    showAd(listener) { success, error ->
+                        result(success, error)
+                    }
+                } else {
+                    result(true, null)
+                }
+            }
+
+            override fun onAdLoadFail(err: DaroAdLoadError) {
+                val error = Exception(err.message)
+                loadListener?.onAdLoadFail(error)
+                destroy()
+                result(false, error)
+            }
+        })
+        (loader as? DaroAppOpenAdLoader)?.load()
+    }
+
+    override fun showAdInternal(
+        ad: Any,
+        listener: FlutterDaroRewardAdListener?,
+        result: (Boolean, Any?) -> Unit
+    ) {
+        (ad as? DaroAppOpenAd)?.let { appOpenAd ->
+            appOpenAd.setListener(object : DaroAppOpenAdListener {
+                override fun onAdImpression(adInfo: DaroAdInfo) {
+                    listener?.onAdImpression(adInfo)
+                }
+
+                override fun onAdClicked(adInfo: DaroAdInfo) {
+                    listener?.onAdClicked(adInfo)
+                }
+
+                override fun onShown(adInfo: DaroAdInfo) {
+                    listener?.onShown(adInfo)
+                }
+
+                override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
+                    val exception = Exception(error.message)
+                    listener?.onFailedToShow(adInfo, exception)
+                    destroy()
+                    result(false, exception)
+                }
+
+                override fun onDismiss(adInfo: DaroAdInfo) {
+                    listener?.onDismiss(adInfo)
+                    destroy()
+                    result(true, null)
+                }
+            })
+
+            (context as? Activity)?.let { currentActivity ->
+                appOpenAd.show(activity = currentActivity)
+            } ?: {
+                result(false, Exception("No activity available to show ad"))
+            }
+        }
+    }
+
+    override fun destroyAd(ad: Any?) {
+        (ad as? DaroAppOpenAd)?.destroy()
     }
 }
