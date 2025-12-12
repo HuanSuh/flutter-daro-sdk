@@ -3,8 +3,6 @@ package com.example.flutter_daro_sdk
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
-import androidx.annotation.ColorLong
 import androidx.core.graphics.toColorInt
 import droom.daro.core.adunit.DaroAppOpenAdUnit
 import droom.daro.core.adunit.DaroInterstitialAdUnit

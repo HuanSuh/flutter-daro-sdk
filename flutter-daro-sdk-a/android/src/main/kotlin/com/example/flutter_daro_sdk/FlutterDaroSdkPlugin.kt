@@ -21,6 +21,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The EventChannel for sending events to Flutter
   private lateinit var eventChannel : EventChannel
   private var eventSink: EventChannel.EventSink? = null
+  private lateinit var bannerAdFactory: FlutterDaroBannerAdFactory
 
   /// Current activity reference
   private var activity: Activity? = null
@@ -45,6 +46,8 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         eventSink = null
       }
     })
+
+    bannerAdFactory = FlutterDaroBannerAdFactory.registerWith(flutterPluginBinding)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -181,9 +184,6 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
       val options = args["options"] as? Map<*, *>
 
-
-      // 기존 인스턴스가 있으면 해제
-//      rewardAdMap[adUnit]?.destroy()
 
       // 새로운 리워드 광고 인스턴스 생성
       val adInstance = createAdInstance(currentActivity, adType, adUnit, placement, options)
@@ -331,6 +331,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     methodChannel.setMethodCallHandler(null)
     eventChannel.setStreamHandler(null)
+    bannerAdFactory.onDestroy()
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {

@@ -2,6 +2,7 @@ import 'flutter_daro_sdk_platform_interface.dart';
 
 export 'flutter_daro_sdk_platform_interface.dart';
 export 'flutter_daro_sdk_method_channel.dart';
+export 'src/banner/daro_banner_ad.dart';
 export 'src/reward_ad/daro_reward_ad.dart';
 
 /// DARO SDK 메인 클래스
@@ -32,5 +33,9 @@ class DaroSdk {
   /// ```
   static Future<bool> initialize(DaroSdkConfig config) async {
     return await FlutterDaroSdkPlatform.instance.initialize(config);
+  }
+
+  static Future<bool> setOptions(DaroSdkOptions options) async {
+    return await FlutterDaroSdkPlatform.instance.setOptions(options);
   }
 }

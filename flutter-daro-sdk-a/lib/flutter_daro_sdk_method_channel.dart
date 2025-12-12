@@ -15,7 +15,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   @visibleForTesting
   final eventChannel = const EventChannel('com.daro.flutter_daro_sdk/events');
 
-  // /// 광고 ID별 이벤트 리스너 맵
+  /// 광고 ID별 이벤트 리스너 맵
   final Map<String, DaroRewardAdListener> _rewardAdListeners = {};
 
   /// 이벤트 스트림 구독
@@ -133,6 +133,11 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     }
   }
 
+  /// 배너 광고
+  ///
+
+  /// 리워드 광고
+  ///
   @override
   Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
     try {
