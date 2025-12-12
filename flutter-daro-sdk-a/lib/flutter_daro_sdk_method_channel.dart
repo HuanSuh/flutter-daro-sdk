@@ -82,20 +82,49 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     }
   }
 
-  @override
-  Future<bool> initialize(DaroSdkConfig config) async {
+  bool _isInitialized = false;
+  Completer<bool>? _initializeCompleter;
+  Completer<bool>? get _pendingCompleter {
+    if (_initializeCompleter case final Completer<bool> completer when !completer.isCompleted) {
+      return completer;
+    }
+    return null;
+  }
+
+  Future<void> _checkInitialized() async {
+    if (_isInitialized) {
+      return;
+    }
+    return initialize(DaroSdkConfig.nonReward()).then((_) {});
+  }
+
+  Future<bool> _initialize(DaroSdkConfig config, Completer<bool> completer) async {
     try {
       final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
+      _isInitialized = result ?? false;
+      completer.complete(result ?? false);
       return result ?? false;
     } catch (e) {
       debugPrint('[DARO] initialize failed: $e');
+      completer.completeError(e);
       return false;
     }
   }
 
   @override
+  Future<bool> initialize(DaroSdkConfig config) async {
+    final pendingCompleter = _pendingCompleter;
+    if (pendingCompleter != null) {
+      return pendingCompleter.future;
+    }
+    final completer = Completer<bool>();
+    return _initialize(config, completer);
+  }
+
+  @override
   Future<bool> setOptions(DaroSdkOptions options) async {
     try {
+      await _checkInitialized();
       final result = await methodChannel.invokeMethod<bool>('setOptions', options.toMap());
       return result ?? false;
     } catch (e) {
@@ -107,6 +136,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   @override
   Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
+      await _checkInitialized();
       final result = await methodChannel.invokeMethod<bool>('loadRewardAd', {'adType': type.name, 'adUnit': adUnit});
       return result ?? false;
     } catch (e) {
@@ -119,6 +149,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   @override
   Future<bool> showRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
+      await _checkInitialized();
       final result = await methodChannel.invokeMethod<bool>('showRewardAd', {'adType': type.name, 'adUnit': adUnit});
       return result ?? false;
     } catch (e) {
