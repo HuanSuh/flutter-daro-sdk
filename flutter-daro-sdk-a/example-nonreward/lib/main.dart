@@ -157,31 +157,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _buildBannerAdSection() {
+    DaroBannerAdListener buildListener(String name) {
+      return DaroBannerAdListener(
+        onAdLoaded: (ad) => _addLog('$name 광고 로드 완료'),
+        onAdFailedToLoad: (ad, error) => _addLog('$name 광고 로드 실패: $error'),
+        onAdImpression: (ad) => _addLog('$name 광고 노출'),
+        onAdClicked: (ad) => _addLog('$name 광고 클릭'),
+      );
+    }
+
     return _buildSection(
       '배너 광고',
       expanded: _bannerAdSectionExpanded,
       onTap: (expanded) => setState(() => _bannerAdSectionExpanded = expanded),
       children: [
         if (widget.adConfig.banner?.adUnit case final String adUnit)
-          DaroBannerAdView(
-            ad: DaroBannerAd.banner(adUnit),
-            listener: DaroBannerAdListener(
-              onAdLoaded: (ad) => _addLog('배너 광고 로드 완료'),
-              onAdFailedToLoad: (ad, error) => _addLog('배너 광고 로드 실패: $error'),
-              onAdImpression: (ad) => _addLog('배너 광고 노출'),
-              onAdClicked: (ad) => _addLog('배너 광고 클릭'),
-            ),
-          ),
+          DaroBannerAdView(ad: DaroBannerAd.banner(adUnit), listener: buildListener('배너')),
         if (widget.adConfig.bannerMrec?.adUnit case final String adUnit)
-          DaroBannerAdView(
-            ad: DaroBannerAd.mrec(adUnit),
-            listener: DaroBannerAdListener(
-              onAdLoaded: (ad) => _addLog('MREC 광고 로드 완료'),
-              onAdFailedToLoad: (ad, error) => _addLog('MREC 광고 로드 실패: $error'),
-              onAdImpression: (ad) => _addLog('MREC 광고 노출'),
-              onAdClicked: (ad) => _addLog('MREC 광고 클릭'),
-            ),
-          ),
+          DaroBannerAdView(ad: DaroBannerAd.mrec(adUnit), listener: buildListener('MREC')),
       ],
     );
   }

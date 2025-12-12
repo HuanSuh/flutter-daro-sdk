@@ -1,3 +1,5 @@
+import AppTrackingTransparency
+import Foundation
 import Daro
 import UIKit
 
@@ -175,7 +177,13 @@ public class FlutterDaroRewardAd: UIViewController {
             return
         }
         
-        showAdInternal(ad: currentAd, listener: listener, result: result)
+        if #available(iOS 14, *) {
+            ATTrackingManager.requestTrackingAuthorization { [weak self] status in
+                self?.showAdInternal(ad: currentAd, listener: listener, result: result)
+            }
+        } else {
+            self.showAdInternal(ad: currentAd, listener: listener, result: result)
+        }
     }
     
     // 공통 해제 로직

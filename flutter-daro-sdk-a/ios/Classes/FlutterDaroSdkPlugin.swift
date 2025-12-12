@@ -31,6 +31,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     )
     instance.eventChannel = eventChannel
     eventChannel.setStreamHandler(instance)
+    FlutterDaroBannerFactory.register(with: registrar)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
