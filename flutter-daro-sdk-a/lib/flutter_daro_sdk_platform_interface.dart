@@ -98,8 +98,8 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   /// [addRewardAdListener] 리워드 광고 리스너 등록
   /// [removeRewardAdListener] 리워드 광고 리스너 제거
   /// [disposeRewardAd] 리워드 광고 인스턴스 해제
-  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit);
-  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit);
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options});
+  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options});
   void addRewardAdListener(String adUnit, DaroRewardAdListener listener);
   void removeRewardAdListener(String adUnit);
   Future<void> disposeRewardAd(DaroRewardAdType type, String adUnit);

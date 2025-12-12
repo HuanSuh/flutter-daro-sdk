@@ -28,7 +28,7 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
     _ad = switch (widget.adType) {
       DaroRewardAdType.interstitial => DaroInterstitialAd(widget.adKey),
       DaroRewardAdType.rewardedVideo => DaroRewardedVideoAd(widget.adKey),
-      DaroRewardAdType.popup => DaroPopupAd(widget.adKey),
+      DaroRewardAdType.popup => DaroPopupAd(widget.adKey, options: DaroPopupAdOptions.dark()),
       DaroRewardAdType.opening => DaroOpeningAd(widget.adKey),
     };
     _ad?.addListener(

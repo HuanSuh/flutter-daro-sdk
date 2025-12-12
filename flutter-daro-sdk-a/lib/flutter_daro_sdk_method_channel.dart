@@ -134,10 +134,14 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit) async {
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
     try {
       await _checkInitialized();
-      final result = await methodChannel.invokeMethod<bool>('loadRewardAd', {'adType': type.name, 'adUnit': adUnit});
+      final result = await methodChannel.invokeMethod<bool>('loadRewardAd', {
+        'adType': type.name,
+        'adUnit': adUnit,
+        'options': options,
+      });
       return result ?? false;
     } catch (e) {
       debugPrint('[DARO] loadRewardAd failed: $e');
@@ -147,10 +151,14 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit) async {
+  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
     try {
       await _checkInitialized();
-      final result = await methodChannel.invokeMethod<bool>('showRewardAd', {'adType': type.name, 'adUnit': adUnit});
+      final result = await methodChannel.invokeMethod<bool>('showRewardAd', {
+        'adType': type.name,
+        'adUnit': adUnit,
+        'options': options,
+      });
       return result ?? false;
     } catch (e) {
       _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, {'error': e});
