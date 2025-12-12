@@ -113,6 +113,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
 
   @override
   Future<bool> initialize(DaroSdkConfig config) async {
+    if (_isInitialized) {
+      return true;
+    }
     final pendingCompleter = _pendingCompleter;
     if (pendingCompleter != null) {
       return pendingCompleter.future;

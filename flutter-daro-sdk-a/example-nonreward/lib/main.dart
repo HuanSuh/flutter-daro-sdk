@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
   void _addLog(String message) => _adLogController.addLog(message);
 
   bool _bannerAdSectionExpanded = true;
-  bool _rewardAdSectionExpanded = false;
+  bool _rewardAdSectionExpanded = true;
 
   @override
   void initState() {
