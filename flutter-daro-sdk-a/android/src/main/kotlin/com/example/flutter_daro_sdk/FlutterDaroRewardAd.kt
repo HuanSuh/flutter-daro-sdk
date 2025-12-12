@@ -2,7 +2,10 @@ package com.example.flutter_daro_sdk
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
+import androidx.annotation.ColorLong
+import androidx.core.graphics.toColorInt
 import droom.daro.core.adunit.DaroAppOpenAdUnit
 import droom.daro.core.adunit.DaroInterstitialAdUnit
 import droom.daro.core.adunit.DaroLightPopupAdUnit
@@ -21,6 +24,7 @@ import droom.daro.core.model.DaroAdLoadError
 import droom.daro.core.model.DaroAppOpenAd
 import droom.daro.core.model.DaroInterstitialAd
 import droom.daro.core.model.DaroLightPopupAd
+import droom.daro.core.model.DaroLightPopupAdOptions
 import droom.daro.core.model.DaroRewardedAd
 import droom.daro.loader.DaroAppOpenAdLoader
 import droom.daro.loader.DaroInterstitialAdLoader
@@ -95,10 +99,6 @@ abstract class FlutterDaroRewardAd(
     // 상위 클래스에서 공통으로 관리하는 loader와 ad
     private var loader: Any? = null
     protected var ad: Any? = null
-
-    init {
-        setupLoader()
-    }
 
     // 각 구체 클래스에서 로더 생성 구현
     protected abstract fun createLoader(): Any
@@ -366,14 +366,50 @@ class FlutterDaroPopupAd(
     adUnit: String,
     placement: String? = null,
     loadListener: FlutterDaroRewardAdLoadListener? = null,
-    private val options: Map<*,*>?,
+    private val options: Map<*, *>?,
 ) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
 
+    private fun createOptions(map: Map<*, *>?): DaroLightPopupAdOptions {
+        if(map == null || map.isEmpty()) return DaroLightPopupAdOptions()
+        fun valueToColorInt(value: Any?, defaultValue: String): Int {
+            return when(value) {
+                is Long -> {
+                    val a = ((value shr 24) and 0xFF).toInt()
+                    val r = ((value shr 16) and 0xFF).toInt()
+                    val g = ((value shr 8) and 0xFF).toInt()
+                    val b = (value and 0xFF).toInt()
+                    Color.argb(a, r, g, b)
+                }
+                is Int -> {
+                    val a = ((value shr 24) and 0xFF)
+                    val r = ((value shr 16) and 0xFF)
+                    val g = ((value shr 8) and 0xFF)
+                    val b = (value and 0xFF)
+                    Color.argb(a, r, g, b)
+                }
+                is String -> value.toColorInt()
+                else -> defaultValue.toColorInt()
+            }
+        }
+        return DaroLightPopupAdOptions(
+            backgroundColor = valueToColorInt(map["backgroundColor"], "#B2121416"),
+            containerColor = valueToColorInt(map["containerColor"], "#121416"),
+            adMarkLabelTextColor = valueToColorInt(map["adMarkLabelTextColor"], "#F7FAFF"),
+            adMarkLabelBackgroundColor = valueToColorInt(map["adMarkLabelBackgroundColor"], "#3E434F"),
+            titleColor = valueToColorInt(map["titleColor"], "#F7FAFF"),
+            bodyColor = valueToColorInt(map["bodyColor"], "#B6BECC"),
+            ctaBackgroundColor = valueToColorInt(map["ctaBackgroundColor"], "#EB2640"),
+            ctaTextColor= valueToColorInt(map["ctaTextColor"], "#FFFFFF"),
+            closeButtonText = map["closeButtonText"] as? String ?: "Close", 
+            closeButtonColor = valueToColorInt(map["closeButtonColor"], "#F7FAFF"),
+        )
+    }
+
     override fun createLoader(): DaroLightPopupAdLoader {
-        Log.d("FlutterDaroPopupAd", "Creating DaroLightPopupAdLoader with options: $options")
         val unit = DaroLightPopupAdUnit(
             key = adUnit,
-            placement = placement ?: ""
+            placement = placement ?: "",
+            options = createOptions(options)
         )
         return DaroLightPopupAdLoader(
             context = context,

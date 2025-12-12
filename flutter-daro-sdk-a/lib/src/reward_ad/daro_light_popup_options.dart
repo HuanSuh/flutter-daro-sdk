@@ -10,7 +10,7 @@ class DaroPopupAdOptions {
   // 상단 광고 마크 배경색
   final Color adMarkLabelBackgroundColor;
   // 타이틀 텍스트 색상
-  final Color titleTextColor;
+  final Color titleColor;
   // 본문 텍스트 색상
   final Color bodyColor;
   // CTA(버튼) 배경색
@@ -27,7 +27,7 @@ class DaroPopupAdOptions {
     this.containerColor = Colors.white,
     this.adMarkLabelTextColor = Colors.black,
     this.adMarkLabelBackgroundColor = Colors.black12,
-    this.titleTextColor = Colors.black,
+    this.titleColor = Colors.black,
     this.bodyColor = Colors.black,
     this.ctaBackgroundColor = Colors.blue,
     this.ctaTextColor = Colors.white,
@@ -44,7 +44,7 @@ class DaroPopupAdOptions {
       containerColor: Colors.black,
       adMarkLabelTextColor: Colors.white,
       adMarkLabelBackgroundColor: Colors.black12,
-      titleTextColor: Colors.white,
+      titleColor: Colors.white,
       bodyColor: Colors.white,
       ctaBackgroundColor: Colors.blue,
       ctaTextColor: Colors.white,
@@ -59,7 +59,7 @@ class DaroPopupAdOptions {
       'containerColor': containerColor.toARGB32(),
       'adMarkLabelTextColor': adMarkLabelTextColor.toARGB32(),
       'adMarkLabelBackgroundColor': adMarkLabelBackgroundColor.toARGB32(),
-      'titleTextColor': titleTextColor.toARGB32(),
+      'titleColor': titleColor.toARGB32(),
       'bodyColor': bodyColor.toARGB32(),
       'ctaBackgroundColor': ctaBackgroundColor.toARGB32(),
       'ctaTextColor': ctaTextColor.toARGB32(),
