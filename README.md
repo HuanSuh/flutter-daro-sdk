@@ -15,6 +15,7 @@ DARO SDK Flutter plugin for Android and iOS.
 - [ ] Reward
 
 
+
 ## 프로젝트 초기화
 
 ### Flutter
@@ -30,7 +31,7 @@ DARO SDK Flutter plugin for Android and iOS.
 ```yaml
 flutter_daro_sdk: {version}
 ```
-
+---
 ### Android
 
 #### 1. android-daro-key.txt 추가
@@ -118,6 +119,8 @@ android {
     }
 }
 ```
+
+---
 
 ### iOS
 
@@ -533,6 +536,7 @@ SKAdNetworkItems 를 추가합니다:
 ```
 </details>
 
+---
 
 ## 사용법
 
