@@ -47,7 +47,7 @@ enum class FlutterDaroRewardAdType(val value: String) {
 // 광고 로드 리스너
 interface FlutterDaroRewardAdLoadListener {
     fun onAdLoadSuccess(ad: FlutterDaroRewardAd, adInstance: Any?, adInfo: DaroAdInfo?) {}
-    fun onAdLoadFail(error: Any) {}
+    fun onAdLoadFail(error: DaroAdLoadError) {}
 }
 
 // 광고 표시 리스너
@@ -57,7 +57,7 @@ interface FlutterDaroRewardAdListener {
     fun onAdImpression(adInfo: DaroAdInfo) {}
     fun onAdClicked(adInfo: DaroAdInfo) {}
     fun onDismiss(adInfo: DaroAdInfo) {}
-    fun onFailedToShow(adInfo: DaroAdInfo, error: Any) {}
+    fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {}
 }
 
 // Factory 클래스
@@ -205,9 +205,8 @@ class FlutterDaroInterstitialAd(
             }
 
             override fun onAdLoadFail(err: DaroAdLoadError) {
-                val error = Exception(err.message)
-                loadListener?.onAdLoadFail(error)
-                result(false, error)
+                loadListener?.onAdLoadFail(err)
+                result(false, err)
             }
         })
         (loader as? DaroInterstitialAdLoader)?.load()
@@ -233,10 +232,9 @@ class FlutterDaroInterstitialAd(
                 }
 
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                    val exception = Exception(error.message)
-                    listener?.onFailedToShow(adInfo, exception)
+                    listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, exception)
+                    result(false, error)
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -298,10 +296,9 @@ class FlutterDaroRewardedVideoAd(
             }
 
             override fun onAdLoadFail(err: DaroAdLoadError) {
-                val error = Exception(err.message)
-                loadListener?.onAdLoadFail(error)
+                loadListener?.onAdLoadFail(err)
                 destroy()
-                result(false, error)
+                result(false, err)
             }
         })
         (loader as? DaroRewardedAdLoader)?.load()
@@ -333,10 +330,9 @@ class FlutterDaroRewardedVideoAd(
                 }
 
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                    val exception = Exception(error.message)
-                    listener?.onFailedToShow(adInfo, exception)
+                    listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, exception)
+                    result(false, error)
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -436,10 +432,9 @@ class FlutterDaroPopupAd(
             }
 
             override fun onAdLoadFail(err: DaroAdLoadError) {
-                val error = Exception(err.message)
-                loadListener?.onAdLoadFail(error)
+                loadListener?.onAdLoadFail(err)
                 destroy()
-                result(false, error)
+                result(false, err)
             }
         })
         (loader as? DaroLightPopupAdLoader)?.load()
@@ -465,10 +460,9 @@ class FlutterDaroPopupAd(
                 }
 
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                    val exception = Exception(error.message)
-                    listener?.onFailedToShow(adInfo, exception)
+                    listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, exception)
+                    result(false, error)
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -530,10 +524,9 @@ class FlutterDaroOpeningAd(
             }
 
             override fun onAdLoadFail(err: DaroAdLoadError) {
-                val error = Exception(err.message)
-                loadListener?.onAdLoadFail(error)
+                loadListener?.onAdLoadFail(err)
                 destroy()
-                result(false, error)
+                result(false, err)
             }
         })
         (loader as? DaroAppOpenAdLoader)?.load()
@@ -559,10 +552,9 @@ class FlutterDaroOpeningAd(
                 }
 
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                    val exception = Exception(error.message)
-                    listener?.onFailedToShow(adInfo, exception)
+                    listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, exception)
+                    result(false, error)
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {

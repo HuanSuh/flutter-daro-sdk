@@ -2,7 +2,9 @@ package com.example.flutter_daro_sdk
 
 import android.app.Activity
 import droom.daro.Daro
+import droom.daro.core.model.DaroAdDisplayFailError
 import droom.daro.core.model.DaroAdInfo
+import droom.daro.core.model.DaroAdLoadError
 import droom.daro.core.model.DaroRewardedAd
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -139,7 +141,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             )
           )
         }
-        override fun onAdLoadFail(error: Any) {
+        override fun onAdLoadFail(error: DaroAdLoadError) {
           sendRewardAdEvent(
             adUnit,
             "onAdLoadFail",
@@ -259,7 +261,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             sendRewardAdEvent(adUnit, "onDismiss", emptyMap())
             dispose(adUnit)
           }
-          override fun onFailedToShow(adInfo: DaroAdInfo, error: Any) {
+          override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
             sendRewardAdEvent(
               adUnit,
               "onFailedToShow",

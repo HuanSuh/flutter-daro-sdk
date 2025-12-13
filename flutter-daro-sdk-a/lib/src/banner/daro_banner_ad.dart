@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
+import 'package:flutter_daro_sdk/src/daro_error.dart';
+
+part 'daro_banner_ad_listener.dart';
 
 enum DaroBannerAdSize {
   /// 320x50 배너
@@ -32,36 +35,6 @@ class DaroBannerAd {
   factory DaroBannerAd.mrec(String adUnit, {String? placement}) {
     return DaroBannerAd._(adUnit, DaroBannerAdSize.banner320x250, placement: placement);
   }
-}
-
-enum DaroBannerAdEventType {
-  onAdLoaded,
-  onAdFailedToLoad,
-  onAdImpression,
-  onAdClicked;
-
-  static DaroBannerAdEventType? byNameOrNull(String? eventType) {
-    if (eventType == null) return null;
-    try {
-      return DaroBannerAdEventType.values.firstWhere((e) => e.name == eventType);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  DaroLogLevel get logLevel => switch (this) {
-    onAdFailedToLoad => DaroLogLevel.error,
-    _ => DaroLogLevel.debug,
-  };
-}
-
-class DaroBannerAdListener {
-  final void Function(DaroBannerAd ad)? onAdLoaded;
-  final void Function(DaroBannerAd ad, dynamic error)? onAdFailedToLoad;
-  final void Function(DaroBannerAd ad)? onAdImpression;
-  final void Function(DaroBannerAd ad)? onAdClicked;
-
-  DaroBannerAdListener({this.onAdLoaded, this.onAdFailedToLoad, this.onAdImpression, this.onAdClicked});
 }
 
 class DaroBannerAdView extends StatefulWidget {
@@ -106,7 +79,7 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
       case DaroBannerAdEventType.onAdLoaded:
         widget.listener?.onAdLoaded?.call(widget.ad);
       case DaroBannerAdEventType.onAdFailedToLoad:
-        widget.listener?.onAdFailedToLoad?.call(widget.ad, data['data']);
+        widget.listener?.onAdFailedToLoad?.call(widget.ad, DaroError.fromJson(data['data']));
       case DaroBannerAdEventType.onAdImpression:
         widget.listener?.onAdImpression?.call(widget.ad);
       case DaroBannerAdEventType.onAdClicked:
@@ -147,7 +120,7 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
     try {
       return SizedBox(width: widget.ad.size.width.toDouble(), height: widget.ad.size.height.toDouble(), child: child);
     } catch (e) {
-      widget.listener?.onAdFailedToLoad?.call(widget.ad, e);
+      widget.listener?.onAdFailedToLoad?.call(widget.ad, DaroError.fromJson(e));
       return Container();
     }
   }

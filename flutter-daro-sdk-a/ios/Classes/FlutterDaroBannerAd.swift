@@ -131,7 +131,11 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
                     self.callback("onAdLoaded", adUnit)
                 }
                 self.adView?.listener.onAdLoadFail = {error in
-                    self.callback("onAdFailedToLoad", adUnit, data: error.message)
+                    self.callback("onAdFailedToLoad", adUnit, data: [
+                        "code": error.code.rawValue,
+                        "message": error.localizedDescription,
+                        // "details": error.code.name,
+                    ])
                 }
                 self.adView?.listener.onAdImpression = {adInfo in
                     self.callback("onAdImpression", adUnit)
@@ -145,7 +149,10 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
             }
         }
         
-        self.callback("onAdFailedToLoad", adUnit, data: "Invalid arguments : \(String(describing: args))")
+        self.callback("onAdFailedToLoad", adUnit, data: [
+            "code": -1,
+            "message": "Invalid arguments : \(String(describing: args))"
+        ])
     }
     
     private func loadAd() {
@@ -158,9 +165,8 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
         }
     }
 
-    private func callback(_ event: String, _ adUnit: String?, data: Any? = nil) {
-        let result = ["event": event, "adUnit": adUnit, "data": data]
-        self.flutterEventSink?(result)
+    private func callback(_ event: String, _ adUnit: String?, data: [String:Any?] = [:]) {
+        self.flutterEventSink?(["event": event, "adUnit": adUnit, "data": data])
     }
 
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {

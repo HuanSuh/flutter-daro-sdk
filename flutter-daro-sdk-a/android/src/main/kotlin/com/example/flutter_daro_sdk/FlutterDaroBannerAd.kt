@@ -114,7 +114,10 @@ class FlutterDaroBannerAdView(
                     }
 
                     override fun onAdLoadFail(err: DaroAdLoadError) {
-                        callback("onAdFailedToLoad", adUnit, err.message)
+                        val error = JSONObject()
+                        error.put("code", err.code)
+                        error.put("message", err.message)
+                        callback("onAdFailedToLoad", adUnit, error)
                     }
 
                     override fun onAdImpression(adInfo: DaroAdInfo) {
@@ -141,11 +144,11 @@ class FlutterDaroBannerAdView(
         callback(event, adId, null)
     }
 
-    private fun callback(event: String, adId: String?, message: String?) {
+    private fun callback(event: String, adId: String?, message: Any?) {
         val data = JSONObject()
         data.put("event", event)
         data.put("adId", adId)
-        data.put("message", message)
+        data.put("data", message)
         eventSink?.success(data)
     }
 

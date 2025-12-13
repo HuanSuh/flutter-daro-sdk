@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
+import 'package:flutter_daro_sdk/src/daro_error.dart';
 
 /// An implementation of [FlutterDaroSdkPlatform] that uses method channels.
 class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
@@ -44,7 +45,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
                   case DaroRewardAdEvent.onAdLoadSuccess:
                     rewardAdListener.onAdLoadSuccess?.call(adUnit);
                   case DaroRewardAdEvent.onAdLoadFail:
-                    rewardAdListener.onAdLoadFail?.call(adUnit, eventData ?? {});
+                    rewardAdListener.onAdLoadFail?.call(adUnit, DaroError.fromJson(eventData));
                   case DaroRewardAdEvent.onAdImpression:
                     rewardAdListener.onAdImpression?.call(adUnit);
                   case DaroRewardAdEvent.onAdClicked:
@@ -52,11 +53,11 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
                   case DaroRewardAdEvent.onShown:
                     rewardAdListener.onShown?.call(adUnit);
                   case DaroRewardAdEvent.onRewarded:
-                    rewardAdListener.onRewarded?.call(adUnit, eventData ?? {});
+                    rewardAdListener.onRewarded?.call(adUnit, DaroReward.fromJson(eventData));
                   case DaroRewardAdEvent.onDismiss:
                     rewardAdListener.onDismiss?.call(adUnit);
                   case DaroRewardAdEvent.onFailedToShow:
-                    rewardAdListener.onFailedToShow?.call(adUnit, eventData ?? {});
+                    rewardAdListener.onFailedToShow?.call(adUnit, DaroError.fromJson(eventData));
                   case null:
                     break;
                 }
@@ -153,7 +154,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       return result ?? false;
     } catch (e) {
       debugPrint('[DARO] loadRewardAd failed: $e');
-      _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, {'error': e});
+      _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, DaroError.fromJson(e));
       return false;
     }
   }
@@ -169,7 +170,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
-      _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, {'error': e});
+      _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, DaroError.fromJson(e));
       return false;
     }
   }

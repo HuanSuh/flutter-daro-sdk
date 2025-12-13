@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daro_sdk/flutter_daro_sdk_platform_interface.dart';
+import 'package:flutter_daro_sdk/src/daro_error.dart';
 
 part 'daro_reward_ad_listener.dart';
 part 'daro_light_popup_options.dart';
@@ -17,6 +18,27 @@ enum DaroRewardAdType {
 
   /// 앱 오프닝
   opening,
+}
+
+class DaroReward {
+  final String? type;
+  final int amount;
+
+  const DaroReward(this.type, this.amount);
+
+  factory DaroReward.fromJson(dynamic value) {
+    if (value case final Map json) {
+      final type = json['type'] as String? ?? 'unknown';
+      final amount = json['amount'] as int? ?? 0;
+      return DaroReward(type, amount);
+    }
+    return DaroReward('unknown', 0);
+  }
+
+  @override
+  String toString() {
+    return 'DaroReward($type, $amount)';
+  }
 }
 
 /// 리워드 광고 클래스 (인터스티셜, 리워드 비디오, 팝업)

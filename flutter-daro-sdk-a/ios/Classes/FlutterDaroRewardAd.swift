@@ -5,13 +5,13 @@ import UIKit
 
 public class FlutterDaroRewardAdLoadListener {
     var onAdLoadSuccess: ((_ adItem: FlutterDaroRewardAd, _ ad: Any?, _ adInfo: Any?) -> Void)?
-    var onAdLoadFail: ((_ error: Error) -> Void)?
+    var onAdLoadFail: ((_ error: DaroError) -> Void)?
     var onAdImpression: ((_ adInfo: Any?) -> Void)?
     var onAdClicked: ((_ adInfo: Any?) -> Void)?
     
     public init(
         onAdLoadSuccess: ((_ adItem: FlutterDaroRewardAd, _ ad: Any?, _ adInfo: Any?) -> Void)? = nil,
-        onAdLoadFail: ((_ error: Error) -> Void)? = nil,
+        onAdLoadFail: ((_ error: DaroError) -> Void)? = nil,
         onAdImpression: ((_ adInfo: Any?) -> Void)? = nil,
         onAdClicked: ((_ adInfo: Any?) -> Void)? = nil
     ) {
@@ -33,13 +33,13 @@ public class FlutterDaroRewardAdListener {
     var onShown: ((_ adInfo: Any?) -> Void)?
     var onRewarded: ((_ adInfo: Any?, _ reward: DaroRewardedItem?) -> Void)?
     var onDismiss: ((_ adInfo: Any?) -> Void)?
-    var onFailedToShow: ((_ adInfo: Any?, _ error: Error) -> Void)?
+    var onFailedToShow: ((_ adInfo: Any?, _ error: DaroError) -> Void)?
     
     public init(
         onShown: ((_ adInfo: Any?) -> Void)? = nil,
         onRewarded: ((_ adInfo: Any?, _ reward: DaroRewardedItem?) -> Void)? = nil,
         onDismiss: ((_ adInfo: Any?) -> Void)? = nil,
-        onFailedToShow: ((_ adInfo: Any?, _ error: Error) -> Void)? = nil
+        onFailedToShow: ((_ adInfo: Any?, _ error: DaroError) -> Void)? = nil
     ) {
         self.onShown = onShown
         self.onRewarded = onRewarded

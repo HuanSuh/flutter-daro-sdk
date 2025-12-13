@@ -127,7 +127,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   }
   
   /// 리워드 광고 이벤트를 Flutter로 전송
-  private func sendRewardAdEvent(adUnit: String, eventType: String, data: [String: Any?] = [:]) {
+  private func sendRewardAdEvent(adUnit: String, eventType: String, data: [String: Any?]? = nil) {
     let event: [String: Any] = [
       "eventName": eventType,
       "adUnit": adUnit,
@@ -160,7 +160,9 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
         },
         onAdLoadFail: { error in
           self.sendRewardAdEvent(adUnit: adUnit, eventType: "onAdLoadFail", data: [
-            "error": error.localizedDescription
+            "code": error.code.rawValue,
+            "message": error.localizedDescription,
+            // "details": error.code.name,
           ])
           self._dispose(adUnit: adUnit)
         },
@@ -277,10 +279,8 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
         },
         onRewarded: { adInfo, reward in
           self.sendRewardAdEvent(adUnit: adUnit, eventType: "onRewarded", data: [
-            "reward": [
-              "amount": reward?.amount ?? 0,
-              "type": reward?.rewardType ?? ""
-            ]
+            "amount": reward?.amount ?? 0,
+            "type": reward?.rewardType ?? ""
           ])
         },
         onDismiss: { adInfo in
@@ -288,11 +288,11 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
           self._dispose(adUnit: adUnit)
         },
         onFailedToShow: { adInfo, error in
-          self.sendRewardAdEvent(
-            adUnit: adUnit, 
-            eventType: "onFailedToShow", 
-            data: ["error": error.localizedDescription]
-          )
+          self.sendRewardAdEvent(adUnit: adUnit, eventType: "onFailedToShow", data: [
+              "code": error.code.rawValue,
+              "message": error.localizedDescription,
+              // "details": error.code.name,
+          ])
           self._dispose(adUnit: adUnit)
         }
     )) { success, error in
@@ -348,4 +348,8 @@ extension FlutterDaroSdkPlugin: FlutterStreamHandler {
     rewardAdMap.removeAll()
     return nil
   }
+}
+
+extension DaroError {
+  
 }
