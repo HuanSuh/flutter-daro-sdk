@@ -31,8 +31,8 @@ class DaroSdk {
   ///   print('SDK 초기화 실패');
   /// }
   /// ```
-  static Future<bool> initialize(DaroSdkConfig config) async {
-    return await FlutterDaroSdkPlatform.instance.initialize(config);
+  static Future<bool> initialize({DaroSdkOptions? options}) async {
+    return await FlutterDaroSdkPlatform.instance.initialize(DaroSdkConfig.nonReward(options: options));
   }
 
   static Future<bool> setOptions(DaroSdkOptions options) async {

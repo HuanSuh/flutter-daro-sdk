@@ -549,7 +549,11 @@ import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
 // Non-Reward 앱 초기화
 final success = await DaroSdk.initialize(
-  DaroSdkConfig.nonReward(),
+  options: DaroSdkOptions(  // optional
+    userId : String
+    logLevel : DaroLogLevel.debug,
+    appMute: false,
+  ),
 );
 
 if (success) {
