@@ -14,10 +14,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-
-    plugins {
-        id("daro-plugin") version "1.0.12" apply false
-    }
 }
 
 plugins {
@@ -33,6 +29,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         // Flutter 엔진 저장소
+        maven { url = uri("https://jitpack.io") }
         maven { url = uri("https://storage.googleapis.com/download.flutter.io") }
         // DARO SDK Maven 저장소 (Non-Reward 앱용)
         maven { url = uri("https://artifact.bytedance.com/repository/pangle") }
@@ -43,7 +40,6 @@ dependencyResolutionManagement {
         maven { url = uri("https://s3.amazonaws.com/smaato-sdk-releases/") }
         maven { url = uri("https://android-sdk.is.com/") }
         maven { url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea") }
-        maven { url = uri("https://jitpack.io") }
     }
 }
 

@@ -16,9 +16,9 @@ DARO SDK Flutter plugin for Android and iOS.
 
 
 
-## 프로젝트 초기화
+## 1. 프로젝트 설정
 
-### Flutter
+### a. Flutter
 
 #### 요구사항
 - 안드로이드 minSdkVersion : 26
@@ -32,9 +32,11 @@ DARO SDK Flutter plugin for Android and iOS.
 flutter_daro_sdk: {version}
 ```
 ---
-### Android
+### b. Android
 
-#### 1. android-daro-key.txt 추가
+#### 1. AppKey 설정
+
+##### 1) android-daro-key.txt 추가
 제공받은 android-daro-key.txt 파일을 추가합니다. 
 > ⚠️ SDK를 초기화하기 위해서는 android-daro-key.txt 파일이 프로젝트에 반드시 포함되어야 합니다.
 ```
@@ -50,7 +52,7 @@ app/
         └── android-daro-key.txt
 ```
 
-#### 2. daroAppKey 설정
+##### 2) daroAppKey 설정
 아래 중 한 곳에 daroAppKey를 설정합니다.
 <details><summary>gradle.properties 에 설정 </summary>
 
@@ -78,39 +80,50 @@ buildscript{
 ```
 </details>
 
-#### 3. build.gradle 설정
+#### 2. build.gradle 설정
 
-앱 프로젝트의 `android/app/build.gradle` (또는 `build.gradle.kts`)에 DARO 플러그인을 추가합니다:
+##### 1) project 단위 gradle 설정 내 플러그인 추가합니다:
+```kotlin
+buildscript {
+    dependencies {
+        classpath("so.daro:daro-plugin:1.0.12") // Non-Reward 앱용 플러그인
+    }
+}
+또는 
+plugins {
+    ...
+    id("so.daro.a") version "1.0.12" apply false // Non-Reward 앱용 플러그인
+}
+```
+##### 2) project 단위 gradle 설정 내 dependency 설정을 추가합니다:
+```
+...
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        ...
+        // DARO SDK Maven 저장소 (Non-Reward 앱용)
+        maven { url = uri("https://artifact.bytedance.com/repository/pangle") }
+        maven { url = uri("https://verve.jfrog.io/artifactory/verve-gradle-release") }
+        maven { url = uri("https://cboost.jfrog.io/artifactory/chartboost-ads/") }
+        maven { url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/") }
+        maven { url = uri("https://repo.pubmatic.com/artifactory/public-repos") }
+        maven { url = uri("https://s3.amazonaws.com/smaato-sdk-releases/") }
+        maven { url = uri("https://android-sdk.is.com/") }
+        maven { url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea") }
+    }
+}
+```
 
-**Non-Reward 앱인 경우:**
+##### 3) app 단위 gradle 설정 내 플러그인 정보를 추가합니다:
 ```kotlin
 plugins {
     ...
     id("so.daro.a")  // Non-Reward 앱용 플러그인
 }
-
-dependencies {
-    implementation("so.daro:daro-core:1.3.8")
-    implementation("so.daro:daro-a:1.3.6")
-}
 ```
 
-#### 2. buildscript 설정
-
-프로젝트 루트의 `android/build.gradle` (또는 `build.gradle.kts`)에 DARO 플러그인을 추가합니다:
-
-**Non-Reward 앱인 경우:**
-```kotlin
-buildscript {
-    dependencies {
-        classpath("so.daro:daro-plugin:1.0.12")
-    }
-}
-```
-
-#### 3. 최소 SDK 버전
-
-`android/app/build.gradle`에서 최소 SDK 버전을 26 이상으로 설정합니다:
+##### 4) 최소 SDK 버전을 26 이상으로 설정합니다:
 
 ```kotlin
 android {
@@ -120,9 +133,67 @@ android {
 }
 ```
 
+#### 3. proguard-rules 설정
+proguard-rules 파일을 추가합니다
+```
+-keep class com.bytedance.sdk.** { *; }
+
+-keepattributes Signature
+-keep class net.pubnative.** { *; }
+-keep class com.iab.omid.library.pubnativenet.** { *; }
+
+-keep class com.amazon.** { *; }
+-keep public class com.google.android.gms.ads.** {
+    public *;
+}
+-keep class com.iabtcf.** {*;}
+
+-keep public class com.smaato.sdk.** { *; }
+    -keep public interface com.smaato.sdk.** { *; }
+
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+-keep class com.ironsource.adapters.** { *; }
+
+-dontwarn com.ironsource.**
+-dontwarn com.ironsource.adapters.**
+-keepclassmembers class com.ironsource.** { public *; }
+-keep public class com.ironsource.**
+-keep class com.ironsource.adapters.** { *;
+}
+
+-keepclassmembers class com.applovin.sdk.AppLovinSdk {
+    static *;
+}
+-keep public interface com.applovin.sdk** {*; }
+-keep public interface com.applovin.adview** {*; }
+-keep public interface com.applovin.mediation** {*; }
+-keep public interface com.applovin.communicator** {*; }
+
+-keep class androidx.localbroadcastmanager.content.LocalBroadcastManager { *;}
+-keep class androidx.recyclerview.widget.RecyclerView { *;}
+-keep class androidx.recyclerview.widget.RecyclerView$OnScrollListener { *;}
+
+-keep class * extends android.app.Activity
+
+-flattenpackagehierarchy droom.daro.a
+
+-keep public class droom.daro.** {
+    public protected *;
+}
+-keep interface droom.daro.** {
+    public protected *;
+}
+
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+```
+
+
 ---
 
-### iOS
+### c. iOS
 
 #### 요구사항
 
@@ -538,9 +609,9 @@ SKAdNetworkItems 를 추가합니다:
 
 ---
 
-## 사용법
+## 2. 프로젝트 설정
 
-### 1. initialize - SDK 초기화
+### a. initialize - SDK 초기화
 
 **중요**: 광고를 로드하기 전에 반드시 SDK를 초기화해야 합니다.
 
@@ -576,7 +647,7 @@ if (success) {
   - `DaroLogLevel.debug`: 모든 로그 출력 (개발 시 권장)
 - `appMute` (bool?): 앱 음소거 설정
 
-### 2. setOptions - SDK 옵션 설정
+### b. setOptions - SDK 옵션 설정
 
 초기화 후 SDK 옵션을 변경할 수 있습니다:
 
@@ -594,7 +665,9 @@ if (success) {
 }
 ```
 
-### 3. bannerAd - 배너 광고
+## 3. 광고 포맷
+
+### a. bannerAd - 배너 광고
 
 배너 광고는 `DaroBannerAdView` 위젯을 사용하여 표시합니다.
 
@@ -603,7 +676,7 @@ if (success) {
 ```dart
 import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
-// 320x50 배너
+// 배너 (320x50)
 DaroBannerAdView(
   ad: DaroBannerAd.banner('your-ad-unit-id',
     placement: 'placement', // (optional)
@@ -616,7 +689,7 @@ DaroBannerAdView(
   ),
 )
 
-// 320x250 MREC 배너
+// MREC 배너 (300x250)
 DaroBannerAdView(
   ad: DaroBannerAd.mrec('your-ad-unit-id',
     placement: 'placement', // (optional)
@@ -631,7 +704,7 @@ DaroBannerAdView(
 ```
 
 
-### 4. rewardAd - 리워드 광고
+### b. rewardAd - 리워드 광고
 
 리워드 광고는 `DaroRewardAd` 클래스를 사용합니다. 지원하는 광고 타입:
 - 전면광고 (`DaroInterstitialAd`)
@@ -639,10 +712,41 @@ DaroBannerAdView(
 - 팝업광고 (`DaroPopupAd`)
 - 앱 오프닝 (`DaroOpeningAd`)
 
-> - 각 리워드 광고는 `DaroRewardAd`를 상속받아 구현되어있습니다.
-> - 각 리워드 광고는 `load()` 와 `show()`를 지원하며, `load()` 없이 `show()` 호출 시 로드가 완료되면 자동으로 노출됩니다.
+>각 리워드 광고는 `DaroRewardAd`를 상속받아 구현되어있습니다.
+>각 리워드 광고는 `load()` 와 `show()`를 지원하며, `load()` 없이 `show()` 호출 시 로드가 완료되면 자동으로 노출됩니다.
 
-#### 전면광고 (Interstitial)
+`DaroRewardAd.dart`
+```dart
+/// 리워드 광고 클래스 (인터스티셜, 리워드 비디오, 팝업)
+class DaroRewardAd {
+  /// 광고 타입
+  final DaroRewardAdType adType;
+  /// 광고 키
+  final String adUnit;
+  /// 광고 옵션
+  final Map<String, dynamic>? options;
+
+  ... 
+
+  /// 광고 로드
+  Future<bool> load();
+
+  /// 광고 표시
+  Future<bool> show();
+
+  /// 광고 이벤트 리스너 등록
+  void addListener(DaroRewardAdListener listener);
+
+  /// 광고 이벤트 리스너 제거
+  void removeListener();
+
+  /// 광고 인스턴스 해제
+  Future<void> dispose();
+}
+```
+
+
+#### a) 전면 광고 (Interstitial)
 
 ```dart
 // 광고 인스턴스 생성
@@ -677,7 +781,7 @@ if (loadSuccess) {
 await interstitialAd.dispose();
 ```
 
-#### 리워드 비디오 광고 (Rewarded Video)
+#### b) 리워드 비디오 광고 (Rewarded Video)
 
 ```dart
 // 광고 인스턴스 생성
@@ -689,9 +793,9 @@ rewardedVideoAd.addListener(
     onAdLoadSuccess: (adId) => print('광고 로드 성공: $adId'),
     onAdLoadFail: (adId, data) => print('광고 로드 실패: $adId, $data'),
     onShown: (adId) => print('광고 표시: $adId'),
-    onRewarded: (adId, data) {
-      final amount = data['reward']?['amount'] ?? 0;
-      final type = data['reward']?['type'] ?? '';
+    onRewarded: (adId, reward) {
+      final amount = reward.amount;
+      final type = reward.type ?? '';s
       print('리워드 적립: $amount, 타입: $type');
     },
     onAdImpression: (adId) => print('광고 노출: $adId'),
@@ -712,7 +816,7 @@ if (loadSuccess) {
 await rewardedVideoAd.dispose();
 ```
 
-#### 팝업광고 (Popup)
+#### c) 팝업 광고 (Popup)
 
 ```dart
 // 광고 인스턴스 생성
@@ -755,7 +859,7 @@ if (loadSuccess) {
 await popupAd.dispose();
 ```
 
-#### 앱 오프닝 (Opening)
+#### d) 앱 오프닝 광고(Opening)
 
 ```dart
 // 광고 인스턴스 생성

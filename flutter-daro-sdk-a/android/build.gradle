@@ -14,14 +14,11 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        // DARO SDK 플러그인
-        classpath("so.daro:daro-plugin:$daro_plugin_version")
     }
 }
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "so.daro.a"
 
 android {
     namespace = "com.example.flutter_daro_sdk"
@@ -31,8 +28,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-        // minSdk 26 미만일 경우 Desugaring 설정 필요
-        // isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -45,8 +40,7 @@ android {
     }
 
     defaultConfig {
-        // DARO SDK 요구사항: minSdkVersion 23
-        minSdk = 23
+        minSdk = 26
     }
 
     buildTypes {

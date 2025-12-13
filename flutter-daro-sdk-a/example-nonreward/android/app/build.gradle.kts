@@ -36,13 +36,10 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // ProGuard rules 적용을 위한 consumerProguardFiles 추가
+            // consumerProguardFiles("proguard-rules.pro")
         }
     }
-}
-
-dependencies {
-    implementation("so.daro:daro-core:1.3.8")
-    implementation("so.daro:daro-a:1.3.6")
 }
 
 flutter {
