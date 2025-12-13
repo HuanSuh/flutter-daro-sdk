@@ -11,7 +11,7 @@ enum DaroRewardAdEvent {
   onDismiss,
   onFailedToShow;
 
-  static DaroRewardAdEvent? byName(String? name) {
+  static DaroRewardAdEvent? byNameOrNull(String? name) {
     if (name == null) return null;
     try {
       return DaroRewardAdEvent.values.firstWhere((e) => e.name == name);
@@ -19,6 +19,11 @@ enum DaroRewardAdEvent {
       return null;
     }
   }
+
+  DaroLogLevel get logLevel => switch (this) {
+    onAdLoadFail || onFailedToShow => DaroLogLevel.error,
+    _ => DaroLogLevel.debug,
+  };
 }
 
 class DaroRewardAdListener {

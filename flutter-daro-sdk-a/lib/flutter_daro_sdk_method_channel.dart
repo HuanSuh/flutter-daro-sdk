@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-
-import 'flutter_daro_sdk_platform_interface.dart';
-import 'src/reward_ad/daro_reward_ad.dart';
+import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
 /// An implementation of [FlutterDaroSdkPlatform] that uses method channels.
 class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
@@ -36,11 +34,13 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
 
             // 리워드 광고 이벤트 처리
             if (adUnit != null) {
-              final eventName = DaroRewardAdEvent.byName(event['eventName'] as String?);
-              debugPrint('[DARO] $eventName - $adUnit ${eventData?.isNotEmpty == true ? ' : $eventData' : ''}');
+              final eventType = DaroRewardAdEvent.byNameOrNull(event['eventName'] as String?);
+              if (eventType?.logLevel case DaroLogLevel logLevel when DaroSdk.logLevel.index <= logLevel.index) {
+                debugPrint('[DARO] $eventType - $adUnit ${eventData ?? ''}');
+              }
               final rewardAdListener = _rewardAdListeners[adUnit];
               if (rewardAdListener != null) {
-                switch (eventName) {
+                switch (eventType) {
                   case DaroRewardAdEvent.onAdLoadSuccess:
                     rewardAdListener.onAdLoadSuccess?.call(adUnit);
                   case DaroRewardAdEvent.onAdLoadFail:

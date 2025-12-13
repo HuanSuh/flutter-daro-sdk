@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_daro_sdk/flutter_daro_sdk.dart';
 
 enum DaroBannerAdSize {
   /// 320x50 배너
@@ -39,7 +40,7 @@ enum DaroBannerAdEventType {
   onAdImpression,
   onAdClicked;
 
-  static DaroBannerAdEventType? byName(String? eventType) {
+  static DaroBannerAdEventType? byNameOrNull(String? eventType) {
     if (eventType == null) return null;
     try {
       return DaroBannerAdEventType.values.firstWhere((e) => e.name == eventType);
@@ -47,6 +48,11 @@ enum DaroBannerAdEventType {
       return null;
     }
   }
+
+  DaroLogLevel get logLevel => switch (this) {
+    onAdFailedToLoad => DaroLogLevel.error,
+    _ => DaroLogLevel.debug,
+  };
 }
 
 class DaroBannerAdListener {
@@ -92,19 +98,18 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
   }
 
   void _processNativeEvent(dynamic data) async {
-    final eventType = DaroBannerAdEventType.byName(data['event'] as String?);
+    final eventType = DaroBannerAdEventType.byNameOrNull(data['event'] as String?);
+    if (eventType?.logLevel case DaroLogLevel logLevel when DaroSdk.logLevel.index <= logLevel.index) {
+      debugPrint('[DARO] $eventType - ${widget.ad.adUnit} ${data['data'] ?? ''}');
+    }
     switch (eventType) {
       case DaroBannerAdEventType.onAdLoaded:
-        debugPrint('[DARO] onAdLoaded: ${widget.ad.adUnit}');
         widget.listener?.onAdLoaded?.call(widget.ad);
       case DaroBannerAdEventType.onAdFailedToLoad:
-        debugPrint('[DARO] onAdFailedToLoad: ${widget.ad.adUnit} ${data['data']}');
         widget.listener?.onAdFailedToLoad?.call(widget.ad, data['data']);
       case DaroBannerAdEventType.onAdImpression:
-        debugPrint('[DARO] onAdImpression: ${widget.ad.adUnit}');
         widget.listener?.onAdImpression?.call(widget.ad);
       case DaroBannerAdEventType.onAdClicked:
-        debugPrint('[DARO] onAdClicked: ${widget.ad.adUnit}');
         widget.listener?.onAdClicked?.call(widget.ad);
       case null:
         break;
