@@ -36,7 +36,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
             // 리워드 광고 이벤트 처리
             if (adUnit != null) {
               final eventType = DaroRewardAdEvent.byNameOrNull(event['eventName'] as String?);
-              if (eventType?.logLevel case DaroLogLevel logLevel when DaroSdk.logLevel.index <= logLevel.index) {
+              if (eventType?.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
                 debugPrint('[DARO] $eventType - $adUnit ${eventData ?? ''}');
               }
               final rewardAdListener = _rewardAdListeners[adUnit];

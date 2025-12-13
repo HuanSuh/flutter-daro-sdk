@@ -72,7 +72,7 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
 
   void _processNativeEvent(dynamic data) async {
     final eventType = DaroBannerAdEventType.byNameOrNull(data['event'] as String?);
-    if (eventType?.logLevel case DaroLogLevel logLevel when DaroSdk.logLevel.index <= logLevel.index) {
+    if (eventType?.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
       debugPrint('[DARO] $eventType - ${widget.ad.adUnit} ${data['data'] ?? ''}');
     }
     switch (eventType) {
