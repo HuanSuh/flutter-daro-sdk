@@ -17,9 +17,6 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   /// 광고 ID별 이벤트 리스너 맵
   final Map<String, DaroRewardAdListener> _rewardAdListeners = {};
 
-  /// 이벤트 스트림 구독
-  StreamSubscription<dynamic>? _eventSubscription;
-
   MethodChannelFlutterDaroSdk() {
     _setupEventStream();
   }
@@ -27,7 +24,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   /// 이벤트 스트림 설정
   void _setupEventStream() {
     try {
-      _eventSubscription = eventChannel.receiveBroadcastStream().listen(
+      eventChannel.receiveBroadcastStream().listen(
         (event) {
           if (event is Map) {
             final adUnit = event['adUnit'] as String?;

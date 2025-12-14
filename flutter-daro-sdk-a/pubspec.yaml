@@ -1,7 +1,7 @@
 name: flutter_daro_sdk
-description: "DARO SDK Flutter plugin for Android and iOS. Supports both Reward and Non-reward apps."
-version: 0.0.1
-homepage: https://guide.daro.so
+description: "DARO SDK Flutter plugin for Android and iOS. Supports Non-reward apps."
+version: 0.9.0
+homepage: https://github.com/HuanSuh/flutter-daro-sdk
 
 environment:
   sdk: ^3.7.2
