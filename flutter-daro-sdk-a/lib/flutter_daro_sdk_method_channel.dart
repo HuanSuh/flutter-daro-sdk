@@ -134,9 +134,6 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     }
   }
 
-  /// 배너 광고
-  ///
-
   /// 리워드 광고
   ///
   @override
@@ -167,8 +164,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
-      _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, DaroError.fromJson(e));
-      return false;
+      final error = DaroError.fromJson(e);
+      _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, error);
+      throw error;
     }
   }
 

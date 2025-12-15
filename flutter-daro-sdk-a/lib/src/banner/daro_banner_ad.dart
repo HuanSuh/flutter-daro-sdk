@@ -9,10 +9,10 @@ part 'daro_banner_ad_listener.dart';
 
 enum DaroBannerAdSize {
   /// 320x50 배너
-  banner320x50('banner', 320, 50),
+  banner('banner', 320, 50),
 
-  /// 320x250 배너 (MREC)
-  banner320x250('mrec', 300, 250);
+  /// 300x250 배너 (MREC)
+  mrec('mrec', 300, 250);
 
   final int width;
   final int height;
@@ -26,14 +26,14 @@ class DaroBannerAd {
   final String adUnit;
   final String? placement;
 
-  DaroBannerAd._(this.adUnit, this.size, {this.placement});
+  DaroBannerAd(this.adUnit, this.size, {this.placement});
 
   factory DaroBannerAd.banner(String adUnit, {String? placement}) {
-    return DaroBannerAd._(adUnit, DaroBannerAdSize.banner320x50, placement: placement);
+    return DaroBannerAd(adUnit, DaroBannerAdSize.banner, placement: placement);
   }
 
   factory DaroBannerAd.mrec(String adUnit, {String? placement}) {
-    return DaroBannerAd._(adUnit, DaroBannerAdSize.banner320x250, placement: placement);
+    return DaroBannerAd(adUnit, DaroBannerAdSize.mrec, placement: placement);
   }
 }
 
