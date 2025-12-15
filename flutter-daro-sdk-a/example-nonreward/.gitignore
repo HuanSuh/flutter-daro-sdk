@@ -45,7 +45,7 @@ app.*.map.json
 /android/app/release
 
 # keys
-# secret-keys.json
-# /android/app/android-daro-key.txt
-# /ios/ios-daro-key.txt
-# /ios/Flutter/DartDefines.generated.xcconfig
+secret-keys.json
+/android/app/android-daro-key.txt
+/ios/ios-daro-key.txt
+/ios/Flutter/DartDefines.generated.xcconfig
