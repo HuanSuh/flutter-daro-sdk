@@ -31,7 +31,7 @@ class DaroSdk {
   ///   print('SDK 초기화 실패');
   /// }
   /// ```
-  static Future<bool> initialize({DaroSdkOptions? options}) async {
+  static Future<void> initialize({DaroSdkOptions? options}) async {
     if (options?.logLevel case DaroLogLevel logLevel) {
       DaroSdk._logLevel = logLevel;
     }

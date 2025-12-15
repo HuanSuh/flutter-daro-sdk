@@ -14,6 +14,10 @@ class AdUnitConfig {
   String? get adUnit => Platform.isAndroid ? android : ios;
 }
 
+extension on AdUnitConfig? {
+  bool get isEmpty => this?.adUnit?.isNotEmpty != true;
+}
+
 class TestAdConfig {
   final AdUnitConfig? banner;
   final AdUnitConfig? bannerMrec;
@@ -23,6 +27,14 @@ class TestAdConfig {
   final AdUnitConfig? opening;
 
   const TestAdConfig({this.banner, this.bannerMrec, this.interstitial, this.rewardedVideo, this.popup, this.opening});
+
+  bool get _isEmpty =>
+      banner.isEmpty &&
+      bannerMrec.isEmpty &&
+      interstitial.isEmpty &&
+      rewardedVideo.isEmpty &&
+      popup.isEmpty &&
+      opening.isEmpty;
 }
 
 void main() {
@@ -30,28 +42,28 @@ void main() {
     MyApp(
       adConfig: TestAdConfig(
         banner: AdUnitConfig(
-          android: 'a384af5c-0abc-4420-8efa-ee58f1fc6615',
-          ios: '1602731d-42f2-4646-ac70-f49428d9a862',
+          android: const String.fromEnvironment('ADUNITS_BANNER_ANDROID'),
+          ios: const String.fromEnvironment('ADUNITS_BANNER_IOS'),
         ),
         bannerMrec: AdUnitConfig(
-          android: 'd770ab01-38f1-4619-a585-669dae47f080',
-          ios: 'a18cb2ca-a9ac-4ae0-809f-38bace607be7',
+          android: const String.fromEnvironment('ADUNITS_BANNERMREC_ANDROID'),
+          ios: String.fromEnvironment('ADUNITS_BANNERMREC_IOS'),
         ),
         interstitial: AdUnitConfig(
-          android: '339de698-56b5-44f7-97a2-5d6bbcefd596',
-          ios: '5c9197f7-7b5f-45d5-85db-24603763570c',
+          android: const String.fromEnvironment('ADUNITS_INTERSTITIAL_ANDROID'),
+          ios: const String.fromEnvironment('ADUNITS_INTERSTITIAL_IOS'),
         ),
         rewardedVideo: AdUnitConfig(
-          android: '50bc1360-2099-4702-bb93-7586e1a633eb',
-          ios: '7f2fb7c2-2170-444a-b5f8-91e7cd03b974',
+          android: const String.fromEnvironment('ADUNITS_REWARDEDVIDEO_ANDROID'),
+          ios: const String.fromEnvironment('ADUNITS_REWARDEDVIDEO_IOS'),
         ),
         popup: AdUnitConfig(
-          android: '8565a8aa-0e89-435c-a060-8eb5ca5df996',
-          ios: 'df5f7623-21a6-49a6-8b14-0679a75b4b43',
+          android: const String.fromEnvironment('ADUNITS_POPUP_ANDROID'),
+          ios: const String.fromEnvironment('ADUNITS_POPUP_IOS'),
         ),
         opening: AdUnitConfig(
-          android: '1b038272-1b24-447d-a25b-575fb940cfc0',
-          ios: '7763af9c-0456-4e37-808a-5478eb9e0aa3',
+          android: const String.fromEnvironment('ADUNITS_OPENING_ANDROID'),
+          ios: const String.fromEnvironment('ADUNITS_OPENING_IOS'),
         ),
       ),
     ),
@@ -60,7 +72,7 @@ void main() {
 
 class MyApp extends StatefulWidget {
   final TestAdConfig adConfig;
-  const MyApp({required this.adConfig, super.key});
+  const MyApp({super.key, required this.adConfig});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -86,16 +98,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initializeSdk() async {
-    try {
-      // Non-Reward 앱 초기화
-      final success = await DaroSdk.initialize();
-      if (success) {
-        _addLog('SDK 초기화 완료 (Non-Reward 앱)');
-      } else {
-        _addLog('SDK 초기화 실패 (Non-Reward 앱) - false 반환');
-      }
-    } catch (e) {
-      _addLog('SDK 초기화 오류: $e');
+    // Non-Reward 앱 초기화
+    await DaroSdk.initialize()
+        .then((_) => _addLog('SDK 초기화 완료 (Non-Reward 앱)'))
+        .catchError((e) => _addLog('SDK 초기화 오류: $e'));
+
+    if (widget.adConfig._isEmpty) {
+      _addLog('광고 설정이 없습니다. secret-keys.json 에 광고키를 추가해주세요.');
     }
   }
 

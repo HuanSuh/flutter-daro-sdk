@@ -80,7 +80,7 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   ///
   /// [config] DARO SDK 초기화 설정
   /// Returns `true` if initialization succeeds, `false` otherwise
-  Future<bool> initialize(DaroSdkConfig config);
+  Future<void> initialize(DaroSdkConfig config);
 
   /// SDK 옵션 설정
   ///

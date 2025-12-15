@@ -81,9 +81,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   bool _isInitialized = false;
-  Completer<bool>? _initializeCompleter;
-  Completer<bool>? get _pendingCompleter {
-    if (_initializeCompleter case final Completer<bool> completer when !completer.isCompleted) {
+  Completer<void>? _initializeCompleter;
+  Completer<void>? get _pendingCompleter {
+    if (_initializeCompleter case final Completer<void> completer when !completer.isCompleted) {
       return completer;
     }
     return null;
@@ -96,23 +96,23 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     return initialize(DaroSdkConfig.nonReward()).then((_) {});
   }
 
-  Future<bool> _initialize(DaroSdkConfig config, Completer<bool> completer) async {
+  Future<void> _initialize(DaroSdkConfig config, Completer<bool> completer) async {
     try {
       final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
       _isInitialized = result ?? false;
       completer.complete(result ?? false);
-      return result ?? false;
     } catch (e) {
-      debugPrint('[DARO] initialize failed: $e');
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
+        debugPrint('[DARO] initialize failed: $e');
+      }
       completer.completeError(e);
-      return false;
     }
   }
 
   @override
-  Future<bool> initialize(DaroSdkConfig config) async {
+  Future<void> initialize(DaroSdkConfig config) async {
     if (_isInitialized) {
-      return true;
+      return;
     }
     final pendingCompleter = _pendingCompleter;
     if (pendingCompleter != null) {
@@ -129,7 +129,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       final result = await methodChannel.invokeMethod<bool>('setOptions', options.toMap());
       return result ?? false;
     } catch (e) {
-      debugPrint('[DARO] setOptions failed: $e');
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
+        debugPrint('[DARO] setOptions failed: $e');
+      }
       return false;
     }
   }
@@ -147,9 +149,12 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
-      debugPrint('[DARO] loadRewardAd failed: $e');
-      _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, DaroError.fromJson(e));
-      return false;
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
+        debugPrint('[DARO] loadRewardAd failed: $e');
+      }
+      final error = DaroError.fromJson(e);
+      _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, error);
+      throw error;
     }
   }
 
@@ -164,6 +169,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
+        debugPrint('[DARO] showRewardAd failed: $e');
+      }
       final error = DaroError.fromJson(e);
       _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, error);
       throw error;
@@ -185,8 +193,10 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     try {
       await methodChannel.invokeMethod<void>('disposeRewardAd', {'adType': type.name, 'adUnit': adUnit});
       removeRewardAdListener(adUnit);
-    } on PlatformException catch (e) {
-      debugPrint('[DARO] disposeRewardAd failed: ${e.message}');
+    } catch (e) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
+        debugPrint('[DARO] disposeRewardAd failed: $e');
+      }
     }
   }
 }

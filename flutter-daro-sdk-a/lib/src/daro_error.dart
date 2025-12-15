@@ -6,6 +6,9 @@ class DaroError {
   const DaroError(this.code, this.message, {this.details});
 
   factory DaroError.fromJson(dynamic value) {
+    if (value is DaroError) {
+      return value;
+    }
     if (value case final Map json) {
       final code = json['code'] as int? ?? -1;
       final message = json['message'] as String? ?? 'Unknown error';

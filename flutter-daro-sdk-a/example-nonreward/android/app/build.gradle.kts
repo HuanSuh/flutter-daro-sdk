@@ -1,9 +1,24 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("so.daro.a")
+}
+
+val dartDefineVariables: Map<String, String> = if (project.hasProperty("dart-defines")) {
+    (project.property("dart-defines") as String)
+        .split(",")
+        .associate { entry ->
+            // decode Base64 and split into key/value
+            val decoded = String(Base64.getDecoder().decode(entry), Charsets.UTF_8)
+            val (key, value) = decoded.split("=", limit = 2)
+            key to value
+        }
+} else {
+    emptyMap()
 }
 
 android {
@@ -29,6 +44,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        extra["daroAppKey"] = dartDefineVariables["DARO_APP_KEY_ANDROID"]
     }
 
     buildTypes {

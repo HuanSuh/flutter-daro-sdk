@@ -194,6 +194,7 @@
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
 				A887730CB9D5622E0DC230F5 /* [CP] Check Pods Manifest.lock */,
+				CBF2A65F2EF0146F00040AED /* Run Script[DART_DEFINES] */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -310,7 +311,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
 		3C7AA9F52DCA718B25A74304 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -359,7 +360,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		A887730CB9D5622E0DC230F5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -382,6 +383,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		CBF2A65F2EF0146F00040AED /* Run Script[DART_DEFINES] */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script[DART_DEFINES]";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\n\n#OUT=\"$CONFIGURATION_TEMP_DIR/dart_defines.sh\"\nOUT=\"$SRCROOT/Flutter/DartDefines.generated.xcconfig\"\n\nrm -f \"$OUT\"\necho \"// Auto-generated. Do not edit.\" > \"$OUT\"\n\nIFS=',' read -r -a defines <<< \"${DART_DEFINES:-}\"\n\nfor define in \"${defines[@]}\"; do\n  [ -z \"$define\" ] && continue\n\n  decoded=\"$(echo \"$define\" | base64 --decode 2>/dev/null || echo \"$define\" | base64 -D)\"\n  key=\"${decoded%%=*}\"\n  value=\"${decoded#*=}\"\n\n  safe_key=\"$(echo \"$key\" | sed 's/[^A-Za-z0-9_]/_/g')\"\n  if [[ ! \"$safe_key\" =~ ^[A-Za-z_] ]]; then\n    safe_key=\"_$safe_key\"\n  fi\n\n  printf '%s=%q\\n' \"$safe_key\" \"$value\" >> \"$OUT\"\ndone\n\nchmod +x \"$OUT\"\necho \"Generated: $OUT\"\n\nexit 0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
