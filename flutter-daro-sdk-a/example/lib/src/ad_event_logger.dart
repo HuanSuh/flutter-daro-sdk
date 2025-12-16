@@ -4,7 +4,10 @@ class AdLogController {
   final List<String> _logs = [];
 
   void addLog(String message) {
-    _logs.insert(0, '[${DateTime.now().toString().substring(11, 19)}] $message');
+    _logs.insert(
+      0,
+      '[${DateTime.now().toString().substring(11, 19)}] $message',
+    );
     if (_logs.length > 50) {
       _logs.removeLast();
     }
@@ -61,7 +64,10 @@ class _AdEventLoggerState extends State<AdEventLogger> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Row(
                   children: [
-                    const Text('로그', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      '로그',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Spacer(),
                     InkWell(
                       child: const Icon(Icons.clear),
@@ -78,9 +84,15 @@ class _AdEventLoggerState extends State<AdEventLogger> {
                   child: ListView.builder(
                     reverse: true,
                     itemCount: widget.controller.logs.length,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     itemBuilder: (context, index) {
-                      return Text(widget.controller.logs[index], style: const TextStyle(fontSize: 12));
+                      return Text(
+                        widget.controller.logs[index],
+                        style: const TextStyle(fontSize: 12),
+                      );
                     },
                   ),
                 ),

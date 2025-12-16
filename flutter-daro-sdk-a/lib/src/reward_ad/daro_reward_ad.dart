@@ -85,11 +85,13 @@ class DaroRewardAd {
 }
 
 class DaroInterstitialAd extends DaroRewardAd {
-  DaroInterstitialAd(String adKey) : super._(DaroRewardAdType.interstitial, adKey);
+  DaroInterstitialAd(String adKey)
+    : super._(DaroRewardAdType.interstitial, adKey);
 }
 
 class DaroRewardedVideoAd extends DaroRewardAd {
-  DaroRewardedVideoAd(String adKey) : super._(DaroRewardAdType.rewardedVideo, adKey);
+  DaroRewardedVideoAd(String adKey)
+    : super._(DaroRewardAdType.rewardedVideo, adKey);
 }
 
 class DaroPopupAd extends DaroRewardAd {

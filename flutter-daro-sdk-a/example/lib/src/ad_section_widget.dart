@@ -28,7 +28,10 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
     _ad = switch (widget.adType) {
       DaroRewardAdType.interstitial => DaroInterstitialAd(widget.adKey),
       DaroRewardAdType.rewardedVideo => DaroRewardedVideoAd(widget.adKey),
-      DaroRewardAdType.popup => DaroPopupAd(widget.adKey, options: DaroPopupAdOptions.dark()),
+      DaroRewardAdType.popup => DaroPopupAd(
+        widget.adKey,
+        options: DaroPopupAdOptions.dark(),
+      ),
       DaroRewardAdType.opening => DaroOpeningAd(widget.adKey),
     };
     _ad?.addListener(
@@ -143,29 +146,56 @@ class _AdSectionWidgetState extends State<AdSectionWidget> {
           children: [
             Row(
               children: [
-                Expanded(child: Text(widget.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: _getStatusColor(), borderRadius: BorderRadius.circular(4)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: Text(
                     _status,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text('Ad Key: ${widget.adKey}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            Text(
+              'Ad Key: ${widget.adKey}',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                ElevatedButton.icon(onPressed: _isLoading ? null : _loadAd, label: const Text('Load')),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _loadAd,
+                  label: const Text('Load'),
+                ),
                 ElevatedButton.icon(
                   onPressed: _showAd,
                   label: const Text('Show'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
                 OutlinedButton.icon(
                   onPressed: _disposeAd,

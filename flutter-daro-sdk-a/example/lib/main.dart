@@ -26,7 +26,14 @@ class TestAdConfig {
   final AdUnitConfig? popup;
   final AdUnitConfig? opening;
 
-  const TestAdConfig({this.banner, this.bannerMrec, this.interstitial, this.rewardedVideo, this.popup, this.opening});
+  const TestAdConfig({
+    this.banner,
+    this.bannerMrec,
+    this.interstitial,
+    this.rewardedVideo,
+    this.popup,
+    this.opening,
+  });
 
   bool get _isEmpty =>
       banner.isEmpty &&
@@ -59,7 +66,9 @@ void main() {
           ios: const String.fromEnvironment('ADUNITS_INTERSTITIAL_IOS'),
         ),
         rewardedVideo: AdUnitConfig(
-          android: const String.fromEnvironment('ADUNITS_REWARDEDVIDEO_ANDROID'),
+          android: const String.fromEnvironment(
+            'ADUNITS_REWARDEDVIDEO_ANDROID',
+          ),
           ios: const String.fromEnvironment('ADUNITS_REWARDEDVIDEO_IOS'),
         ),
         popup: AdUnitConfig(
@@ -154,9 +163,15 @@ class _MyAppState extends State<MyApp> {
             decoration: BoxDecoration(color: Colors.white),
             child: Row(
               children: [
-                Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 Spacer(),
-                Icon(expanded ? Icons.arrow_drop_up : Icons.arrow_drop_down, size: 24),
+                Icon(
+                  expanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  size: 24,
+                ),
               ],
             ),
           ),
@@ -186,9 +201,15 @@ class _MyAppState extends State<MyApp> {
       onTap: (expanded) => setState(() => _bannerAdSectionExpanded = expanded),
       children: [
         if (widget.adConfig.banner?.adUnit case final String adUnit)
-          DaroBannerAdView(ad: DaroBannerAd.banner(adUnit), listener: buildListener('배너')),
+          DaroBannerAdView(
+            ad: DaroBannerAd.banner(adUnit),
+            listener: buildListener('배너'),
+          ),
         if (widget.adConfig.bannerMrec?.adUnit case final String adUnit)
-          DaroBannerAdView(ad: DaroBannerAd.mrec(adUnit), listener: buildListener('MREC')),
+          DaroBannerAdView(
+            ad: DaroBannerAd.mrec(adUnit),
+            listener: buildListener('MREC'),
+          ),
       ],
     );
   }
@@ -198,13 +219,33 @@ class _MyAppState extends State<MyApp> {
       '리워드 광고',
       children: [
         if (widget.adConfig.interstitial?.adUnit case final String adUnit)
-          AdSectionWidget(title: '인터스티셜 광고', adType: DaroRewardAdType.interstitial, onLog: _addLog, adKey: adUnit),
+          AdSectionWidget(
+            title: '인터스티셜 광고',
+            adType: DaroRewardAdType.interstitial,
+            onLog: _addLog,
+            adKey: adUnit,
+          ),
         if (widget.adConfig.rewardedVideo?.adUnit case final String adUnit)
-          AdSectionWidget(title: '리워드 비디오 광고', adType: DaroRewardAdType.rewardedVideo, onLog: _addLog, adKey: adUnit),
+          AdSectionWidget(
+            title: '리워드 비디오 광고',
+            adType: DaroRewardAdType.rewardedVideo,
+            onLog: _addLog,
+            adKey: adUnit,
+          ),
         if (widget.adConfig.popup?.adUnit case final String adUnit)
-          AdSectionWidget(title: '팝업 광고', adType: DaroRewardAdType.popup, onLog: _addLog, adKey: adUnit),
+          AdSectionWidget(
+            title: '팝업 광고',
+            adType: DaroRewardAdType.popup,
+            onLog: _addLog,
+            adKey: adUnit,
+          ),
         if (widget.adConfig.opening?.adUnit case final String adUnit)
-          AdSectionWidget(title: '앱오프닝 광고', adType: DaroRewardAdType.opening, onLog: _addLog, adKey: adUnit),
+          AdSectionWidget(
+            title: '앱오프닝 광고',
+            adType: DaroRewardAdType.opening,
+            onLog: _addLog,
+            adKey: adUnit,
+          ),
       ],
       expanded: _rewardAdSectionExpanded,
       onTap: (expanded) => setState(() => _rewardAdSectionExpanded = expanded),

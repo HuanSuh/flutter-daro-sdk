@@ -9,7 +9,9 @@ enum DaroBannerAdEventType {
   static DaroBannerAdEventType? byNameOrNull(String? eventType) {
     if (eventType == null) return null;
     try {
-      return DaroBannerAdEventType.values.firstWhere((e) => e.name == eventType);
+      return DaroBannerAdEventType.values.firstWhere(
+        (e) => e.name == eventType,
+      );
     } catch (_) {
       return null;
     }
@@ -27,5 +29,10 @@ class DaroBannerAdListener {
   final void Function(DaroBannerAd ad)? onAdImpression;
   final void Function(DaroBannerAd ad)? onAdClicked;
 
-  DaroBannerAdListener({this.onAdLoaded, this.onAdFailedToLoad, this.onAdImpression, this.onAdClicked});
+  DaroBannerAdListener({
+    this.onAdLoaded,
+    this.onAdFailedToLoad,
+    this.onAdImpression,
+    this.onAdClicked,
+  });
 }

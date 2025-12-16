@@ -46,7 +46,8 @@ class DaroBannerAdView extends StatefulWidget {
   State<DaroBannerAdView> createState() => _DaroBannerAdViewState();
 }
 
-class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepAliveClientMixin {
+class _DaroBannerAdViewState extends State<DaroBannerAdView>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -60,7 +61,10 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
 
   EventChannel? _eventChannel;
   void _listenForNativeEvents(int viewId) {
-    _eventChannel = EventChannel("${_eventChannelName}_$viewId", const JSONMethodCodec());
+    _eventChannel = EventChannel(
+      "${_eventChannelName}_$viewId",
+      const JSONMethodCodec(),
+    );
     _eventChannel?.receiveBroadcastStream().listen(_processNativeEvent);
   }
 
@@ -71,15 +75,23 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
   }
 
   void _processNativeEvent(dynamic data) async {
-    final eventType = DaroBannerAdEventType.byNameOrNull(data['event'] as String?);
-    if (eventType?.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
-      debugPrint('[DARO] $eventType - ${widget.ad.adUnit} ${data['data'] ?? ''}');
+    final eventType = DaroBannerAdEventType.byNameOrNull(
+      data['event'] as String?,
+    );
+    if (eventType?.logLevel case DaroLogLevel logLevel
+        when logLevel.index <= DaroSdk.logLevel.index) {
+      debugPrint(
+        '[DARO] $eventType - ${widget.ad.adUnit} ${data['data'] ?? ''}',
+      );
     }
     switch (eventType) {
       case DaroBannerAdEventType.onAdLoaded:
         widget.listener?.onAdLoaded?.call(widget.ad);
       case DaroBannerAdEventType.onAdFailedToLoad:
-        widget.listener?.onAdFailedToLoad?.call(widget.ad, DaroError.fromJson(data['data']));
+        widget.listener?.onAdFailedToLoad?.call(
+          widget.ad,
+          DaroError.fromJson(data['data']),
+        );
       case DaroBannerAdEventType.onAdImpression:
         widget.listener?.onAdImpression?.call(widget.ad);
       case DaroBannerAdEventType.onAdClicked:
@@ -118,7 +130,11 @@ class _DaroBannerAdViewState extends State<DaroBannerAdView> with AutomaticKeepA
 
   Widget _buildBannerView(Widget child) {
     try {
-      return SizedBox(width: widget.ad.size.width.toDouble(), height: widget.ad.size.height.toDouble(), child: child);
+      return SizedBox(
+        width: widget.ad.size.width.toDouble(),
+        height: widget.ad.size.height.toDouble(),
+        child: child,
+      );
     } catch (e) {
       widget.listener?.onAdFailedToLoad?.call(widget.ad, DaroError.fromJson(e));
       return Container();
