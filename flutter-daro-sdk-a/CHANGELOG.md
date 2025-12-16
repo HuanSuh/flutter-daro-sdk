@@ -1,3 +1,8 @@
+## 0.9.1 - 2025.12.16
+  - Banner 생성자 개선
+  - initialize, setOptions 호출 개선
+  - example 구조 개선
+
 ## 0.9.0
 
 * 초기 배포
