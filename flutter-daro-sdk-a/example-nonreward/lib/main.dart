@@ -40,6 +40,10 @@ class TestAdConfig {
 void main() {
   runApp(
     MyApp(
+      ///
+      /// example 수행 시 secret-keys.json 에 있는 값을 사용합니다.
+      /// secret-keys.template.json 을 복사하여 Daro Dashboard 에서 생성한 키 값을 입력해주세요.
+      ///
       adConfig: TestAdConfig(
         banner: AdUnitConfig(
           android: const String.fromEnvironment('ADUNITS_BANNER_ANDROID'),
