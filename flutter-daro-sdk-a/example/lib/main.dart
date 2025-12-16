@@ -43,6 +43,7 @@ void main() {
       ///
       /// example 수행 시 secret-keys.json 에 있는 값을 사용합니다.
       /// secret-keys.template.json 을 복사하여 Daro Dashboard 에서 생성한 키 값을 입력해주세요.
+      /// [flutter run --dart-define-from-file=secret-keys.json] 명령어를 통해 예제 실행
       ///
       adConfig: TestAdConfig(
         banner: AdUnitConfig(

@@ -1,10 +1,15 @@
-## 0.9.1 - 2025.12.16
-  - Banner 생성자 개선
-  - initialize, setOptions 호출 개선
-  - example 구조 개선
+## 0.9.2
+2025.12.16
+  - Improved package structure
+
+## 0.9.1 
+2025.12.16
+  - Improved Banner constructor
+  - Improved initialize and setOptions calls
+  - Improved example structure
 
 ## 0.9.0
-
-* 초기 배포
-  - Non-Reward 광고 지원 (배너, MREC, 인터스티셜, 리워드 비디오, 앱 오프닝, 라이트 팝업)
-  - Android, iOS 지원
+2025.12.15
+  - Initial release
+  - Non-Reward ad support (Banner, MREC, Interstitial, Rewarded Video, App Opening, Light Popup)
+  - Android and iOS support
