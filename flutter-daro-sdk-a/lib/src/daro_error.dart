@@ -1,20 +1,27 @@
+import 'package:flutter/services.dart';
+
 class DaroError {
-  final int code;
+  final dynamic code;
   final String message;
   final dynamic details;
 
   const DaroError(this.code, this.message, {this.details});
 
   factory DaroError.fromJson(dynamic value) {
-    if (value is DaroError) {
-      return value;
-    }
-    if (value case final Map json) {
-      final code = json['code'] as int? ?? -1;
-      final message = json['message'] as String? ?? 'Unknown error';
-      return DaroError(code, message, details: json['details']);
-    }
-    return DaroError(-1, 'Unknown error', details: value);
+    return switch (value) {
+      DaroError error => error,
+      PlatformException exception => DaroError(
+        exception.code,
+        exception.message ?? 'Unknown error',
+        details: exception.details,
+      ),
+      Map json => DaroError(
+        json['code'] as int? ?? -1,
+        json['message'] as String? ?? 'Unknown error',
+        details: json['details'],
+      ),
+      _ => DaroError(-1, 'Unknown error', details: value),
+    };
   }
 
   @override

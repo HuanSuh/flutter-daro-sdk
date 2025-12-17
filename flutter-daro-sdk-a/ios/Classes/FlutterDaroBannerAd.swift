@@ -134,7 +134,6 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
                     self.callback("onAdFailedToLoad", adUnit, data: [
                         "code": error.code.rawValue,
                         "message": error.localizedDescription,
-                        // "details": error.code.name,
                     ])
                 }
                 self.adView?.listener.onAdImpression = {adInfo in
@@ -150,8 +149,9 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
         }
         
         self.callback("onAdFailedToLoad", adUnit, data: [
-            "code": -1,
-            "message": "Invalid arguments : \(String(describing: args))"
+            "code": 1001,
+            "message": "INVALID_ARGUMENT",
+            "details": "Invalid arguments : \(String(describing: args))"
         ])
     }
     

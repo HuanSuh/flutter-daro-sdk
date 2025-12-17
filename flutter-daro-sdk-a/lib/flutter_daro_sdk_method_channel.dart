@@ -187,7 +187,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       }
       final error = DaroError.fromJson(e);
       _rewardAdListeners[adUnit]?.onAdLoadFail?.call(adUnit, error);
-      throw error;
+      return false;
     }
   }
 
@@ -212,7 +212,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       }
       final error = DaroError.fromJson(e);
       _rewardAdListeners[adUnit]?.onFailedToShow?.call(adUnit, error);
-      throw error;
+      return false;
     }
   }
 

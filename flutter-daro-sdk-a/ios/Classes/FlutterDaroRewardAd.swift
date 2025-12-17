@@ -163,7 +163,11 @@ public class FlutterDaroRewardAd: UIViewController {
         }
         
         guard let currentLoader = loader else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create loader"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1011, 
+                userInfo: [NSLocalizedDescriptionKey: "Failed to create loader"]
+            ))
             return
         }
         
@@ -266,7 +270,11 @@ class FlutterDaroInterstitialAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let interstitialLoader = loader as? DaroInterstitialAdLoader else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1011, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]
+            ))
             return
         }
         
@@ -305,13 +313,21 @@ class FlutterDaroInterstitialAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let interstitialAd = ad as? DaroInterstitialAd else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1012, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]
+            ))
             return
         }
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1013, 
+                userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]
+            ))
             return
         }
         
@@ -354,7 +370,11 @@ class FlutterDaroRewardedVideoAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let rewardedLoader = loader as? DaroRewardedAdLoader else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1011, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]
+            ))
             return
         }
         
@@ -394,13 +414,21 @@ class FlutterDaroRewardedVideoAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let rewardedAd = ad as? DaroRewardedAd else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1012, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]
+            ))
             return
         }
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1013, 
+                userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]
+            ))
             return
         }
         
@@ -460,7 +488,11 @@ class FlutterDaroPopupAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let popupLoader = loader as? DaroLightPopupAdLoader else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1011, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]
+            ))
             return
         }
         
@@ -524,7 +556,11 @@ class FlutterDaroPopupAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let popupAd = ad as? DaroLightPopupAd else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1012, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]
+            ))
             return
         }
 
@@ -546,7 +582,11 @@ class FlutterDaroPopupAd: FlutterDaroRewardAd {
 
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1013, 
+                userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]
+            ))
             return
         }
         
@@ -589,7 +629,11 @@ class FlutterDaroOpeningAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let openingLoader = loader as? DaroAppOpenAdLoader else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1011, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid loader type"]
+            ))
             return
         }
         
@@ -629,7 +673,11 @@ class FlutterDaroOpeningAd: FlutterDaroRewardAd {
         result: @escaping (Bool, Error?) -> Void
     ) {
         guard let openingAd = ad as? DaroAppOpenAd else {
-            result(false, NSError(domain: "FlutterDaroRewardAd", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]))
+            result(false, NSError(
+                domain: "FlutterDaroRewardAd", 
+                code: 1012, 
+                userInfo: [NSLocalizedDescriptionKey: "Invalid ad type"]
+            ))
             return
         }
         

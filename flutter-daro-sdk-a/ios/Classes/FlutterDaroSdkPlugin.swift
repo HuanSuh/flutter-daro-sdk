@@ -55,9 +55,9 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   private func initialize(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "Invalid arguments for initialize",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid arguments for initialize",
       ))
       return
     }
@@ -67,20 +67,22 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     DaroAds.shared.initialized { error in
       if let error {
         result(FlutterError(
-          code: "INITIALIZE_FAILED",
-          message: "Daro SDK initilized error : \(error)",
-          details: nil
+          code: "1002",
+          message: "INITIALIZE_FAILED",
+          details: "Daro SDK initilized error : \(error)",
         ))
       } else {
         let options = args["options"] as? [String: Any]
         if let options {
           self._setOptions(
+            result: result,
             userId: options["userId"] as? String, 
-            logLevel: options["logLevel"] as? String, 
-            appMute: options["appMute"] as? Bool
+            logLevel: options["logLevel"] as? String,
+            appMute: options["appMute"] as? Bool,
           )
+        } else {
+          result(true)
         }
-        result(true)
       }
     }
   }
@@ -89,23 +91,22 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   private func setOptions(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "Invalid arguments for setOptions",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid arguments for setOptions",
       ))
       return
     }
     
     self._setOptions(
+      result: result,
       userId: args["userId"] as? String, 
       logLevel: args["logLevel"] as? String, 
       appMute: args["appMute"] as? Bool
     )
-
-    result(true)
   }
 
-  private func _setOptions(userId: String?, logLevel: String?, appMute: Bool?) {
+  private func _setOptions(result: @escaping FlutterResult, userId: String?, logLevel: String?, appMute: Bool?) {
     if let userId {
       DaroAds.shared.userId = userId
     }
@@ -118,12 +119,17 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
         case "debug":
           DaroAds.shared.logLevel = .debug
         default:
-          print("Invalid logLevel: \(logLevel)")
+          result(FlutterError(
+            code: "1001",
+            message: "INVALID_ARGUMENT",
+            details: "Invalid logLevel: \(logLevel)",
+          ))
       }
     }
     if let appMute {
       DaroAds.shared.setAppMuted(appMute)
     }
+    result(true)
   }
   
   /// 리워드 광고 이벤트를 Flutter로 전송
@@ -182,27 +188,36 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   private func loadRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "Invalid arguments for loadRewardAd",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid arguments for loadRewardAd",
       ))
       return
     }
     
     guard let adType = args["adType"] as? String else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "adType is required",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "adType is required",
+      ))
+      return
+    }
+    // String을 enum으로 변환
+    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
+      result(FlutterError(
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid adType: \(adType)",
       ))
       return
     }
     
     guard let adUnit = args["adUnit"] as? String else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "adUnit is required",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "adUnit is required",
       ))
       return
     }
@@ -210,57 +225,55 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
     let placement = args["placement"] as? String
     let options = args["options"] as? [String: Any]
     
-    // String을 enum으로 변환
-    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
-      result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "Invalid adType: \(adType)",
-        details: nil
-      ))
-      return
-    }
-    
     // 새로운 리워드 광고 인스턴스 생성
     let adInstance: FlutterDaroRewardAd = _createRewardAdInstance(adType: rewardAdType, adUnit: adUnit, placement: placement, options: options)
     
     // 광고 로드
     adInstance.loadAd() { success, error in
-      if success {
-        result(nil)
-      } else {
-        result(FlutterError(
-          code: "LOAD_ERROR",
-          message: error?.localizedDescription ?? "Failed to load ad",
-          details: nil
-        ))
-      }
+      result(success)
     }
   }
   
   /// 리워드 광고 인스턴스 표시
   private func showRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
-      result(false)
+      result(FlutterError(
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid arguments for showRewardAd",
+      ))
       return
     }
     
     guard let adType = args["adType"] as? String else {
-      result(false)
+      result(FlutterError(
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "adType is required",
+      ))
+      return
+    }
+    // String을 enum으로 변환
+    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
+      result(FlutterError(
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid adType: \(adType)",
+      ))
       return
     }
     
     guard let adUnit = args["adUnit"] as? String else {
-      result(false)
+      result(FlutterError(
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "adUnit is required",
+      ))
       return
     }
     
     let placement = args["placement"] as? String
     
-    // String을 enum으로 변환
-    guard let rewardAdType = FlutterDaroRewardAdType(rawValue: adType) else {
-      result(false)
-      return
-    }
     
     var adInstance = rewardAdMap[adUnit]
     
@@ -291,16 +304,11 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
           self.sendRewardAdEvent(adUnit: adUnit, eventType: "onFailedToShow", data: [
               "code": error.code.rawValue,
               "message": error.localizedDescription,
-              // "details": error.code.name,
           ])
           self._dispose(adUnit: adUnit)
         }
     )) { success, error in
-      result(success ? true : FlutterError(
-        code: "SHOW_ERROR",
-        message: "Failed to show ad: \(error)",
-        details: nil
-      ))
+      result(success)
     }
   }
   
@@ -312,18 +320,18 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
   private func disposeRewardAd(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "Invalid arguments for disposeRewardAd",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "Invalid arguments for disposeRewardAd",
       ))
       return
     }
     
     guard let adUnit = args["adUnit"] as? String else {
       result(FlutterError(
-        code: "INVALID_ARGUMENT",
-        message: "adUnit is required",
-        details: nil
+        code: "1001",
+        message: "INVALID_ARGUMENT",
+        details: "adUnit is required",
       ))
       return
     }
@@ -348,8 +356,4 @@ extension FlutterDaroSdkPlugin: FlutterStreamHandler {
     rewardAdMap.removeAll()
     return nil
   }
-}
-
-extension DaroError {
-  
 }

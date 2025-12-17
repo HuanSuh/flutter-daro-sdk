@@ -76,9 +76,9 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun initialize(call: MethodCall, result: Result) {
     try {
       val args = call.arguments as? Map<*, *> ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
         "Invalid arguments for initialize",
-        null
       )
 
       appCategory = args["appCategory"] as? String
@@ -110,7 +110,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       // 초기화 성공
       result.success(true)
     } catch (e: Exception) {
-      result.error("INIT_ERROR", e.message, null)
+      result.error("1002", "INIT_ERROR", e.message)
     }
   }
 
@@ -145,7 +145,10 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           sendRewardAdEvent(
             adUnit,
             "onAdLoadFail",
-            mapOf("error" to error.toString())
+            mapOf(
+              "code" to error.code,
+              "message" to error.message
+            )
           )
         }
       }
@@ -158,30 +161,30 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun loadRewardAd(call: MethodCall, result: Result) {
     try {
       val args = call.arguments as? Map<*, *> ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
         "Invalid arguments for loadRewardAd",
-        null
       )
 
       val adType = FlutterDaroRewardAdType.fromString(args["adType"] as? String?) ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
-        "adType is required",
-        null
+        "adType is required ${args["adType"]}",
       )
 
       val adUnit = args["adUnit"] as? String ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
-        "adKey is required",
-        null
+        "adUnit is required",
       )
 
       val placement = args["placement"] as? String
 
       val currentActivity = activity
         ?: return result.error(
+          "1013",
           "NO_ACTIVITY",
           "No activity available to load ad",
-          null
         )
 
       val options = args["options"] as? Map<*, *>
@@ -195,15 +198,11 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         autoShow = false,
         listener = null,
         result = { success, data ->
-          if (success) {
-            result.success(true)
-          } else {
-            result.error("LOAD_ERROR", data?.toString() ?: "Unknown error", data)
-          }
+          result.success(success)
         }
       )
     } catch (e: Exception) {
-      result.error("LOAD_ERROR", e.message, null)
+      result.success(false)
     }
   }
 
@@ -212,27 +211,27 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     try {
       val currentActivity = activity
         ?: return result.error(
+          "1013",
           "NO_ACTIVITY",
           "No activity available to show ad",
-          null
         )
 
       val args = call.arguments as? Map<*, *> ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
         "Invalid arguments for showRewardAd",
-        null
       )
 
       val adType = FlutterDaroRewardAdType.fromString(args["adType"] as? String?) ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
-        "adType is required",
-        null
+        "adType is required : ${args["adType"]}",
       )
       val adUnit = args["adUnit"] as? String
         ?: return result.error(
+          "1001",
           "INVALID_ARGUMENT",
-          "adKey is required",
-          null
+          "adUnit is required",
         )
       val placement = args["placement"] as? String
       val options = args["options"] as? Map<*, *>
@@ -265,7 +264,10 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             sendRewardAdEvent(
               adUnit,
               "onFailedToShow",
-              mapOf("error" to error.toString())
+              mapOf(
+                "code" to -1,
+                "message" to error.toString(),
+              ),
             )
             dispose(adUnit)
           }
@@ -277,31 +279,21 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           }
         },
         result = {success, data ->
-          if (success) {
-            result.success(true)
-          } else {
-            result.error("LOAD_ERROR", data?.toString() ?: "Unknown error", data)
-          }
+          result.success(success)
         }
       )
     } catch (e: Exception) {
-      val adResult = mapOf(
-        "adId" to "",
-        "success" to false,
-        "errorMessage" to (e.message ?: "Unknown error")
-      )
-      result.success(adResult)
+      result.success(false)
     }
   }
 
   /// 리워드 광고 이벤트를 Flutter로 전송
   private fun sendRewardAdEvent(adUnit: String, eventType: String, data: Map<String, Any?>) {
-    val event = mapOf(
+    eventSink?.success(mapOf(
       "eventName" to eventType,
       "adUnit" to adUnit,
       "data" to data,
-    )
-    eventSink?.success(event)
+    ))
   }
 
   private fun dispose(adUnit: String) {
@@ -311,22 +303,22 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun disposeRewardAd(call: MethodCall, result: Result) {
     try {
       val args = call.arguments as? Map<*, *> ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
         "Invalid arguments for disposeRewardAd",
-        null
       )
 
       val adUnit = args["adUnit"] as? String ?: return result.error(
+        "1001",
         "INVALID_ARGUMENT",
         "adUnit is required",
-        null
       )
 
       dispose(adUnit)
 
       result.success(null)
     } catch (e: Exception) {
-      result.error("DISPOSE_ERROR", e.message, null)
+      result.error("1030", "DISPOSE_ERROR", e)
     }
   }
 

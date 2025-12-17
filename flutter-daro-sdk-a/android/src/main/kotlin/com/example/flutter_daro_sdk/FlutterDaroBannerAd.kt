@@ -2,7 +2,6 @@ package com.example.flutter_daro_sdk
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import android.view.View
 import droom.daro.core.adunit.DaroBannerAdUnit
 import droom.daro.core.model.DaroAdInfo

@@ -140,8 +140,21 @@ abstract class FlutterDaroRewardAd(
         }
 
         loader?.let {
-            loadAdInternal(it, autoShow, listener, result)
-        } ?: result(false, Exception("Failed to create loader"))
+            try {
+                loadAdInternal(it, autoShow, listener, result)
+            } catch (e: Exception) {
+                result(false, mapOf(
+                    "code" to 1011,
+                    "message" to "Failed to load ad",
+                    "details" to e.message,
+                ))
+                destroy()
+            }
+        } ?: result(false, mapOf(
+            "code" to 1011,
+            "message" to "Failed to load ad",
+            "details" to "Failed to create loader",
+        ))
     }
 
     // 공통 표시 로직
@@ -150,7 +163,16 @@ abstract class FlutterDaroRewardAd(
         result: (Boolean, Any?) -> Unit
     ) {
         ad?.let { currentAd ->
-            showAdInternal(currentAd, listener, result)
+            try {
+                showAdInternal(currentAd, listener, result)
+            } catch (e: Exception) {
+                result(false, mapOf(
+                    "code" to 1012,
+                    "message" to "Failed to show ad",
+                    "details" to e.message,
+                ))
+                destroy()
+            }
         } ?: run {
             loadAd(autoShow = true, listener = listener, result = result)
         }
@@ -204,9 +226,12 @@ class FlutterDaroInterstitialAd(
                 }
             }
 
-            override fun onAdLoadFail(err: DaroAdLoadError) {
-                loadListener?.onAdLoadFail(err)
-                result(false, err)
+            override fun onAdLoadFail(error: DaroAdLoadError) {
+                loadListener?.onAdLoadFail(error)
+                result(false, mapOf(
+                    "code" to error.code,
+                    "message" to error.message
+                ))
             }
         })
         (loader as? DaroInterstitialAdLoader)?.load()
@@ -234,7 +259,10 @@ class FlutterDaroInterstitialAd(
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
                     listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, error)
+                    result(false, mapOf(
+                        "code" to -1,//error.code,
+                        "message" to error.message
+                    ))
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -246,7 +274,10 @@ class FlutterDaroInterstitialAd(
             (context as? Activity)?.let { currentActivity ->
                 interstitialAd.show(activity = currentActivity)
             } ?: {
-                result(false, Exception("No activity available to show ad"))
+                result(false, mapOf(
+                    "code" to 1013,
+                    "message" to "No activity available to show ad"
+                ))
             }
         }
     }
@@ -295,10 +326,13 @@ class FlutterDaroRewardedVideoAd(
                 }
             }
 
-            override fun onAdLoadFail(err: DaroAdLoadError) {
-                loadListener?.onAdLoadFail(err)
+            override fun onAdLoadFail(error: DaroAdLoadError) {
+                loadListener?.onAdLoadFail(error)
                 destroy()
-                result(false, err)
+                result(false, mapOf(
+                    "code" to error.code,
+                    "message" to error.message
+                ))
             }
         })
         (loader as? DaroRewardedAdLoader)?.load()
@@ -332,7 +366,10 @@ class FlutterDaroRewardedVideoAd(
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
                     listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, error)
+                    result(false, mapOf(
+                        "code" to -1,//error.code,
+                        "message" to error.message
+                    ))
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -344,7 +381,10 @@ class FlutterDaroRewardedVideoAd(
             (context as? Activity)?.let { currentActivity ->
                 rewardedAd.show(activity = currentActivity)
             } ?: {
-                result(false, Exception("No activity available to show ad"))
+                result(false, mapOf(
+                    "code" to 1013,
+                    "message" to "No activity available to show ad"
+                ))
             }
         }
     }
@@ -431,10 +471,13 @@ class FlutterDaroPopupAd(
                 }
             }
 
-            override fun onAdLoadFail(err: DaroAdLoadError) {
-                loadListener?.onAdLoadFail(err)
+            override fun onAdLoadFail(error: DaroAdLoadError) {
+                loadListener?.onAdLoadFail(error)
                 destroy()
-                result(false, err)
+                result(false, mapOf(
+                    "code" to error.code,
+                    "message" to error.message
+                ))
             }
         })
         (loader as? DaroLightPopupAdLoader)?.load()
@@ -462,7 +505,10 @@ class FlutterDaroPopupAd(
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
                     listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, error)
+                    result(false, mapOf(
+                        "code" to -1,//error.code,
+                        "message" to error.message
+                    ))
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -474,7 +520,10 @@ class FlutterDaroPopupAd(
             (context as? Activity)?.let { currentActivity ->
                 popupAd.show(activity = currentActivity)
             } ?: {
-                result(false, Exception("No activity available to show ad"))
+                result(false, mapOf(
+                    "code" to 1013,
+                    "message" to "No activity available to show ad"
+                ))
             }
         }
     }
@@ -523,10 +572,13 @@ class FlutterDaroOpeningAd(
                 }
             }
 
-            override fun onAdLoadFail(err: DaroAdLoadError) {
-                loadListener?.onAdLoadFail(err)
+            override fun onAdLoadFail(error: DaroAdLoadError) {
+                loadListener?.onAdLoadFail(error)
                 destroy()
-                result(false, err)
+                result(false, mapOf(
+                    "code" to error.code,
+                    "message" to error.message
+                ))
             }
         })
         (loader as? DaroAppOpenAdLoader)?.load()
@@ -554,7 +606,10 @@ class FlutterDaroOpeningAd(
                 override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
                     listener?.onFailedToShow(adInfo, error)
                     destroy()
-                    result(false, error)
+                    result(false, mapOf(
+                        "code" to -1,//error.code,
+                        "message" to error.message
+                    ))
                 }
 
                 override fun onDismiss(adInfo: DaroAdInfo) {
@@ -567,7 +622,10 @@ class FlutterDaroOpeningAd(
             (context as? Activity)?.let { currentActivity ->
                 appOpenAd.show(activity = currentActivity)
             } ?: {
-                result(false, Exception("No activity available to show ad"))
+                result(false, mapOf(
+                    "code" to 1013,
+                    "message" to "No activity available to show ad"
+                ))
             }
         }
     }

@@ -59,7 +59,7 @@ void main() {
         ),
         bannerMrec: AdUnitConfig(
           android: const String.fromEnvironment('ADUNITS_BANNERMREC_ANDROID'),
-          ios: String.fromEnvironment('ADUNITS_BANNERMREC_IOS'),
+          ios: const String.fromEnvironment('ADUNITS_BANNERMREC_IOS'),
         ),
         interstitial: AdUnitConfig(
           android: const String.fromEnvironment('ADUNITS_INTERSTITIAL_ANDROID'),
