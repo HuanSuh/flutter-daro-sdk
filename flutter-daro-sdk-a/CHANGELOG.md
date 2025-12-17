@@ -1,3 +1,7 @@
+## 0.9.3
+2025.12.17
+  - Error event formatting
+  
 ## 0.9.2
 2025.12.16
   - Improved package structure
