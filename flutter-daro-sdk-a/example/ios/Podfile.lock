@@ -23,7 +23,7 @@ PODS:
   - FBAudienceNetwork (6.20.1)
   - FiveAd (2.9.20250912)
   - Flutter (1.0.0)
-  - flutter_daro_sdk (0.0.1):
+  - flutter_daro_sdk (0.0.2):
     - DaroAds (= 1.1.45)
     - Flutter
   - Fyber_Marketplace_SDK (8.4.1)
@@ -159,7 +159,7 @@ SPEC CHECKSUMS:
   FBAudienceNetwork: 08e86d63a05b3a5a59414af12e4af8d756943c80
   FiveAd: 31ad62dbf730e7cd064c8ddd4c6a814c02bd500b
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_daro_sdk: 9c3c11893c898b1799ba8cced45b7701ecfd18ff
+  flutter_daro_sdk: fb350d5402f0f51eaa00a33d642cf88d9f19203a
   Fyber_Marketplace_SDK: c908580dc3d65e67f2862df137f8ae7dad6e3321
   Google-Mobile-Ads-SDK: ece122bc89b38cab319543bc464a9ceabfe1d307
   GoogleMobileAdsMediationAppLovin: 604d93a0913908be064558a90170004f35b57a96

@@ -69,7 +69,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
         result(FlutterError(
           code: "1002",
           message: "INITIALIZE_FAILED",
-          details: "Daro SDK initilized error : \(error)",
+          details: "Daro SDK initilized error : \(error)"
         ))
       } else {
         let options = args["options"] as? [String: Any]
@@ -78,7 +78,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
             result: result,
             userId: options["userId"] as? String, 
             logLevel: options["logLevel"] as? String,
-            appMute: options["appMute"] as? Bool,
+            appMute: options["appMute"] as? Bool
           )
         } else {
           result(true)
@@ -93,7 +93,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
       result(FlutterError(
         code: "1001",
         message: "INVALID_ARGUMENT",
-        details: "Invalid arguments for setOptions",
+        details: "Invalid arguments for setOptions"
       ))
       return
     }
@@ -122,7 +122,7 @@ public class FlutterDaroSdkPlugin: NSObject, FlutterPlugin {
           result(FlutterError(
             code: "1001",
             message: "INVALID_ARGUMENT",
-            details: "Invalid logLevel: \(logLevel)",
+            details: "Invalid logLevel: \(logLevel)"
           ))
       }
     }

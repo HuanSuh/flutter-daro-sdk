@@ -1,3 +1,7 @@
+## 0.9.4
+2026.01.08
+  - ios formatting
+
 ## 0.9.3
 2025.12.17
   - Error event formatting

@@ -75,7 +75,7 @@ public struct FlutterDaroRewardAdFactory {
         adUnit: String,
         placement: String? = nil,
         options: [String: Any]? = nil,
-        listener: FlutterDaroRewardAdLoadListener? = nil,
+        listener: FlutterDaroRewardAdLoadListener? = nil
     ) -> FlutterDaroRewardAd {
         switch adType {
         case .interstitial:
