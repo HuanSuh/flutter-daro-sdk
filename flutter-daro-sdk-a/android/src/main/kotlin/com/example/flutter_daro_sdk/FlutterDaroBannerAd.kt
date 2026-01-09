@@ -28,15 +28,15 @@ private constructor(private val messenger: BinaryMessenger) :
     PlatformViewFactory(JSONMessageCodec.INSTANCE) {
 
     private lateinit var activity: Activity
-    private lateinit var adView: FlutterDaroBannerAdView
+    private var adView: FlutterDaroBannerAdView? = null
 
     override fun create(context: Context?, id: Int, args: Any?): FlutterDaroBannerAdView {
         adView = FlutterDaroBannerAdView(context, messenger, id, args)
-        return adView
+        return adView ?: throw IllegalStateException("Failed to create FlutterDaroBannerAdView")
     }
 
     fun onDestroy() {
-        adView.dispose()
+        adView?.dispose()
     }
 
     companion object {

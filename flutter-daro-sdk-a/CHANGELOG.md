@@ -1,3 +1,7 @@
+## 0.9.5
+2026.01.09
+  - fix: android AdFactory lateinit issue
+
 ## 0.9.4
 2026.01.08
   - ios formatting
