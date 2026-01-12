@@ -8,9 +8,7 @@ import 'package:flutter_daro_sdk/src/daro_error.dart';
 class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel(
-    'com.daro.flutter_daro_sdk/channel',
-  );
+  final methodChannel = const MethodChannel('com.daro.flutter_daro_sdk/channel');
 
   /// The event channel used to receive events from the native platform.
   @visibleForTesting
@@ -34,11 +32,8 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
 
             // 리워드 광고 이벤트 처리
             if (adUnit != null) {
-              final eventType = DaroRewardAdEvent.byNameOrNull(
-                event['eventName'] as String?,
-              );
-              if (eventType?.logLevel case DaroLogLevel logLevel
-                  when logLevel.index <= DaroSdk.logLevel.index) {
+              final eventType = DaroRewardAdEvent.byNameOrNull(event['eventName'] as String?);
+              if (eventType?.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
                 debugPrint('[DARO] $eventType - $adUnit ${eventData ?? ''}');
               }
               final rewardAdListener = _rewardAdListeners[adUnit];
@@ -47,10 +42,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
                   case DaroRewardAdEvent.onAdLoadSuccess:
                     rewardAdListener.onAdLoadSuccess?.call(adUnit);
                   case DaroRewardAdEvent.onAdLoadFail:
-                    rewardAdListener.onAdLoadFail?.call(
-                      adUnit,
-                      DaroError.fromJson(eventData),
-                    );
+                    rewardAdListener.onAdLoadFail?.call(adUnit, DaroError.fromJson(eventData));
                   case DaroRewardAdEvent.onAdImpression:
                     rewardAdListener.onAdImpression?.call(adUnit);
                   case DaroRewardAdEvent.onAdClicked:
@@ -58,17 +50,11 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
                   case DaroRewardAdEvent.onShown:
                     rewardAdListener.onShown?.call(adUnit);
                   case DaroRewardAdEvent.onRewarded:
-                    rewardAdListener.onRewarded?.call(
-                      adUnit,
-                      DaroReward.fromJson(eventData),
-                    );
+                    rewardAdListener.onRewarded?.call(adUnit, DaroReward.fromJson(eventData));
                   case DaroRewardAdEvent.onDismiss:
                     rewardAdListener.onDismiss?.call(adUnit);
                   case DaroRewardAdEvent.onFailedToShow:
-                    rewardAdListener.onFailedToShow?.call(
-                      adUnit,
-                      DaroError.fromJson(eventData),
-                    );
+                    rewardAdListener.onFailedToShow?.call(adUnit, DaroError.fromJson(eventData));
                   case null:
                     break;
                 }
@@ -88,9 +74,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   /// 이벤트 스트림 구독 (내부 사용)
   Stream<Map<dynamic, dynamic>>? getEventStream() {
     try {
-      return eventChannel
-          .receiveBroadcastStream()
-          .cast<Map<dynamic, dynamic>>();
+      return eventChannel.receiveBroadcastStream().cast<Map<dynamic, dynamic>>();
     } catch (e) {
       return null;
     }
@@ -99,8 +83,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   bool _isInitialized = false;
   Completer<void>? _initializeCompleter;
   Completer<void>? get _pendingCompleter {
-    if (_initializeCompleter case final Completer<void> completer
-        when !completer.isCompleted) {
+    if (_initializeCompleter case final Completer<void> completer when !completer.isCompleted) {
       return completer;
     }
     return null;
@@ -113,23 +96,20 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     return initialize(DaroSdkConfig.nonReward()).then((_) {});
   }
 
-  Future<void> _initialize(
-    DaroSdkConfig config,
-    Completer<bool> completer,
-  ) async {
+  Future<void> _initialize(DaroSdkConfig config, Completer<bool> completer) async {
     try {
-      final result = await methodChannel.invokeMethod<bool>(
-        'initialize',
-        config.toMap(),
-      );
+      final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
       _isInitialized = result ?? false;
-      completer.complete(result ?? false);
+      if (!completer.isCompleted) {
+        completer.complete(result ?? false);
+      }
     } catch (e) {
-      if (DaroSdk.logLevel case DaroLogLevel logLevel
-          when logLevel.index <= DaroSdk.logLevel.index) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] initialize failed: $e');
       }
-      completer.completeError(e);
+      if (!completer.isCompleted) {
+        completer.completeError(e);
+      }
     }
   }
 
@@ -150,14 +130,10 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   Future<bool> setOptions(DaroSdkOptions options) async {
     try {
       await _checkInitialized();
-      final result = await methodChannel.invokeMethod<bool>(
-        'setOptions',
-        options.toMap(),
-      );
+      final result = await methodChannel.invokeMethod<bool>('setOptions', options.toMap());
       return result ?? false;
     } catch (e) {
-      if (DaroSdk.logLevel case DaroLogLevel logLevel
-          when logLevel.index <= DaroSdk.logLevel.index) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] setOptions failed: $e');
       }
       return false;
@@ -167,11 +143,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   /// 리워드 광고
   ///
   @override
-  Future<bool> loadRewardAd(
-    DaroRewardAdType type,
-    String adUnit, {
-    Map<String, dynamic>? options,
-  }) async {
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
     try {
       await _checkInitialized();
       final result = await methodChannel.invokeMethod<bool>('loadRewardAd', {
@@ -181,8 +153,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
-      if (DaroSdk.logLevel case DaroLogLevel logLevel
-          when logLevel.index <= DaroSdk.logLevel.index) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] loadRewardAd failed: $e');
       }
       final error = DaroError.fromJson(e);
@@ -192,11 +163,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<bool> showRewardAd(
-    DaroRewardAdType type,
-    String adUnit, {
-    Map<String, dynamic>? options,
-  }) async {
+  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
     try {
       await _checkInitialized();
       final result = await methodChannel.invokeMethod<bool>('showRewardAd', {
@@ -206,8 +173,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
       });
       return result ?? false;
     } catch (e) {
-      if (DaroSdk.logLevel case DaroLogLevel logLevel
-          when logLevel.index <= DaroSdk.logLevel.index) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] showRewardAd failed: $e');
       }
       final error = DaroError.fromJson(e);
@@ -229,14 +195,10 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   @override
   Future<void> disposeRewardAd(DaroRewardAdType type, String adUnit) async {
     try {
-      await methodChannel.invokeMethod<void>('disposeRewardAd', {
-        'adType': type.name,
-        'adUnit': adUnit,
-      });
+      await methodChannel.invokeMethod<void>('disposeRewardAd', {'adType': type.name, 'adUnit': adUnit});
       removeRewardAdListener(adUnit);
     } catch (e) {
-      if (DaroSdk.logLevel case DaroLogLevel logLevel
-          when logLevel.index <= DaroSdk.logLevel.index) {
+      if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] disposeRewardAd failed: $e');
       }
     }

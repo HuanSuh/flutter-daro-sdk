@@ -35,9 +35,7 @@ class DaroSdk {
     if (options?.logLevel case DaroLogLevel logLevel) {
       DaroSdk._logLevel = logLevel;
     }
-    return await FlutterDaroSdkPlatform.instance.initialize(
-      DaroSdkConfig.nonReward(options: options),
-    );
+    return FlutterDaroSdkPlatform.instance.initialize(DaroSdkConfig.nonReward(options: options));
   }
 
   static Future<bool> setOptions(DaroSdkOptions options) async {
