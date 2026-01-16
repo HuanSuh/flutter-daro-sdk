@@ -93,16 +93,17 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     if (_isInitialized) {
       return;
     }
-    return initialize(DaroSdkConfig.nonReward()).then((_) {});
+    return initialize(DaroSdkConfig.nonReward());
   }
 
-  Future<void> _initialize(DaroSdkConfig config, Completer<bool> completer) async {
+  Future<void> _initialize(DaroSdkConfig config, Completer<void> completer) async {
     try {
-      final result = await methodChannel.invokeMethod<bool>('initialize', config.toMap());
-      _isInitialized = result ?? false;
-      if (!completer.isCompleted) {
-        completer.complete(result ?? false);
-      }
+      methodChannel.invokeMethod<bool>('initialize', config.toMap()).then((result) {
+        _isInitialized = result ?? false;
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      });
     } catch (e) {
       if (DaroSdk.logLevel case DaroLogLevel logLevel when logLevel.index <= DaroSdk.logLevel.index) {
         debugPrint('[DARO] initialize failed: $e');
@@ -111,6 +112,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
         completer.completeError(e);
       }
     }
+    return completer.future;
   }
 
   @override
@@ -122,8 +124,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
     if (pendingCompleter != null) {
       return pendingCompleter.future;
     }
-    final completer = Completer<bool>();
-    return _initialize(config, completer);
+    return _initialize(config, _initializeCompleter = Completer<void>());
   }
 
   @override
