@@ -1,3 +1,7 @@
+## 0.9.7
+2026.01.16
+  - fix: Initialize async exception handling
+
 ## 0.9.6
 2026.01.10
   - fix: Improved ios initialize handling
