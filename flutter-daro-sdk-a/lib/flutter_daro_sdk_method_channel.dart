@@ -59,6 +59,26 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
                     break;
                 }
               }
+              if (defaultTargetPlatform == TargetPlatform.iOS) {
+                switch (eventType) {
+                  case DaroRewardAdEvent.onAdLoadSuccess:
+                  case DaroRewardAdEvent.onAdLoadFail:
+                  case DaroRewardAdEvent.onAdClicked:
+                  case DaroRewardAdEvent.onRewarded:
+                  case null:
+                    break;
+                  case DaroRewardAdEvent.onAdImpression:
+                  case DaroRewardAdEvent.onShown:
+                    if (_handleSystemUiModeOnRewardAd) {
+                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+                    }
+                  case DaroRewardAdEvent.onDismiss:
+                  case DaroRewardAdEvent.onFailedToShow:
+                    if (_handleSystemUiModeOnRewardAd) {
+                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                    }
+                }
+              }
             }
           }
         },
@@ -82,6 +102,9 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
 
   bool _isInitialized = false;
   Completer<void>? _initializeCompleter;
+  bool _handleSystemUiModeOnRewardAdDefaultOption = false;
+  bool _handleSystemUiModeOnRewardAd = false;
+
   Completer<void>? get _pendingCompleter {
     if (_initializeCompleter case final Completer<void> completer when !completer.isCompleted) {
       return completer;
@@ -131,6 +154,7 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   Future<bool> setOptions(DaroSdkOptions options) async {
     try {
       await _checkInitialized();
+      _handleSystemUiModeOnRewardAdDefaultOption = options.handleSystemUiModeOnRewardAd ?? true;
       final result = await methodChannel.invokeMethod<bool>('setOptions', options.toMap());
       return result ?? false;
     } catch (e) {
@@ -164,9 +188,16 @@ class MethodChannelFlutterDaroSdk extends FlutterDaroSdkPlatform {
   }
 
   @override
-  Future<bool> showRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options}) async {
+  Future<bool> showRewardAd(
+    DaroRewardAdType type,
+    String adUnit, {
+    Map<String, dynamic>? options,
+    bool? handleSystemUiMode,
+  }) async {
+    _handleSystemUiModeOnRewardAd = handleSystemUiMode ?? _handleSystemUiModeOnRewardAdDefaultOption;
     try {
       await _checkInitialized();
+
       final result = await methodChannel.invokeMethod<bool>('showRewardAd', {
         'adType': type.name,
         'adUnit': adUnit,

@@ -23,10 +23,7 @@ class DaroSdkConfig {
   DaroSdkConfig._({required this.appCategory, this.options});
 
   factory DaroSdkConfig.nonReward({DaroSdkOptions? options}) {
-    return DaroSdkConfig._(
-      appCategory: DaroAppCategory.nonReward,
-      options: options,
-    );
+    return DaroSdkConfig._(appCategory: DaroAppCategory.nonReward, options: options);
   }
 
   Map<String, dynamic> toMap() {
@@ -47,8 +44,9 @@ class DaroSdkOptions {
   final String? userId;
   final DaroLogLevel? logLevel;
   final bool? appMute;
+  final bool? handleSystemUiModeOnRewardAd;
 
-  DaroSdkOptions({this.userId, this.logLevel, this.appMute});
+  DaroSdkOptions({this.userId, this.logLevel, this.appMute, this.handleSystemUiModeOnRewardAd});
 
   Map<String, dynamic> toMap() {
     return {'userId': userId, 'logLevel': logLevel?.name, 'appMute': appMute};
@@ -97,17 +95,14 @@ abstract class FlutterDaroSdkPlatform extends PlatformInterface {
   //// 리워드 광고 (인터스티셜, 리워드 비디오, 팝업, 앱 오프닝)
 
   /// [loadRewardAd] 리워드 광고 인스턴스 로드
-  Future<bool> loadRewardAd(
-    DaroRewardAdType type,
-    String adUnit, {
-    Map<String, dynamic>? options,
-  });
+  Future<bool> loadRewardAd(DaroRewardAdType type, String adUnit, {Map<String, dynamic>? options});
 
   /// [showRewardAd] 리워드 광고 인스턴스 표시
   Future<bool> showRewardAd(
     DaroRewardAdType type,
     String adUnit, {
     Map<String, dynamic>? options,
+    bool? handleSystemUiMode,
   });
 
   /// [addRewardAdListener] 리워드 광고 리스너 등록
