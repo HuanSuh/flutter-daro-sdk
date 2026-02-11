@@ -1,3 +1,7 @@
+## 0.9.8
+2026.02.11
+  - feat: enhance iOS reward ad handling and options configuration
+
 ## 0.9.7
 2026.01.16
   - fix: Initialize async exception handling
