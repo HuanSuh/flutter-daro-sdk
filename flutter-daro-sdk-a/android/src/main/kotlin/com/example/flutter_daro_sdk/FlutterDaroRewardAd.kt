@@ -1,6 +1,7 @@
 package com.example.flutter_daro_sdk
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.graphics.Color
 import androidx.core.graphics.toColorInt
@@ -24,7 +25,7 @@ import droom.daro.core.model.DaroInterstitialAd
 import droom.daro.core.model.DaroLightPopupAd
 import droom.daro.core.model.DaroLightPopupAdOptions
 import droom.daro.core.model.DaroRewardedAd
-import droom.daro.loader.DaroAppOpenAdLoader
+import droom.daro.a.appopen.DaroAppOpenAdManager
 import droom.daro.loader.DaroInterstitialAdLoader
 import droom.daro.loader.DaroLightPopupAdLoader
 import droom.daro.loader.DaroRewardedAdLoader
@@ -541,15 +542,15 @@ class FlutterDaroOpeningAd(
     loadListener: FlutterDaroRewardAdLoadListener? = null
 ) : FlutterDaroRewardAd(context, adUnit, placement, loadListener) {
 
-    override fun createLoader(): DaroAppOpenAdLoader {
+    override fun createLoader(): DaroAppOpenAdManager {
         val unit = DaroAppOpenAdUnit(
             key = adUnit,
             placement = placement ?: ""
         )
-        return DaroAppOpenAdLoader(
-            context = context,
-            adUnit = unit
-        )
+        // daro-a 1.4.0+ : DaroAppOpenAdLoader가 internal로 전환됨. DaroAppOpenAdManager로 대체.
+        return DaroAppOpenAdManager.Builder(context.applicationContext as Application)
+            .setAdUnit(unit)
+            .build()
     }
 
     override fun loadAdInternal(
@@ -558,11 +559,20 @@ class FlutterDaroOpeningAd(
         listener: FlutterDaroRewardAdListener?,
         result: (Boolean, Any?) -> Unit
     ) {
-        (loader as? DaroAppOpenAdLoader)?.setListener(object : DaroAppOpenAdLoaderListener {
+        val manager = loader as? DaroAppOpenAdManager ?: run {
+            result(false, mapOf(
+                "code" to 1011,
+                "message" to "Failed to load ad",
+                "details" to "Invalid loader"
+            ))
+            return
+        }
+        manager.setAppOpenAdLoaderListener(object : DaroAppOpenAdLoaderListener {
             override fun onAdLoadSuccess(ad: DaroAppOpenAd, adInfo: DaroAdInfo) {
-                this@FlutterDaroOpeningAd.ad = ad
+                // Manager가 로드/표시를 모두 담당하므로 ad 필드에 manager를 보관한다.
+                this@FlutterDaroOpeningAd.ad = manager
                 loadListener?.onAdLoadSuccess(this@FlutterDaroOpeningAd, ad, adInfo)
-                
+
                 if (autoShow) {
                     showAd(listener) { success, error ->
                         result(success, error)
@@ -581,7 +591,7 @@ class FlutterDaroOpeningAd(
                 ))
             }
         })
-        (loader as? DaroAppOpenAdLoader)?.load()
+        manager.loadAd()
     }
 
     override fun showAdInternal(
@@ -589,48 +599,52 @@ class FlutterDaroOpeningAd(
         listener: FlutterDaroRewardAdListener?,
         result: (Boolean, Any?) -> Unit
     ) {
-        (ad as? DaroAppOpenAd)?.let { appOpenAd ->
-            appOpenAd.setListener(object : DaroAppOpenAdListener {
-                override fun onAdImpression(adInfo: DaroAdInfo) {
-                    listener?.onAdImpression(adInfo)
-                }
+        val manager = ad as? DaroAppOpenAdManager ?: run {
+            result(false, mapOf(
+                "code" to 1012,
+                "message" to "Failed to show ad",
+                "details" to "Invalid ad instance"
+            ))
+            return
+        }
+        manager.setAppOpenAdListener(object : DaroAppOpenAdListener {
+            override fun onAdImpression(adInfo: DaroAdInfo) {
+                listener?.onAdImpression(adInfo)
+            }
 
-                override fun onAdClicked(adInfo: DaroAdInfo) {
-                    listener?.onAdClicked(adInfo)
-                }
+            override fun onAdClicked(adInfo: DaroAdInfo) {
+                listener?.onAdClicked(adInfo)
+            }
 
-                override fun onShown(adInfo: DaroAdInfo) {
-                    listener?.onShown(adInfo)
-                }
+            override fun onShown(adInfo: DaroAdInfo) {
+                listener?.onShown(adInfo)
+            }
 
-                override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
-                    listener?.onFailedToShow(adInfo, error)
-                    destroy()
-                    result(false, mapOf(
-                        "code" to -1,//error.code,
-                        "message" to error.message
-                    ))
-                }
-
-                override fun onDismiss(adInfo: DaroAdInfo) {
-                    listener?.onDismiss(adInfo)
-                    destroy()
-                    result(true, null)
-                }
-            })
-
-            (context as? Activity)?.let { currentActivity ->
-                appOpenAd.show(activity = currentActivity)
-            } ?: {
+            override fun onFailedToShow(adInfo: DaroAdInfo, error: DaroAdDisplayFailError) {
+                listener?.onFailedToShow(adInfo, error)
+                destroy()
                 result(false, mapOf(
-                    "code" to 1013,
-                    "message" to "No activity available to show ad"
+                    "code" to -1,//error.code,
+                    "message" to error.message
                 ))
             }
-        }
+
+            override fun onDismiss(adInfo: DaroAdInfo) {
+                listener?.onDismiss(adInfo)
+                destroy()
+                result(true, null)
+            }
+        })
+
+        (context as? Activity)?.let { currentActivity ->
+            manager.showIfAvailable(currentActivity)
+        } ?: result(false, mapOf(
+            "code" to 1013,
+            "message" to "No activity available to show ad"
+        ))
     }
 
     override fun destroyAd(ad: Any?) {
-        (ad as? DaroAppOpenAd)?.destroy()
+        (ad as? DaroAppOpenAdManager)?.destroy()
     }
 }
