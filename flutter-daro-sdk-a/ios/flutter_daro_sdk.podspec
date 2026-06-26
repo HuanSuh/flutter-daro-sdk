@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_daro_sdk'
-  s.version          = '0.9.9'
+  s.version          = '0.9.10'
   s.summary          = 'DARO SDK Flutter plugin for Android and iOS'
   s.description      = <<-DESC
 DARO SDK Flutter plugin that supports both Reward and Non-reward apps.

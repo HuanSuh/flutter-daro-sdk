@@ -1,3 +1,12 @@
+## 0.9.10
+2026.06.26
+  - fix: resolve iOS banner/MREC not displaying
+    - add Auto Layout constraints so the ad view fills its container (was .zero frame, invisible)
+    - set rootViewController to the key window root VC to avoid a controller<->adView retain cycle
+  - fix: select the top-most presented VC of the key window for interstitial/rewarded/popup
+    - replace non-deterministic connectedScenes.first/windows.first with daroTopViewController()
+  - fix: run ATT-callback ad load/show on the main thread (ATT callback is not main-thread guaranteed)
+
 ## 0.9.9
 2026.06.24
   - chore: bump native DARO SDK dependencies to latest
