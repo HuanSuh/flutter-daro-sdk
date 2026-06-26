@@ -142,7 +142,22 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
                 self.adView?.listener.onAdClicked = {adInfo in
                     self.callback("onAdClicked", adUnit)
                 }
+                // 배너 뷰가 컨테이너(PlatformView, Flutter가 320x50 / 300x250로 사이징)를
+                // 가득 채우도록 Auto Layout 제약을 건다. (제약이 없으면 frame이 .zero라 보이지 않음)
+                self.adView!.translatesAutoresizingMaskIntoConstraints = false
+                // 클릭 시 랜딩을 띄울 presenting VC. self(배너 컨테이너 컨트롤러)를 넣으면
+                // controller<->adView retain cycle이 생기므로, 키 윈도우의 root VC를 사용한다.
+                self.adView!.rootViewController = UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap { $0.windows }
+                    .first { $0.isKeyWindow }?.rootViewController
                 self.view.addSubview(self.adView!)
+                NSLayoutConstraint.activate([
+                    self.adView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                    self.adView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+                    self.adView!.topAnchor.constraint(equalTo: self.view.topAnchor),
+                    self.adView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+                ])
                 self.loadAd()
                 return
             }
@@ -158,7 +173,10 @@ class FlutterDaroBannerController: UIViewController, FlutterStreamHandler {
     private func loadAd() {
         if #available(iOS 14, *) {
             ATTrackingManager.requestTrackingAuthorization { [weak self] status in
-                self?.adView?.loadAd()
+                // ATT 콜백은 메인 스레드 보장이 없으므로 UIKit 호출은 메인에서 수행.
+                DispatchQueue.main.async {
+                    self?.adView?.loadAd()
+                }
             }
         } else {
             self.adView?.loadAd()
