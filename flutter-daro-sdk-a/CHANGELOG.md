@@ -1,5 +1,6 @@
 ## 0.9.10
 2026.06.26
+  - chore: bump iOS DaroAds 1.1.65 → 1.1.66
   - fix: resolve iOS banner/MREC not displaying
     - add Auto Layout constraints so the ad view fills its container (was .zero frame, invisible)
     - set rootViewController to the key window root VC to avoid a controller<->adView retain cycle

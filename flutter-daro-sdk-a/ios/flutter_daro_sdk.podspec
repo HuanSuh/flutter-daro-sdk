@@ -18,7 +18,7 @@ DARO SDK Flutter plugin that supports both Reward and Non-reward apps.
   s.platform = :ios, '13.0'
   
   # DARO SDK 의존성 추가
-  s.dependency 'DaroAds', '1.1.65'
+  s.dependency 'DaroAds', '1.1.66'
   s.static_framework = true
 
   # Flutter.framework does not contain a i386 slice.

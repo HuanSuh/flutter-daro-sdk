@@ -8,7 +8,7 @@ PODS:
   - Ads-Global/TikTokBusinessSDK (7.9.0.6)
   - AppLovinSDK (13.6.0)
   - ChartboostSDK (9.11.0)
-  - DaroAds (1.1.65):
+  - DaroAds (1.1.66):
     - Google-Mobile-Ads-SDK (= 13.0.0)
     - GoogleMobileAdsMediationAppLovin (= 13.6.0.0)
     - GoogleMobileAdsMediationChartboost (= 9.11.0.3)
@@ -26,8 +26,8 @@ PODS:
   - FBAudienceNetwork (6.21.0)
   - FiveAd (3.0.0)
   - Flutter (1.0.0)
-  - flutter_daro_sdk (0.9.9):
-    - DaroAds (= 1.1.65)
+  - flutter_daro_sdk (0.9.10):
+    - DaroAds (= 1.1.66)
     - Flutter
   - Fyber_Marketplace_SDK (8.4.4)
   - Google-Mobile-Ads-SDK (13.0.0):
@@ -162,11 +162,11 @@ SPEC CHECKSUMS:
   Ads-Global: fb1fa75ebbf100ab9ff216d81b71a05cf1a73675
   AppLovinSDK: c516661fbeb9d7ba1ec8c10c8da60581178a6204
   ChartboostSDK: 4c0411cb5b6cb3705fafb40936fec3aea2c789f2
-  DaroAds: 240c722a7f7e7f677fcd8c119f2d93b6f1aa109d
+  DaroAds: 7b9a7bee09f8d9364f9db6e2aa1a2489ca0bac35
   FBAudienceNetwork: f4ab9e073ab98c884dbdb5ffe7c861272b380bc2
   FiveAd: 16fac25b6d3efe14b55585e68e6c01dec1f10abc
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_daro_sdk: 828145fa3818d3ec0fe4ae52f3d0742664376c75
+  flutter_daro_sdk: 344b0314392ccef3f002833e0ce5f470422fa2e4
   Fyber_Marketplace_SDK: 37270b423a1684c3d5335db03f0c9798a31d8dd9
   Google-Mobile-Ads-SDK: 96498d53355e438e2d932277e5e8e41a824fe4d4
   GoogleMobileAdsMediationAppLovin: ef5ac8223f0c7ef439cb22ef4327892dc84e96a0
