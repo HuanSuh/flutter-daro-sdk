@@ -4,7 +4,7 @@ version = "1.0-SNAPSHOT"
 buildscript {
     ext.kotlin_version = "2.1.0"
     ext.daro_plugin_version = "1.0.13"
-    ext.daro_a_version = "1.5.7"
+    ext.daro_a_version = "1.5.9"
     repositories {
         google()
         mavenCentral()

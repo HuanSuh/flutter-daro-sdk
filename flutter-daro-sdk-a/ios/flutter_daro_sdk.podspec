@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_daro_sdk'
-  s.version          = '0.9.10'
+  s.version          = '0.9.11'
   s.summary          = 'DARO SDK Flutter plugin for Android and iOS'
   s.description      = <<-DESC
 DARO SDK Flutter plugin that supports both Reward and Non-reward apps.
@@ -18,7 +18,7 @@ DARO SDK Flutter plugin that supports both Reward and Non-reward apps.
   s.platform = :ios, '13.0'
   
   # DARO SDK 의존성 추가
-  s.dependency 'DaroAds', '1.1.66'
+  s.dependency 'DaroAds', '1.1.68'
   s.static_framework = true
 
   # Flutter.framework does not contain a i386 slice.

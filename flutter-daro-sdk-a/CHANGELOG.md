@@ -1,3 +1,9 @@
+## 0.9.11
+2026.07.07
+  - chore: bump native DARO SDKs to latest stable
+    - Android: daro-a 1.5.7 → 1.5.9
+    - iOS: DaroAds 1.1.66 → 1.1.68
+
 ## 0.9.10
 2026.06.26
   - chore: bump iOS DaroAds 1.1.65 → 1.1.66
