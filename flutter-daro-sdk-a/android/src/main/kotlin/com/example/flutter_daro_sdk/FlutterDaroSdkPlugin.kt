@@ -1,7 +1,8 @@
 package com.example.flutter_daro_sdk
 
 import android.app.Activity
-import droom.daro.Daro
+import droom.daro.a.Daro
+import droom.daro.SDKConfig
 import droom.daro.core.model.DaroAdDisplayFailError
 import droom.daro.core.model.DaroAdInfo
 import droom.daro.core.model.DaroAdLoadError
@@ -85,7 +86,7 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       val currentActivity = activity ?: return result.success(false)
 
       // 문서 참고: https://guide.daro.so/ko/sdk-integration/android/get-started#sdk-%EC%B4%88%EA%B8%B0%ED%99%94%ED%95%98%EA%B8%B0
-      val configBuilder = Daro.SDKConfig.Builder()
+      val configBuilder = SDKConfig.Builder()
       val options = args["options"] as? Map<*, *>
       if (options != null) {
         when (options["logLevel"] as? String) {
@@ -96,15 +97,15 @@ class FlutterDaroSdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         when(options["appMute"] as? Boolean) {
-          true -> configBuilder.setAppMute(true)
-          false -> configBuilder.setAppMute(false)
+          true -> configBuilder.setAppMuted(true)
+          false -> configBuilder.setAppMuted(false)
           else -> {}
         }
       }
 
        Daro.init(
-         application = currentActivity.application,
-         sdkConfig = configBuilder.build()
+         currentActivity.application,
+         configBuilder.build()
        )
 
       // 초기화 성공

@@ -3,9 +3,8 @@ version = "1.0-SNAPSHOT"
 
 buildscript {
     ext.kotlin_version = "2.1.0"
-    ext.daro_plugin_version = "1.0.12"
-    ext.daro_core_version = "1.3.8"
-    ext.daro_a_version = "1.3.6"
+    ext.daro_plugin_version = "1.0.13"
+    ext.daro_a_version = "1.5.9"
     repositories {
         google()
         mavenCentral()
@@ -53,9 +52,9 @@ android {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
         // DARO SDK 플러그인 의존성 추가
-        implementation("so.daro:daro-core:$daro_core_version")
+        // daro-core는 deprecated되어 daro-a 1.4.0+에 기본 포함됨 (별도 추가 불필요)
         implementation("so.daro:daro-a:$daro_a_version")
-        // implementation("so.daro:daro-compose-util:1.3.1") // Compose-Only
+        // implementation("so.daro:daro-compose-util:1.3.2") // Compose-Only
     }
 
     testOptions {

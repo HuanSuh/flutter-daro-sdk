@@ -3,6 +3,21 @@ import Foundation
 import Daro
 import UIKit
 
+/// 키 윈도우의 최상단(현재 표시 중인) 뷰 컨트롤러를 결정적으로 반환한다.
+/// connectedScenes.first / windows.first 는 순서가 보장되지 않아, 키 윈도우가 아니거나
+/// 이미 다른 화면을 표시 중인 VC가 반환되면 광고 팝업이 터치를 못 받는 문제가 간헐적으로 발생한다.
+fileprivate func daroTopViewController() -> UIViewController? {
+    let scenes = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+    let windows = scenes.flatMap { $0.windows }
+    let keyWindow = windows.first { $0.isKeyWindow } ?? windows.first
+    var top = keyWindow?.rootViewController
+    while let presented = top?.presentedViewController {
+        top = presented
+    }
+    return top
+}
+
 public class FlutterDaroRewardAdLoadListener {
     var onAdLoadSuccess: ((_ adItem: FlutterDaroRewardAd, _ ad: Any?, _ adInfo: Any?) -> Void)?
     var onAdLoadFail: ((_ error: DaroError) -> Void)?
@@ -183,7 +198,10 @@ public class FlutterDaroRewardAd: UIViewController {
         
         if #available(iOS 14, *) {
             ATTrackingManager.requestTrackingAuthorization { [weak self] status in
-                self?.showAdInternal(ad: currentAd, listener: listener, result: result)
+                // ATT 콜백은 메인 스레드 보장이 없음. UIKit(VC present/터치 처리)은 반드시 메인에서.
+                DispatchQueue.main.async {
+                    self?.showAdInternal(ad: currentAd, listener: listener, result: result)
+                }
             }
         } else {
             self.showAdInternal(ad: currentAd, listener: listener, result: result)
@@ -321,8 +339,7 @@ class FlutterDaroInterstitialAd: FlutterDaroRewardAd {
             return
         }
         
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
+        guard let rootViewController = daroTopViewController() else {
             result(false, NSError(
                 domain: "FlutterDaroRewardAd", 
                 code: 1013, 
@@ -422,8 +439,7 @@ class FlutterDaroRewardedVideoAd: FlutterDaroRewardAd {
             return
         }
         
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
+        guard let rootViewController = daroTopViewController() else {
             result(false, NSError(
                 domain: "FlutterDaroRewardAd", 
                 code: 1013, 
@@ -466,7 +482,7 @@ class FlutterDaroRewardedVideoAd: FlutterDaroRewardAd {
 // 팝업 광고 클래스
 class FlutterDaroPopupAd: FlutterDaroRewardAd {
     private let options: [String: Any]?
-    
+
     init(adUnit: String, placement: String? = nil, loadListener: FlutterDaroRewardAdLoadListener? = nil, options: [String: Any]? = nil) {
         self.options = options
         super.init(adUnit: adUnit, placement: placement, loadListener: loadListener)
@@ -518,7 +534,7 @@ class FlutterDaroPopupAd: FlutterDaroRewardAd {
         popupLoader.listener.onAdImpression = { [weak self] adInfo in
             self?.loadListener?.onAdImpression?(adInfo)
         }
-        
+
         popupLoader.listener.onAdClicked = { [weak self] adInfo in
             self?.loadListener?.onAdClicked?(adInfo)
         }
@@ -580,35 +596,34 @@ class FlutterDaroPopupAd: FlutterDaroRewardAd {
             popupAd.configuration = configuration
         }
 
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
+        guard let rootViewController = daroTopViewController() else {
             result(false, NSError(
-                domain: "FlutterDaroRewardAd", 
-                code: 1013, 
+                domain: "FlutterDaroRewardAd",
+                code: 1013,
                 userInfo: [NSLocalizedDescriptionKey: "No root view controller available"]
             ))
             return
         }
-        
+
         popupAd.lightPopupAdListener.onShown = { adInfo in
             listener?.onShown?(adInfo)
         }
-        
+
         popupAd.lightPopupAdListener.onDismiss = { [weak self] adInfo in
             listener?.onDismiss?(adInfo)
             self?.destroy()
             result(true, nil)
         }
-        
+
         popupAd.lightPopupAdListener.onFailedToShow = { [weak self] adInfo, error in
             listener?.onFailedToShow?(adInfo, error)
             self?.destroy()
             result(false, error)
         }
-        
+
         popupAd.show(viewController: rootViewController)
     }
-    
+
     override func destroyAd(_ ad: Any?) {
         // DaroLightPopupAd는 destroy 메서드가 없을 수 있음
     }

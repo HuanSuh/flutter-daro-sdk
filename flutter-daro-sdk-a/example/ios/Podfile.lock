@@ -1,82 +1,88 @@
 PODS:
-  - Ads-Global (7.6.0.6):
-    - Ads-Global/BUAdSDK (= 7.6.0.6)
-  - Ads-Global/BUAdSDK (7.6.0.6)
-  - AmazonPublisherServicesSDK (5.3.0)
-  - AppLovinSDK (13.4.0)
-  - ChartboostSDK (9.9.2)
-  - DaroAds (1.1.45):
-    - AmazonPublisherServicesSDK (= 5.3.0)
-    - Google-Mobile-Ads-SDK (= 12.8.0)
-    - GoogleMobileAdsMediationAppLovin (= 13.4.0.0)
-    - GoogleMobileAdsMediationChartboost (= 9.9.2.0)
-    - GoogleMobileAdsMediationFacebook (= 6.20.1.0)
-    - GoogleMobileAdsMediationFyber (= 8.4.1.0)
-    - GoogleMobileAdsMediationInMobi (= 10.8.6.0)
-    - GoogleMobileAdsMediationIronSource (= 8.11.0.0.0)
-    - GoogleMobileAdsMediationLine (= 2.9.20250912.0)
-    - GoogleMobileAdsMediationMintegral (= 7.7.9.0)
-    - GoogleMobileAdsMediationMoloco (= 3.12.1.0)
-    - GoogleMobileAdsMediationPangle (= 7.6.0.6.0)
-    - GoogleMobileAdsMediationUnity (= 4.16.1.0)
-    - GoogleMobileAdsMediationVungle (= 7.5.3.0)
-  - FBAudienceNetwork (6.20.1)
-  - FiveAd (2.9.20250912)
+  - Ads-Global (7.9.0.6):
+    - Ads-Global/BUAdSDK (= 7.9.0.6)
+  - Ads-Global/BUAdSDK (7.9.0.6):
+    - Ads-Global/PangleSDK
+    - Ads-Global/TikTokBusinessSDK
+  - Ads-Global/PangleSDK (7.9.0.6)
+  - Ads-Global/TikTokBusinessSDK (7.9.0.6)
+  - AppLovinSDK (13.6.0)
+  - ChartboostSDK (9.11.0)
+  - DaroAds (1.1.68):
+    - Google-Mobile-Ads-SDK (= 13.0.0)
+    - GoogleMobileAdsMediationAppLovin (= 13.6.0.0)
+    - GoogleMobileAdsMediationChartboost (= 9.11.0.3)
+    - GoogleMobileAdsMediationFacebook (= 6.21.0.2)
+    - GoogleMobileAdsMediationFyber (= 8.4.4.1)
+    - GoogleMobileAdsMediationInMobi (= 11.1.1.1)
+    - GoogleMobileAdsMediationIronSource (= 9.3.0.0.1)
+    - GoogleMobileAdsMediationLine (= 3.0.0.1)
+    - GoogleMobileAdsMediationMintegral (= 8.0.7.0)
+    - GoogleMobileAdsMediationMoloco (= 4.5.0.0)
+    - GoogleMobileAdsMediationPangle (= 7.9.0.6.0)
+    - GoogleMobileAdsMediationPubMatic (= 4.12.0.0)
+    - GoogleMobileAdsMediationUnity (= 4.16.6.1)
+    - GoogleMobileAdsMediationVungle (= 7.7.0.0)
+  - FBAudienceNetwork (6.21.0)
+  - FiveAd (3.0.0)
   - Flutter (1.0.0)
-  - flutter_daro_sdk (0.0.2):
-    - DaroAds (= 1.1.45)
+  - flutter_daro_sdk (0.9.11):
+    - DaroAds (= 1.1.68)
     - Flutter
-  - Fyber_Marketplace_SDK (8.4.1)
-  - Google-Mobile-Ads-SDK (12.8.0):
+  - Fyber_Marketplace_SDK (8.4.4)
+  - Google-Mobile-Ads-SDK (13.0.0):
     - GoogleUserMessagingPlatform (>= 1.1)
-  - GoogleMobileAdsMediationAppLovin (13.4.0.0):
-    - AppLovinSDK (= 13.4.0)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationChartboost (9.9.2.0):
-    - ChartboostSDK (= 9.9.2)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationFacebook (6.20.1.0):
-    - FBAudienceNetwork (= 6.20.1)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationFyber (8.4.1.0):
-    - Fyber_Marketplace_SDK (= 8.4.1)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationInMobi (10.8.6.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - InMobiSDK (= 10.8.6)
-  - GoogleMobileAdsMediationIronSource (8.11.0.0.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - IronSourceSDK (= 8.11.0.0)
-  - GoogleMobileAdsMediationLine (2.9.20250912.0):
-    - FiveAd (= 2.9.20250912)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationMintegral (7.7.9.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - MintegralAdSDK/All (= 7.7.9)
-  - GoogleMobileAdsMediationMoloco (3.12.1.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - MolocoSDKiOS (= 3.12.1)
-  - GoogleMobileAdsMediationPangle (7.6.0.6.0):
-    - Ads-Global (= 7.6.0.6)
-    - Google-Mobile-Ads-SDK (~> 12.0)
-  - GoogleMobileAdsMediationUnity (4.16.1.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - UnityAds (= 4.16.1)
-  - GoogleMobileAdsMediationVungle (7.5.3.0):
-    - Google-Mobile-Ads-SDK (~> 12.0)
-    - VungleAds (= 7.5.3)
+  - GoogleMobileAdsMediationAppLovin (13.6.0.0):
+    - AppLovinSDK (= 13.6.0)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationChartboost (9.11.0.3):
+    - ChartboostSDK (= 9.11.0)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationFacebook (6.21.0.2):
+    - FBAudienceNetwork (= 6.21.0)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationFyber (8.4.4.1):
+    - Fyber_Marketplace_SDK (= 8.4.4)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationInMobi (11.1.1.1):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - InMobiSDK (= 11.1.1)
+  - GoogleMobileAdsMediationIronSource (9.3.0.0.1):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - IronSourceSDK (= 9.3.0.0)
+  - GoogleMobileAdsMediationLine (3.0.0.1):
+    - FiveAd (= 3.0.0)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationMintegral (8.0.7.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - MintegralAdSDK/All (= 8.0.7)
+  - GoogleMobileAdsMediationMoloco (4.5.0.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - MolocoSDKiOS (= 4.5.0)
+  - GoogleMobileAdsMediationPangle (7.9.0.6.0):
+    - Ads-Global (= 7.9.0.6)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationPubMatic (4.12.0.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - OpenWrapSDK (= 4.12.0)
+  - GoogleMobileAdsMediationUnity (4.16.6.1):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - UnityAds (= 4.16.6)
+  - GoogleMobileAdsMediationVungle (7.7.0.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - VungleAds (= 7.7.0)
   - GoogleUserMessagingPlatform (3.1.0)
-  - InMobiSDK (10.8.6)
+  - InMobiSDK (11.1.1)
   - integration_test (0.0.1):
     - Flutter
-  - IronSourceAdQualitySDK (7.26.2)
-  - IronSourceSDK (8.11.0.0):
-    - IronSourceSDK/AdQuality (= 8.11.0.0)
-    - IronSourceSDK/Ads (= 8.11.0.0)
-  - IronSourceSDK/AdQuality (8.11.0.0):
-    - IronSourceAdQualitySDK (~> 7.26.1)
-  - IronSourceSDK/Ads (8.11.0.0)
-  - MintegralAdSDK/All (7.7.9):
+  - IronSourceAdQualitySDK (9.2.1)
+  - IronSourceSDK (9.3.0.0):
+    - IronSourceSDK/AdQuality (= 9.3.0.0)
+    - IronSourceSDK/Ads (= 9.3.0.0)
+  - IronSourceSDK/AdQuality (9.3.0.0):
+    - IronSourceAdQualitySDK (~> 9.2.1)
+  - IronSourceSDK/Ads (9.3.0.0)
+  - MintegralAdSDK/All (8.0.7):
     - MintegralAdSDK/BannerAd
     - MintegralAdSDK/BidNativeAd
     - MintegralAdSDK/InterstitialVideoAd
@@ -85,25 +91,26 @@ PODS:
     - MintegralAdSDK/NewInterstitialAd
     - MintegralAdSDK/RewardVideoAd
     - MintegralAdSDK/SplashAd
-  - MintegralAdSDK/BannerAd (7.7.9):
+  - MintegralAdSDK/BannerAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/BidNativeAd (7.7.9):
+  - MintegralAdSDK/BidNativeAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/InterstitialVideoAd (7.7.9):
+  - MintegralAdSDK/InterstitialVideoAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/NativeAd (7.7.9)
-  - MintegralAdSDK/NativeAdvancedAd (7.7.9):
+  - MintegralAdSDK/NativeAd (8.0.7)
+  - MintegralAdSDK/NativeAdvancedAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/NewInterstitialAd (7.7.9):
+  - MintegralAdSDK/NewInterstitialAd (8.0.7):
     - MintegralAdSDK/InterstitialVideoAd
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/RewardVideoAd (7.7.9):
+  - MintegralAdSDK/RewardVideoAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MintegralAdSDK/SplashAd (7.7.9):
+  - MintegralAdSDK/SplashAd (8.0.7):
     - MintegralAdSDK/NativeAd
-  - MolocoSDKiOS (3.12.1)
-  - UnityAds (4.16.1)
-  - VungleAds (7.5.3)
+  - MolocoSDKiOS (4.5.0)
+  - OpenWrapSDK (4.12.0)
+  - UnityAds (4.16.6)
+  - VungleAds (7.7.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -113,7 +120,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Ads-Global
-    - AmazonPublisherServicesSDK
     - AppLovinSDK
     - ChartboostSDK
     - DaroAds
@@ -131,6 +137,7 @@ SPEC REPOS:
     - GoogleMobileAdsMediationMintegral
     - GoogleMobileAdsMediationMoloco
     - GoogleMobileAdsMediationPangle
+    - GoogleMobileAdsMediationPubMatic
     - GoogleMobileAdsMediationUnity
     - GoogleMobileAdsMediationVungle
     - GoogleUserMessagingPlatform
@@ -139,6 +146,7 @@ SPEC REPOS:
     - IronSourceSDK
     - MintegralAdSDK
     - MolocoSDKiOS
+    - OpenWrapSDK
     - UnityAds
     - VungleAds
 
@@ -151,38 +159,39 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  Ads-Global: 38b8eccaad869384e267e047e5db9a2efb0a94be
-  AmazonPublisherServicesSDK: 351eb855ee50b7dfb15f7e2569c1bf31a5fa9fe7
-  AppLovinSDK: 33fcc783889e2d522ae26886b31e5551246a5b2f
-  ChartboostSDK: 9298ec2ea9ae6c5881877f87ca6bc3f68449fe0f
-  DaroAds: 869bca4c7c3554a50db556c6d490443d79323aee
-  FBAudienceNetwork: 08e86d63a05b3a5a59414af12e4af8d756943c80
-  FiveAd: 31ad62dbf730e7cd064c8ddd4c6a814c02bd500b
+  Ads-Global: fb1fa75ebbf100ab9ff216d81b71a05cf1a73675
+  AppLovinSDK: c516661fbeb9d7ba1ec8c10c8da60581178a6204
+  ChartboostSDK: 4c0411cb5b6cb3705fafb40936fec3aea2c789f2
+  DaroAds: 2719815efd8378f19919c68a0a268485ae232eec
+  FBAudienceNetwork: f4ab9e073ab98c884dbdb5ffe7c861272b380bc2
+  FiveAd: 16fac25b6d3efe14b55585e68e6c01dec1f10abc
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_daro_sdk: fb350d5402f0f51eaa00a33d642cf88d9f19203a
-  Fyber_Marketplace_SDK: c908580dc3d65e67f2862df137f8ae7dad6e3321
-  Google-Mobile-Ads-SDK: ece122bc89b38cab319543bc464a9ceabfe1d307
-  GoogleMobileAdsMediationAppLovin: 604d93a0913908be064558a90170004f35b57a96
-  GoogleMobileAdsMediationChartboost: c03441382e6b661deca6e0f7c01df1f3b71c2ca9
-  GoogleMobileAdsMediationFacebook: b11a92ae3bfdae19853b882252b7e62791c18162
-  GoogleMobileAdsMediationFyber: 77d6b48d531842d2565d20525f63b5426810a89f
-  GoogleMobileAdsMediationInMobi: 1b9a223c4626924777d2be734e43da5d85fa8a59
-  GoogleMobileAdsMediationIronSource: 38f21bbcf729b208e63f43b757b61b2c8e0c7ad4
-  GoogleMobileAdsMediationLine: f38f8b25fa37efe306ae5acc7fc15ec6eacda500
-  GoogleMobileAdsMediationMintegral: 9a55116721d5855db2791618f6a6de1d29432fb7
-  GoogleMobileAdsMediationMoloco: ae73bdf92adf634b309e2a4ad55cb201023d4287
-  GoogleMobileAdsMediationPangle: 2db0e6bfaf7b9f7f5782897ae85bc31040332c65
-  GoogleMobileAdsMediationUnity: 9e788d0fc5517623ff1321c5896608c808d66099
-  GoogleMobileAdsMediationVungle: 15b78a22329c5893234bd9702f11b250b8a0b5fa
+  flutter_daro_sdk: b11edf96f8e60fde93fd849488fea5b6b1aab7f6
+  Fyber_Marketplace_SDK: 37270b423a1684c3d5335db03f0c9798a31d8dd9
+  Google-Mobile-Ads-SDK: 96498d53355e438e2d932277e5e8e41a824fe4d4
+  GoogleMobileAdsMediationAppLovin: ef5ac8223f0c7ef439cb22ef4327892dc84e96a0
+  GoogleMobileAdsMediationChartboost: 7effa520783330c9349f499dd9cda2c22414fe87
+  GoogleMobileAdsMediationFacebook: b4d0ead93aba1d1e73df1bb4991954c9e653fd8b
+  GoogleMobileAdsMediationFyber: ffba9569fa3455eb6e0d76382b4268bc764f52fa
+  GoogleMobileAdsMediationInMobi: e45eb2d955605563c03c1ce20f595df944af74ac
+  GoogleMobileAdsMediationIronSource: 4a03683c00043c374bc6c43dcf640af129cf4c7b
+  GoogleMobileAdsMediationLine: 9fb52fd17fea89ed683fbc7099f9fa9e1574a783
+  GoogleMobileAdsMediationMintegral: a63b2583a43534f6faae03225197f349dc80186a
+  GoogleMobileAdsMediationMoloco: 5f314b9b583a78b526a820da3fe9667d52a3a88e
+  GoogleMobileAdsMediationPangle: a1b9bf5cbda029ee17fc7e41d06a887d2555f8c2
+  GoogleMobileAdsMediationPubMatic: 2c627071080c5ab8bf31ce339c222d02000ae5a5
+  GoogleMobileAdsMediationUnity: 48994dc659be3ebc279b5114ad8d5803f1ff4131
+  GoogleMobileAdsMediationVungle: 1355cd1303c2b6f14fa5141deeb81e02072c76cb
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
-  InMobiSDK: a6e7bfbecb698c83183f42c5a3cfa1ac52f16bff
+  InMobiSDK: 4642fb34a961980ab94a1ac460c6e16e113498e6
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  IronSourceAdQualitySDK: 03888a0ac60e1f24ff6277672c3184f00813af64
-  IronSourceSDK: 32eeb199f608b590112a8263028a485e50f8d1b7
-  MintegralAdSDK: 054814f99bb7e967b8974fe635d9005b225cbe42
-  MolocoSDKiOS: 0383b7b2f825c2244b9e7e14d5c0b63c30467b7f
-  UnityAds: 24cb6536614958aefcd5a44576eb4f3157c781d0
-  VungleAds: 3b273eba0219680dbef90d51e690d165422702d9
+  IronSourceAdQualitySDK: 2a45fd35df68f6c03090e9c330f4efe64e70a9ff
+  IronSourceSDK: 5febe9a2c8c4eb4ac743dd0da492d2a6b69b5b7f
+  MintegralAdSDK: 9fde3aa7b739121e4e76ae83bcc612a4af27d7e5
+  MolocoSDKiOS: 6df1553306a50937307cf800c8f5cd9d1b5db41d
+  OpenWrapSDK: 14f0088006c351b807050b3d13d58c6c5772ec43
+  UnityAds: 37544c41dd6916fa9074bf68cf07fce793460b84
+  VungleAds: 1d60d6d08d4adcaa84a401a7e65c35de5cd16ae9
 
 PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 
